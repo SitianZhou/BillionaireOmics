@@ -1,0 +1,241 @@
+continent,country,capital_city,capital_population
+Europe,Åland Islands,Mariehamn,11709
+Europe,Albania,Tirana,418495
+Europe,Andorra,Andorra la Vella,22886
+Europe,Austria,Vienna,1911191
+Europe,Belarus,Minsk,2009786
+Europe,Belgium,Brussels,1175173
+Europe,Bosnia and Herzegovina,Sarajevo,275524
+Europe,Bulgaria,Sofia,1241675
+Europe,Croatia,Zagreb,792875
+Europe,Czechia,Prague,1301132
+Europe,Denmark,Copenhagen,616098
+Europe,Estonia,Tallinn,430805
+Europe,Faroe Islands,Tórshavn,13408
+Europe,Finland,Helsinki,645657
+Europe,France,Paris,2206488
+Europe,Germany,Berlin,3664088
+Europe,Gibraltar,Gibraltar,34003
+Europe,Greece,Athens,664046
+Europe,Guernsey,Saint Peter Port,18958
+Europe,Hungary,Budapest,1752286
+Europe,Iceland,Reykjavík,124644
+Europe,Ireland,Dublin,553165
+Europe,Isle of Man,Douglas,27938
+Europe,Italy,Rome,2873147
+Europe,Jersey,Saint Helier,33500
+Europe,Kosovo,Pristina,211129
+Europe,Latvia,Riga,632614
+Europe,Liechtenstein,Vaduz,5668
+Europe,Lithuania,Vilnius,546382
+Europe,Luxembourg,Luxembourg,119215
+Europe,Malta,Valletta,5735
+Europe,Moldova,Chisinau,339079
+Europe,Montenegro,Podgorica,187085
+Europe,Netherlands,Amsterdam,872680
+Europe,North Macedonia,Skopje,546824
+Europe,Norway,Oslo,681067
+Europe,Poland,Warsaw,1793579
+Europe,Portugal,Lisbon,505526
+Europe,Principality of Monaco,Monaco,37308
+Europe,Romania,Bucharest,1829897
+Europe,Russia,Moscow,12506468
+Europe,San Marino,San Marino,4127
+Europe,Serbia,Belgrade,1378682
+Europe,Slovakia,Bratislava,427744
+Europe,Slovenia,Ljubljana,279650
+Europe,Spain,Madrid,3223334
+Europe,Svalbard,Longyearbyen,2144
+Europe,Sweden,Stockholm,935619
+Europe,Switzerland,Bern,133883
+Europe,Ukraine,Kyiv,2962180
+Europe,United Kingdom,London,8961989
+Europe,Vatican City,Vatican City,453
+The Americas,Anguilla,The Valley,2812
+The Americas,Antigua and Barbuda,Saint John’s,81799
+The Americas,Argentina,Buenos Aires,2891082
+The Americas,Aruba,Oranjestad,34980
+The Americas,Bahamas,Nassau,274400
+The Americas,Barbados,Bridgetown,110000
+The Americas,Belize,Belmopan,16451
+The Americas,Bermuda,Hamilton,854
+The Americas,Bolivia,Sucre,300000
+The Americas,Brazil,Brasilia,2912090
+The Americas,British Virgin Islands,Road Town,12603
+The Americas,Canada,Ottawa,1028514
+The Americas,Cayman Islands,George Town,28089
+The Americas,Chile,Santiago,6269384
+The Americas,Colombia,Bogota,7412566
+The Americas,Costa Rica,San José,347398
+The Americas,Cuba,Havana,2131937
+The Americas,Curacao,Willemstad,150000
+The Americas,Dominica,Roseau,16582
+The Americas,Dominican Republic,Santo Domingo,965040
+The Americas,Ecuador,Quito,2011388
+The Americas,El Salvador,San Salvador,238244
+The Americas,Falkland Islands,Stanley,2121
+The Americas,French Guiana,Cayenne,55198
+The Americas,Greenland,Nuuk,18128
+The Americas,Grenada,Saint George's,33734
+The Americas,Guadeloupe,Basse-Terre,10046
+The Americas,Guatemala,Guatemala City,923392
+The Americas,Guyana,Georgetown,131395
+The Americas,Haiti,Port-au-Prince,987310
+The Americas,Honduras,Tegucigalpa,1157509
+The Americas,Jamaica,Kingston,584627
+The Americas,Martinique,Fort-de-France,82502
+The Americas,Mexico,Mexico City,9209944
+The Americas,Montserrat,Brades,449
+The Americas,Nicaragua,Managua,1033622
+The Americas,Panama,Panama City,481993
+The Americas,Paraguay,Asunción,525252
+The Americas,Peru,Lima,9751717
+The Americas,Puerto Rico,San Juan,337288
+The Americas,Saint Barthelemy,Gustavia,2300
+The Americas,Saint Kitts and Nevis,Basseterre,14000
+The Americas,Saint Lucia,Castries,70000
+The Americas,Saint Martin,Marigot,5700
+The Americas,Saint Pierre and Miquelon,Saint-Pierre,5415
+The Americas,Saint Vincent and the Grenadines,Kingstown,16500
+The Americas,Sint Maarten,Philipsburg,1327
+The Americas,South Georgia and South Sandwich Islands,King Edward Point,18
+The Americas,Suriname,Paramaribo,240924
+The Americas,Trinidad and Tobago,Port-of-Spain,165100
+The Americas,Turks and Caicos Islands,Cockburn Town,3700
+The Americas,United States,"Washington, D.C.",724342
+The Americas,Uruguay,Montevideo,1383135
+The Americas,Venezuela,Caracas,2245744
+The Americas,Virgin Islands,Charlotte Amalie,18481
+Asia,Afghanistan,Kabul,4601789
+Asia,Armenia,Yerevan,1076716
+Asia,Azerbaijan,Baku,2293100
+Asia,Bahrain,Manama,157474
+Asia,Bangladesh,Dhaka,8906035
+Asia,Bhutan,Thimphu,114551
+Asia,Brunei,Bandar Seri Begawan,50000
+Asia,Burma,Nay Pyi Taw,924608
+Asia,Cambodia,Phnom Penh,2281951
+Asia,China,Beijing,21893095
+Asia,Cyprus,Nicosia,116392
+Asia,East Timor,Dili,222323
+Asia,Georgia,Tbilisi,1113800
+Asia,Hong Kong,Hong Kong,7012738
+Asia,India,New Delhi,257803
+Asia,Indonesia,Jakarta,10562088
+Asia,Iran,Tehran,8846782
+Asia,Iraq,Baghdad,8126755
+Asia,Israel,Jerusalem,891977
+Asia,Japan,Tokyo,13960236
+Asia,Jordan,Amman,4302730
+Asia,Kazakhstan,Nursultan,1029556
+Asia,Kuwait,Kuwait City,2989000
+Asia,Kyrgyzstan,Bishkek,976734
+Asia,Laos,Vientiane,783000
+Asia,Lebanon,Beirut,361366
+Asia,Macao,Concelho de Macau,504300
+Asia,Malaysia,Kuala Lumpur,1839451
+Asia,Maldives,Malé,221678
+Asia,Mongolia,Ulaanbaatar,1515593
+Asia,Nepal,Kathmandu,975543
+Asia,North Korea,Pyongyang,3222000
+Asia,Oman,Muscat,630000
+Asia,Pakistan,Islamabad,1014825
+Asia,Palestine,Ramallah,27092
+Asia,Philippines,Manila,1846513
+Asia,Qatar,Doha,587055
+Asia,Saudi Arabia,Riyadh,7676654
+Asia,Singapore,Singapore,5685800
+Asia,South Korea,Seoul,9733509
+Asia,Sri Lanka,Colombo,752993
+Asia,Syria,Damascus,2354000
+Asia,Taiwan,Taipei,2646204
+Asia,Tajikistan,Dushanbe,778500
+Asia,Thailand,Bangkok,10539000
+Asia,Turkey,Ankara,5663322
+Asia,Turkmenistan,Ashgabat,1031992
+Asia,United Arab Emirates,Abu Dhabi,1482816
+Asia,Uzbekistan,Tashkent,2571668
+Asia,Vietnam,Hanoi,4678198
+Asia,Yemen,Sanaa,2545000
+Africa,Algeria,Algiers,2712944
+Africa,Angola,Luanda,2571861
+Africa,Benin,Porto-Novo,264320
+Africa,Botswana,Gaborone,231592
+Africa,Burkina Faso,Ouagadougou,2453496
+Africa,Burundi,Bujumbura,497166
+Africa,Cameroon,Yaounde,2765600
+Africa,Cape Verde,Praia,130271
+Africa,Central African Republic,Bangui,889231
+Africa,Chad,N'Djamena,1092066
+Africa,Comoros,Moroni,54000
+Africa,Democratic Republic of the Congo,Kinshasa,14970000
+Africa,Djibouti,Djibouti,219000
+Africa,Egypt,Cairo,9539673
+Africa,Equatorial Guinea,Malabo,187302
+Africa,Eritrea,Asmara,963000
+Africa,Eswatini,Mbabane,94874
+Africa,Ethiopia,Addis Ababa,3352000
+Africa,Gabon,Libreville,703904
+Africa,Gambia,Banjul,31301
+Africa,Ghana,Accra,2514000
+Africa,Guinea,Conakry,1660973
+Africa,Guinea-Bissau,Bissau,395954
+Africa,Ivory Coast,Yamoussoukro,281735
+Africa,Kenya,Nairobi,4397073
+Africa,Lesotho,Maseru,330760
+Africa,Liberia,Monrovia,1010970
+Africa,Libya,Tripoli,1126000
+Africa,Madagascar,Antananarivo,1274225
+Africa,Malawi,Lilongwe,989318
+Africa,Mali,Bamako,2713000
+Africa,Mauritania,Nouakchott,958399
+Africa,Mauritius,Port Louis,146737
+Africa,Mayotte,Mamoudzou,57281
+Africa,Morocco,Rabat,573895
+Africa,Mozambique,Maputo,1088449
+Africa,Namibia,Windhoek,325858
+Africa,Niger,Niamey,1026848
+Africa,Nigeria,Abuja,2750000
+Africa,Republic of the Congo,Brazzaville,2308000
+Africa,Reunion,Saint-Denis,146985
+Africa,Rwanda,Kigali,745261
+Africa,"Saint Helena, Ascension and Tristan da Cunha",Jamestown,657
+Africa,Sao Tome and Principe,São Tomé,56945
+Africa,Senegal,Dakar,1146053
+Africa,Seychelles,Victoria,26450
+Africa,Sierra Leone,Freetown,1055964
+Africa,Somalia,Mogadishu,2388000
+Africa,South Africa,Pretoria,741651
+Africa,South Sudan,Juba,492970
+Africa,Sudan,Khartoum,639598
+Africa,Tanzania,Dodoma,213636
+Africa,Togo,Lomé,837437
+Africa,Tunisia,Tunis,1056247
+Africa,Uganda,Kampala,1507114
+Africa,Western Sahara,El Aaiún,196331
+Africa,Zambia,Lusaka,1747152
+Africa,Zimbabwe,Harare,3120917
+Australia,Australia,Canberra,411667
+Australia,Christmas Island,Flying Fish Cove,1600
+Australia,Cocos (Keeling) Islands,West Island,134
+Australia,New Zealand,Wellington,209000
+Australia,Norfolk Island,Kingston,880
+Oceania,American Samoa,Pago Pago,3656
+Oceania,Cook Islands,Avarua,4906
+Oceania,Fiji,Suva,88271
+Oceania,French Polynesia,Papeete,25763
+Oceania,Guam,Hagåtña,1051
+Oceania,Kiribati,Tarawa,56284
+Oceania,Marshall Islands,Majuro,27797
+Oceania,Nauru,Yaren,747
+Oceania,New Caledonia,Nouméa,100237
+Oceania,Niue,Alofi,597
+Oceania,Northern Mariana Islands,Saipan,48220
+Oceania,Papua New Guinea,Port Moresby,410954
+Oceania,Pitcairn Islands,Adamstown,40
+Oceania,Samoa,Apia,37391
+Oceania,Solomon Islands,Honiara,84520
+Oceania,Tonga,Nuku‘alofa,35184
+Oceania,Tuvalu,Funafuti,6025
+Oceania,Vanuatu,Port-Vila,44040
+Oceania,Wallis and Futuna,Mata-Utu,1126

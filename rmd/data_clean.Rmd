@@ -1,0 +1,41 @@
+---
+title: "data_clean"
+author: "Sitian Zhou"
+date: "2023-11-07"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+
+
+```{r}
+bill_all <-
+  read_csv("../data/billionaires_1997_2023.csv")
+```
+
+
+```{r}
+bill_2023 <-
+  read_csv("../data/billionaires_2023.csv")
+```
+
+
+```{r}
+country_gdp <-
+  read_csv("../data/country_gdp.csv")
+```
+
+```{r}
+industry_gdp <-
+  read_excel("../data/usa_industry_gdp.xlsx", sheet = 18, skip = 4)
+```
+
+
+
+
+
+
