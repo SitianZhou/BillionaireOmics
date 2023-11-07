@@ -1,0 +1,42 @@
+name: "P8105 Final Project"
+favicon: 
+ - icon: fa-github fa-lg
+output_dir: "../docs/"
+navbar:
+  title: "Billionaire Landscope"
+  right: 
+    - text: "Datasets"
+      href: index.html
+    - text: "Proposal"
+      href: index.html
+    - text: "Data Cleaning"
+      href: index.html
+    - text: "EDA"
+      menu: 
+      - text: "Categorical Analysis"
+        href: index.html
+      - text: "Longitudinal Analysis"
+        href: index.html
+      - text: "Geographic Analysis"
+        href: index.html
+    - text: "Statistical Analysis"
+      href: index.html
+    - text: "Regression"
+      href: index.html
+    - text: "Shiny App"
+      href: index.html
+    - text: "Report"
+      href: index.html
+    - icon: fa-envelope fa-lg
+      href: mailto:pei.tian@columbia.com
+    - icon: fa-github fa-lg
+      href: https://github.com/SitianZhou/P8105_Final_Proj
+output:
+  html_document:
+    includes: 
+      in_header: "../html/header.html"
+      # before_body: "../html/before.html"
+      after_body: "../html/after.html"
+    theme: cosmo
+    toc: true
+    toc_float: true
