@@ -2,40 +2,112 @@
 title: "data_clean"
 author: "Sitian Zhou"
 date: "2023-11-07"
-output: github_document
+output: html_document
 ---
 
 ```{r}
 library(tidyverse)
 library(readxl)
+library(janitor)
 ```
 
 
+## Billionaires 2013-2023
+
+* filtered for data from 2013 to 2023
+* converted `net_worth` to numerical value
+* selected/renamed variables
 
 ```{r}
-bill_all <-
+bil_all <-
   read_csv("../data/billionaires_1997_2023.csv")
+
+bil_all_clean <-
+  bil_all |> 
+  filter(year >= 2013) |> 
+  mutate(
+    net_worth = str_replace_all(net_worth, " B", ""),
+    net_worth = as.numeric(net_worth)
+    ) |> 
+  select(year, net_worth, name = full_name, age, gender, 
+         country_of_cit = country_of_citizenship, 
+         country_of_res = country_of_residence, 
+         city_of_res = city_of_residence, 
+         industry = business_category)
 ```
 
+
+## Billionaires 2023 only
+
+* changed the unit of `final_worth` to billion; result column as `net_worth`
+* cleaned `gdp_country`; changed the unit to trillion
+* recoded `gender`
+* selected/renamed variables
 
 ```{r}
-bill_2023 <-
+bil_2023 <-
   read_csv("../data/billionaires_2023.csv")
+
+bil_2023_clean <-
+  bil_2023 |> 
+  clean_names() |> 
+  mutate(
+    net_worth = final_worth / 1000,
+    gdp_country = str_replace_all(gdp_country, "[$,]", ""),
+    gdp_country = as.numeric(gdp_country) / 1e12,
+    gender = 
+      case_match(
+        gender,
+        "F" ~ "Female",
+        "M" ~ "Male")) |>
+  select(net_worth, name = person_name, age, gender, 
+         country_of_cit = country_of_citizenship, country_of_res = country, 
+         city_of_res = city, industry = industries, cpi_country, 
+         cpi_change_country, gdp_country, life_expectancy_country, 
+         latitude_country, longitude_country)
+
 ```
 
+## country GDP dataset
+
+* filtered for data starts from 2013
+* changed the unit of gdp to trillion
 
 ```{r}
 country_gdp <-
   read_csv("../data/country_gdp.csv")
+
+country_gdp_clean <-
+  country_gdp |> 
+  filter(year >= 2013) |> 
+  mutate(gdp = value / 1e12) |> 
+  select(year, everything(), -value)
+  
 ```
+
+
+## joined dataset for billionaires 2013-2023 w/ country GDP info
+
+some problems:
+1. need `country_code.csv` for more accurate matches on country names
+2. Hong Kong, Taiwan, Macau: missing GDP data
+
+
+```{r}
+bil_all_gdp <-
+  left_join(bil_all_clean, country_gdp_clean, 
+            c("country_of_res" = "country_name", "year" = "year"))
+  
+```
+
+
+## industry GDP for US
+
+(not started)
 
 ```{r}
 industry_gdp <-
   read_excel("../data/usa_industry_gdp.xlsx", sheet = 18, skip = 4)
 ```
-
-
-
-
 
 
