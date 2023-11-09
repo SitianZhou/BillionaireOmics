@@ -32,14 +32,14 @@ navbar:
     - icon: fa-github fa-lg
       href: https://github.com/SitianZhou/P8105_Final_Proj
 output:
-  # html_document:
-  #   includes:
-  #     in_header: "../html/header.html"
-  #     # before_body: "../html/before.html"
-  #     after_body: "../html/after.html"
-  #   theme: cosmo
-  #   toc: true
-  #   toc_float: true
+  html_document:
+    includes:
+      in_header: "../html/header.html"
+      # before_body: "../html/before.html"
+      after_body: "../html/after.html"
+    theme: cosmo
+    toc: true
+    toc_float: true
   github_document:
     html_preview: false
 
