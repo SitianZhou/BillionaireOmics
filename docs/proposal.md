@@ -14,13 +14,7 @@ Proposal
 
 ## Tentative project title
 
-- What makes Billionaires?
-
-- Billionaires Unveiled: A Wealth Odyssey
-
-- Counting Billions: A Global Wealth Analysis
-
-- Billionaireomics: Decoding the World’s Richest
+**BillionaireOmics: Decoding the World’s Richest**
 
 ## Motivations
 
