@@ -1,12 +1,6 @@
 ---
 title: "Home"
 date: "`r format(Sys.time(), '%Y-%m-%d')`"
-output: 
-  html_document:
-    theme: cosmo
-    toc: true
-    toc_float: true
-
 ---
 
 ### Demo 

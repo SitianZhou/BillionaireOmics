@@ -5,9 +5,9 @@ output_dir: "../docs/"
 navbar:
   title: "Billionaire Landscope"
   right: 
-    - text: "Datasets"
-      href: index.html
     - text: "Proposal"
+      href: proposal.html
+    - text: "Datasets"
       href: index.html
     - text: "Data Cleaning"
       href: index.html
