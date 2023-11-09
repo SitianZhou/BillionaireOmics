@@ -33,7 +33,7 @@ navbar:
       href: https://github.com/SitianZhou/P8105_Final_Proj
 output:
   html_document:
-    includes: 
+    includes:
       in_header: "../html/header.html"
       # before_body: "../html/before.html"
       after_body: "../html/after.html"

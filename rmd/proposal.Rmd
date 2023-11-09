@@ -144,7 +144,7 @@ When the topic of billionaires comes up, one can't help but wonder what factors 
 2. Website Design: We want to build a fancier website with advanced settings.
 3. R-Shiny interactive dashboard: We plan to use R-Shiny to build an interactive platform.
 4. Model fitting: Variable selection and interpretation could be a challenge.
-5. GitHub Collaboration: branch management via Git
+5. GitHub Collaboration: branch management via Git.
 
 ## Planned timeline
 <img src="./static/img/proposal-timeline.png">

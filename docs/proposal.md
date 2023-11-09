@@ -187,7 +187,7 @@ available data through evaluation criteria such as R-squared and AUC.
     interactive platform.
 4.  Model fitting: Variable selection and interpretation could be a
     challenge.
-5.  GitHub Collaboration: branch management via Git
+5.  GitHub Collaboration: branch management via Git.
 
 ## Planned timeline
 
