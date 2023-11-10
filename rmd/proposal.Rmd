@@ -135,10 +135,10 @@ When the topic of billionaires comes up, one can't help but wonder what factors 
 
 ## Coding challenges
 1. Data tidying challenge: handle key variables with the same meaning but different exact values from different datasets.
-2. Website Design: We want to build a fancier website with advanced settings.
-3. R-Shiny interactive dashboard: We plan to use R-Shiny to build an interactive platform.
+2. Website design: build a fancier home page with advanced settings.
+3. R-Shiny interactive dashboard: apply R-Shiny to build an interactive dashboard.
 4. Model fitting: Variable selection and interpretation could be a challenge.
-5. GitHub Collaboration: branch management via Git.
+5. GitHub collaboration: branch management via Git.
 
 ## Planned timeline
 <img src="./static/img/proposal-timeline.png">
