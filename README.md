@@ -1,4 +1,4 @@
-# P8105_Final_Proj
+# BillionaireOmics
 
 Final project for p8105 fall 2023
 
@@ -11,4 +11,4 @@ Final project for p8105 fall 2023
 
 ## Page Entrance
 
-[Click Here](https://sitianzhou.github.io/P8105_Final_Proj)
+[Click Here](https://sitianzhou.github.io/BillionaireOmics/)
