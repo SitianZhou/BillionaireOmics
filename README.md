@@ -2,6 +2,10 @@
 
 Final project for p8105 fall 2023
 
+## Contents
+
+- Proposal: [Rmd](https://github.com/SitianZhou/BillionaireOmics/blob/main/rmd/proposal.Rmd) & [GitHub Document](https://github.com/SitianZhou/BillionaireOmics/blob/main/docs/proposal.md)
+
 
 ## Repo Structure
 
