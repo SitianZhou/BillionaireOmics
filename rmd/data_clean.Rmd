@@ -11,6 +11,29 @@ library(readxl)
 library(janitor)
 ```
 
+## country code
+
+```{r}
+country_code <-
+  read_csv("../data/country_code.csv") |> 
+  clean_names() |> 
+  rename(
+    "country_name" = "english_short_name_lower_case"
+  ) |> 
+  mutate(
+    country_name = recode(country_name, 
+                          "United States Of America" = "United States",
+                          "Virgin Islands, British" = "British Virgin Islands",
+                          "Korea, Republic of (South Korea)" = "South Korea",
+                          "Virgin Islands, U.S." = "U.S. Virgin Islands",
+                          "Tanzania, United Republic of" = "Tanzania",
+                          "Turks and Caicos" = "Turks and Caicos Islands",
+                          "Macao" = "Macau")) |> 
+  select(country_name, alpha_3_code)
+
+
+```
+
 
 ## Billionaires 2013-2023
 
@@ -19,21 +42,25 @@ library(janitor)
 * selected/renamed variables
 
 ```{r}
-bil_all <-
-  read_csv("../data/billionaires_1997_2023.csv")
+bil_2013_2023 <-
+  read_csv("../data/billionaires_1997_2023.csv") |> 
+  filter(year >= 2013)
 
-bil_all_clean <-
-  bil_all |> 
-  filter(year >= 2013) |> 
+bil_2013_2023_clean <-
+  bil_2013_2023 |> 
   mutate(
     net_worth = str_replace_all(net_worth, " B", ""),
-    net_worth = as.numeric(net_worth)
-    ) |> 
-  select(year, net_worth, name = full_name, age, gender, 
-         country_of_cit = country_of_citizenship, 
-         country_of_res = country_of_residence, 
-         city_of_res = city_of_residence, 
-         industry = business_category)
+    net_worth = as.numeric(net_worth), 
+    industries = str_replace_all(business_industries, "[\\['\\]]", ""),
+    country_of_residence = 
+      recode(country_of_residence, 
+             "Eswatini (Swaziland)" = "Swaziland",
+             "Scotland" = "United Kingdom",
+             "Czechia" = "Czech Republic")) |> 
+  left_join(country_code, c("country_of_residence" = "country_name")) |> 
+  select(-c(month, rank, last_name, first_name, birth_date, business_category,
+            business_industries, organization_name, position_in_organization))
+  
 ```
 
 
@@ -45,11 +72,11 @@ bil_all_clean <-
 * selected/renamed variables
 
 ```{r}
-bil_2023 <-
+bil_gdp_2023 <-
   read_csv("../data/billionaires_2023.csv")
 
-bil_2023_clean <-
-  bil_2023 |> 
+bil_gdp_2023_clean <-
+  bil_gdp_2023 |> 
   clean_names() |> 
   mutate(
     net_worth = final_worth / 1000,
@@ -60,9 +87,9 @@ bil_2023_clean <-
         gender,
         "F" ~ "Female",
         "M" ~ "Male")) |>
-  select(net_worth, name = person_name, age, gender, 
-         country_of_cit = country_of_citizenship, country_of_res = country, 
-         city_of_res = city, industry = industries, cpi_country, 
+  select(net_worth, full_name = person_name, age, gender, 
+         country_of_citizenship, country_of_residence = country, 
+         city_of_residence = city, industries, cpi_country, 
          cpi_change_country, gdp_country, life_expectancy_country, 
          latitude_country, longitude_country)
 
@@ -86,17 +113,18 @@ country_gdp_clean <-
 ```
 
 
+
 ## joined dataset for billionaires 2013-2023 w/ country GDP info
 
 some problems:
-1. need `country_code.csv` for more accurate matches on country names
-2. Hong Kong, Taiwan, Macau: missing GDP data
+1. Hong Kong, Taiwan, Macau: missing GDP data
 
 
 ```{r}
-bil_all_gdp <-
-  left_join(bil_all_clean, country_gdp_clean, 
-            c("country_of_res" = "country_name", "year" = "year"))
+bil_gdp_2013_2023 <-
+  left_join(bil_2013_2023_clean, country_gdp_clean, 
+            c("alpha_3_code" = "country_code", "year" = "year")) |> 
+  select(-c(alpha_3_code, country_name))
   
 ```
 
