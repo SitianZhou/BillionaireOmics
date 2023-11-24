@@ -9,9 +9,13 @@ output: html_document
 library(tidyverse)
 library(readxl)
 library(janitor)
+library(fuzzyjoin)
 ```
 
 ## country code
+
+
+Changed some country names so they match the country name in the 
 
 ```{r}
 country_code <-
@@ -40,6 +44,7 @@ country_code <-
 * filtered for data from 2013 to 2023
 * converted `net_worth` to numerical value
 * selected/renamed variables
+* merged with `country_code` dataset for further analysis
 
 ```{r}
 bil_2013_2023 <-
@@ -56,11 +61,18 @@ bil_2013_2023_clean <-
       recode(country_of_residence, 
              "Eswatini (Swaziland)" = "Swaziland",
              "Scotland" = "United Kingdom",
-             "Czechia" = "Czech Republic")) |> 
+             "Czechia" = "Czech Republic"),
+    industries = 
+      recode(industries,
+             "Fashion and Retail" = "Fashion & Retail",
+             "Finance and Investments" = "Finance & Investments",
+             "Food and Beverage" = "Food & Beverage",
+             "Healthcare" = "Health care",
+             "Media" = "Media & Entertainment")) |> 
   left_join(country_code, c("country_of_residence" = "country_name")) |> 
   select(-c(month, rank, last_name, first_name, birth_date, business_category,
             business_industries, organization_name, position_in_organization))
-  
+
 ```
 
 
@@ -117,25 +129,92 @@ country_gdp_clean <-
 ## joined dataset for billionaires 2013-2023 w/ country GDP info
 
 some problems:
-1. Hong Kong, Taiwan, Macau: missing GDP data
-
+* Hong Kong, Taiwan, Macau: missing GDP data
+* missing GDP data for 2023 - GDP in `bil_gdp_2023_clean` inaccurate(?)
 
 ```{r}
 bil_gdp_2013_2023 <-
   left_join(bil_2013_2023_clean, country_gdp_clean, 
             c("alpha_3_code" = "country_code", "year" = "year")) |> 
   select(-c(alpha_3_code, country_name))
-  
 ```
 
 
 ## industry GDP for US
 
-(not started)
+* renamed variable names
+* tidied the data
 
 ```{r}
-industry_gdp <-
+indus_gdp <-
   read_excel("../data/usa_industry_gdp.xlsx", sheet = 18, skip = 4)
+
+indus_gdp_clean <-
+  indus_gdp |> 
+  slice(3:30) |> 
+  rename(
+    "industries" = "...2",
+    "2017" = "...3",
+    "2018" = "...4",
+    "2019" = "...5",
+    "2020" = "...6",
+    "2021" = "...7",
+    "2022" = "2020...8") |>
+  filter(!(industries %in% c("Finance, insurance, real estate, rental, and leasing",
+                            "Educational services, health care, and social assistance",
+                      "Arts, entertainment, recreation, accommodation, and food services"))) |> 
+  select(industries, `2017`:`2022`) |> 
+  pivot_longer(`2017`:`2022`, names_to = "year", values_to = "industry_gdp") |> 
+  mutate(year = as.numeric(year))
 ```
 
+## Merge datasets by industries
+
+* created two summary tables with industry names
+* used regex to match the two
+
+```{r}
+# extract key words to merge two datasets by industries variable
+#
+# industry names from industry_gdp_clean
+df1 <- indus_gdp_clean |> select(industries) |> unique()
+# industry names from bil_2013_2023_clean
+df2 <- bil_2013_2023_clean |> select(industries) |> drop_na() |> 
+  unique() |> 
+  mutate(
+    categories = industries,
+    # rename some industries for better match results
+    categories = recode(categories, 
+                        "Technology" = "Information",
+                        "Politics" = "State and local",
+                        "Logistics" = "Transportation and warehousing",
+                        "Medicine" = "Health care")) |> 
+  # extract keywords for each industry
+  separate(categories, into = c("word1", "word2"), sep = " & ") |> 
+  pivot_longer(
+    word1:word2,
+    names_to = "order",
+    values_to = "keywords"
+  ) |> 
+  drop_na(keywords)
+
+# use regex to perform inexact matching
+reg_match <-
+  regex_inner_join(df1, df2, by=c("industries" = "keywords"), ignore_case = TRUE) |> 
+  distinct(industries.y, .keep_all = TRUE) |>
+  # removed service industry bc it's too general
+  filter(industries.y != "Service") |> 
+  select(industries.x, industries.y)
+```
+
+
+## final dataset
+
+```{r}
+bil_gdp_indus_2013_2023 <-
+  bil_gdp_2013_2023 |> 
+  left_join(reg_match, c("industries" = "industries.y")) |> 
+  left_join(indus_gdp_clean, c("industries.x" = "industries", "year" = "year")) |> 
+  select(-industries.x)
+```
 
