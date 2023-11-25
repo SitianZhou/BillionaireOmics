@@ -9,5 +9,10 @@ output:
 
 ---
 
-### Update
+## Contents
+
+- [Project Proposal](./proposal.html)
+- [Data Cleaning](./data_clean.html)
+
+## Update
 - Complete data cleaning 
