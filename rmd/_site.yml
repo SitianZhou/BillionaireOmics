@@ -10,7 +10,7 @@ navbar:
     - text: "Proposal"
       href: index.html
     - text: "Data Cleaning"
-      href: index.html
+      href: data_clean.html
     - text: "EDA"
       menu: 
       - text: "Categorical Analysis"
