@@ -1,25 +1,31 @@
 ---
-title: "data_clean"
-author: "Sitian Zhou"
-date: "2023-11-07"
+title: "Data cleaning"
+author: "Sitian Zhou, Pei Tian"
+date: "`r Sys.Date()`"
 output: html_document
 ---
+```{r setup, include=F}
+knitr::opts_chunk$set(message = F, warning = F)
+```
 
-```{r}
+**Delivering dataset preprocessing to ensure the feasibility of merging different datasets for downstream analysis.**
+
+```{r lib-import}
 library(tidyverse)
+library(rvest)
+library(httr)
 library(readxl)
 library(janitor)
 library(fuzzyjoin)
 ```
 
-## country code
+## Country code
 
+Changed some country names so they match the country name in the billionaire dataset.
 
-Changed some country names so they match the country name in the 
-
-```{r}
+```{r country-code}
 country_code <-
-  read_csv("../data/country_code.csv") |> 
+  read_csv("../data/raw/country_code.csv") |> 
   clean_names() |> 
   rename(
     "country_name" = "english_short_name_lower_case"
@@ -39,16 +45,16 @@ country_code <-
 ```
 
 
-## Billionaires 2013-2023
+### Billionaires 2013-2023
 
-* filtered for data from 2013 to 2023
-* converted `net_worth` to numerical value
-* selected/renamed variables
-* merged with `country_code` dataset for further analysis
+* Filtering for data from 2013 to 2023
+* Converting `net_worth` to numerical value
+* Variables selection
+* Merging with `country_code` dataset for further analysis
 
-```{r}
+```{r recent-ten-years-billionaires}
 bil_2013_2023 <-
-  read_csv("../data/billionaires_1997_2023.csv") |> 
+  read_csv("../data/raw/billionaires_1997_2023.csv") |> 
   filter(year >= 2013)
 
 bil_2013_2023_clean <-
@@ -76,16 +82,16 @@ bil_2013_2023_clean <-
 ```
 
 
-## Billionaires 2023 only
+### Billionaires 2023
 
-* changed the unit of `final_worth` to billion; result column as `net_worth`
-* cleaned `gdp_country`; changed the unit to trillion
-* recoded `gender`
-* selected/renamed variables
+* Changing the unit of `final_worth` to billion; result column as `net_worth`
+* Cleaning `gdp_country`; changed the unit to trillion
+* Recording `gender`
+* Variables selection
 
-```{r}
+```{r 2023-billionaires}
 bil_gdp_2023 <-
-  read_csv("../data/billionaires_2023.csv")
+  read_csv("../data/raw/billionaires_2023.csv")
 
 bil_gdp_2023_clean <-
   bil_gdp_2023 |> 
@@ -107,47 +113,109 @@ bil_gdp_2023_clean <-
 
 ```
 
-## country GDP dataset
+## Region-level GDP 
 
-* filtered for data starts from 2013
-* changed the unit of gdp to trillion
+### Basic cleaning
 
-```{r}
+* Filtering for data starts from 2013
+* Changing the unit of gdp to trillion
+
+```{r country-gdp-data}
 country_gdp <-
-  read_csv("../data/country_gdp.csv")
+  read_csv("../data/raw/country_gdp.csv")
 
 country_gdp_clean <-
   country_gdp |> 
   filter(year >= 2013) |> 
-  mutate(gdp = value / 1e12) |> 
-  select(year, everything(), -value)
+  mutate(gdp = value / 1e12,
+         name = country_name, 
+         code = country_code) |> 
+  select(name, code, year, gdp)
   
 ```
 
+### Supplementary dataset
+Given the issue that `Hong Kong`, `Macau` and `Taiwan` are regions with missing GDP data in raw dataset. We use some supplementary dataset to remedy it.
 
+#### Hong Kong & Macau
+```{r sar-gdp-data}
+world_gdp = read_csv("../data/raw/gdp_worldbank.csv", skip = 4) |>
+  janitor::clean_names()
+sar_gdp = world_gdp |>
+  filter(country_name == "Macao SAR, China" | country_name == "Hong Kong SAR, China") |>
+  select(country_name, country_code, starts_with("x")) |>
+  pivot_longer(cols = starts_with("x"), names_to = "year", names_prefix = "x", values_to = "value") |>
+  mutate(gdp = value/1e12, 
+         year = as.numeric(year),
+         name = country_name, 
+         code = country_code) |>
+  filter(year >= 2013) |>
+  select(name, code, year, gdp)
+```
 
-## joined dataset for billionaires 2013-2023 w/ country GDP info
+#### Taiwan
+* Scapping GDP data from specific website
+* Extracting and filtering GDP data
+```{r tw-gdp-data}
+fetch_tw_gdp = function(){
+  url = "https://countryeconomy.com/gdp/taiwan"
+  tw_gdp_html = read_html(url)
+  mydata <- tw_gdp_html|> html_table()
+  return(mydata[[1]])
+}
+
+extract_gdp = function(string){
+  str_vec = str_extract(string, "\\d*,\\d*") |> 
+    str_split(",") |> 
+    nth(1)
+  s = ""
+  for(e in str_vec){
+    s = str_c(s, e)
+  }
+  return(s)
+}
+
+tw_gdp = fetch_tw_gdp() |>
+  janitor::clean_names() |>
+  mutate(gdp = map(annual_gdp_2, extract_gdp) |> as.numeric(),
+         year = date |> as.numeric(), 
+         name = "Taiwan, China",
+         code = "TWN",
+         gdp = gdp/1e3) |>
+  filter(year >= 2013) |>
+  select(name, code, year, gdp)
+```
+
+### Merge GDP data
+Combine GDP data in Hong Kong, Macau, Taiwan.
+```{r merge-region-gdp}
+country_gdp_clean = bind_rows(country_gdp_clean, sar_gdp, tw_gdp)
+```
+
+### Merge GDP & billionaire
+Join dataset for billionaires 2013-2023 country GDP info
 
 some problems:
-* Hong Kong, Taiwan, Macau: missing GDP data
-* missing GDP data for 2023 - GDP in `bil_gdp_2023_clean` inaccurate(?)
+* Hong Kong, Taiwan, Macau: missing GDP data (*fixed with supplementary data*)
+* missing GDP data for 2023 - GDP in `bil_gdp_2023_clean` inaccurate (*use data before 2023*)
 
-```{r}
+```{r merge-2}
 bil_gdp_2013_2023 <-
-  left_join(bil_2013_2023_clean, country_gdp_clean, 
-            c("alpha_3_code" = "country_code", "year" = "year")) |> 
-  select(-c(alpha_3_code, country_name))
+  left_join(bil_2013_2023_clean, country_gdp_clean, by = join_by(alpha_3_code == code, year == year), multiple = "all") |>
+  mutate(region_gdp = gdp, region_code = alpha_3_code) |>
+  select(-c(gdp, alpha_3_code, name))
 ```
 
 
-## industry GDP for US
+## Industry-level GDP for US
 
-* renamed variable names
-* tidied the data
+### Basic cleaning
+* Renaming variable names
+* Tidying data
 
-```{r}
+```{r import-industry-data}
 indus_gdp <-
-  read_excel("../data/usa_industry_gdp.xlsx", sheet = 18, skip = 4)
+  read_excel("../data/raw/usa_industry_gdp.xlsx", sheet = 18, skip = 4)
 
 indus_gdp_clean <-
   indus_gdp |> 
@@ -168,12 +236,12 @@ indus_gdp_clean <-
   mutate(year = as.numeric(year))
 ```
 
-## Merge datasets by industries
+### Merge industry-level GDP & billionaire
 
-* created two summary tables with industry names
-* used regex to match the two
+* Create two summary tables with industry names
+* Use regex to match the two dataset
 
-```{r}
+```{r reg-match-industry}
 # extract key words to merge two datasets by industries variable
 #
 # industry names from industry_gdp_clean
@@ -208,9 +276,17 @@ reg_match <-
 ```
 
 
-## final dataset
+## Final dataset
 
-```{r}
+Merging 3 datasets:
+
+- Billionaire
+
+- Region-level GDP
+
+- Industry-level GDP
+
+```{r merge-all-datasets}
 bil_gdp_indus_2013_2023 <-
   bil_gdp_2013_2023 |> 
   left_join(reg_match, c("industries" = "industries.y")) |> 
@@ -218,3 +294,9 @@ bil_gdp_indus_2013_2023 <-
   select(-industries.x)
 ```
 
+```{r save-data}
+### save useful files & add some description
+```
+
+## Description for tidy data
+Describe dataset saved for downstream analysis.

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Sitian Zhou, Pei Tian" />
+
+<meta name="date" content="2023-11-24" />
+
+<title>Data cleaning</title>
+
+<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+<link rel="shortcut icon" href="./static/favicon.ico">
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Billionaire Landscope</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="index.html">Datasets</a>
+</li>
+<li>
+  <a href="index.html">Proposal</a>
+</li>
+<li>
+  <a href="index.html">Data Cleaning</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    EDA
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="index.html">Categorical Analysis</a>
+    </li>
+    <li>
+      <a href="index.html">Longitudinal Analysis</a>
+    </li>
+    <li>
+      <a href="index.html">Geographic Analysis</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="index.html">Statistical Analysis</a>
+</li>
+<li>
+  <a href="index.html">Regression</a>
+</li>
+<li>
+  <a href="index.html">Shiny App</a>
+</li>
+<li>
+  <a href="index.html">Report</a>
+</li>
+<li>
+  <a href="mailto:pei.tian@columbia.com">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/SitianZhou/P8105_Final_Proj">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Data cleaning</h1>
+<h4 class="author">Sitian Zhou, Pei Tian</h4>
+<h4 class="date">2023-11-24</h4>
+
+</div>
+
+
+<p><strong>Delivering dataset preprocessing to ensure the feasibility of
+merging different datasets for downstream analysis.</strong></p>
+<pre class="r"><code>library(tidyverse)
+library(rvest)
+library(httr)
+library(readxl)
+library(janitor)
+library(fuzzyjoin)</code></pre>
+<div id="country-code" class="section level2">
+<h2>Country code</h2>
+<p>Changed some country names so they match the country name in the
+billionaire dataset.</p>
+<pre class="r"><code>country_code &lt;-
+  read_csv(&quot;../data/raw/country_code.csv&quot;) |&gt; 
+  clean_names() |&gt; 
+  rename(
+    &quot;country_name&quot; = &quot;english_short_name_lower_case&quot;
+  ) |&gt; 
+  mutate(
+    country_name = recode(country_name, 
+                          &quot;United States Of America&quot; = &quot;United States&quot;,
+                          &quot;Virgin Islands, British&quot; = &quot;British Virgin Islands&quot;,
+                          &quot;Korea, Republic of (South Korea)&quot; = &quot;South Korea&quot;,
+                          &quot;Virgin Islands, U.S.&quot; = &quot;U.S. Virgin Islands&quot;,
+                          &quot;Tanzania, United Republic of&quot; = &quot;Tanzania&quot;,
+                          &quot;Turks and Caicos&quot; = &quot;Turks and Caicos Islands&quot;,
+                          &quot;Macao&quot; = &quot;Macau&quot;)) |&gt; 
+  select(country_name, alpha_3_code)</code></pre>
+<div id="billionaires-2013-2023" class="section level3">
+<h3>Billionaires 2013-2023</h3>
+<ul>
+<li>Filtering for data from 2013 to 2023</li>
+<li>Converting <code>net_worth</code> to numerical value</li>
+<li>Variables selection</li>
+<li>Merging with <code>country_code</code> dataset for further
+analysis</li>
+</ul>
+<pre class="r"><code>bil_2013_2023 &lt;-
+  read_csv(&quot;../data/raw/billionaires_1997_2023.csv&quot;) |&gt; 
+  filter(year &gt;= 2013)
+
+bil_2013_2023_clean &lt;-
+  bil_2013_2023 |&gt; 
+  mutate(
+    net_worth = str_replace_all(net_worth, &quot; B&quot;, &quot;&quot;),
+    net_worth = as.numeric(net_worth), 
+    industries = str_replace_all(business_industries, &quot;[\\[&#39;\\]]&quot;, &quot;&quot;),
+    country_of_residence = 
+      recode(country_of_residence, 
+             &quot;Eswatini (Swaziland)&quot; = &quot;Swaziland&quot;,
+             &quot;Scotland&quot; = &quot;United Kingdom&quot;,
+             &quot;Czechia&quot; = &quot;Czech Republic&quot;),
+    industries = 
+      recode(industries,
+             &quot;Fashion and Retail&quot; = &quot;Fashion &amp; Retail&quot;,
+             &quot;Finance and Investments&quot; = &quot;Finance &amp; Investments&quot;,
+             &quot;Food and Beverage&quot; = &quot;Food &amp; Beverage&quot;,
+             &quot;Healthcare&quot; = &quot;Health care&quot;,
+             &quot;Media&quot; = &quot;Media &amp; Entertainment&quot;)) |&gt; 
+  left_join(country_code, c(&quot;country_of_residence&quot; = &quot;country_name&quot;)) |&gt; 
+  select(-c(month, rank, last_name, first_name, birth_date, business_category,
+            business_industries, organization_name, position_in_organization))</code></pre>
+</div>
+<div id="billionaires-2023" class="section level3">
+<h3>Billionaires 2023</h3>
+<ul>
+<li>Changing the unit of <code>final_worth</code> to billion; result
+column as <code>net_worth</code></li>
+<li>Cleaning <code>gdp_country</code>; changed the unit to trillion</li>
+<li>Recording <code>gender</code></li>
+<li>Variables selection</li>
+</ul>
+<pre class="r"><code>bil_gdp_2023 &lt;-
+  read_csv(&quot;../data/raw/billionaires_2023.csv&quot;)
+
+bil_gdp_2023_clean &lt;-
+  bil_gdp_2023 |&gt; 
+  clean_names() |&gt; 
+  mutate(
+    net_worth = final_worth / 1000,
+    gdp_country = str_replace_all(gdp_country, &quot;[$,]&quot;, &quot;&quot;),
+    gdp_country = as.numeric(gdp_country) / 1e12,
+    gender = 
+      case_match(
+        gender,
+        &quot;F&quot; ~ &quot;Female&quot;,
+        &quot;M&quot; ~ &quot;Male&quot;)) |&gt;
+  select(net_worth, full_name = person_name, age, gender, 
+         country_of_citizenship, country_of_residence = country, 
+         city_of_residence = city, industries, cpi_country, 
+         cpi_change_country, gdp_country, life_expectancy_country, 
+         latitude_country, longitude_country)</code></pre>
+</div>
+</div>
+<div id="region-level-gdp" class="section level2">
+<h2>Region-level GDP</h2>
+<div id="basic-cleaning" class="section level3">
+<h3>Basic cleaning</h3>
+<ul>
+<li>Filtering for data starts from 2013</li>
+<li>Changing the unit of gdp to trillion</li>
+</ul>
+<pre class="r"><code>country_gdp &lt;-
+  read_csv(&quot;../data/raw/country_gdp.csv&quot;)
+
+country_gdp_clean &lt;-
+  country_gdp |&gt; 
+  filter(year &gt;= 2013) |&gt; 
+  mutate(gdp = value / 1e12,
+         name = country_name, 
+         code = country_code) |&gt; 
+  select(name, code, year, gdp)</code></pre>
+</div>
+<div id="supplementary-dataset" class="section level3">
+<h3>Supplementary dataset</h3>
+<p>Given the issue that <code>Hong Kong</code>, <code>Macau</code> and
+<code>Taiwan</code> are regions with missing GDP data in raw dataset. We
+use some supplementary dataset to remedy it.</p>
+<div id="hong-kong-macau" class="section level4">
+<h4>Hong Kong &amp; Macau</h4>
+<pre class="r"><code>world_gdp = read_csv(&quot;../data/raw/gdp_worldbank.csv&quot;, skip = 4) |&gt;
+  janitor::clean_names()
+sar_gdp = world_gdp |&gt;
+  filter(country_name == &quot;Macao SAR, China&quot; | country_name == &quot;Hong Kong SAR, China&quot;) |&gt;
+  select(country_name, country_code, starts_with(&quot;x&quot;)) |&gt;
+  pivot_longer(cols = starts_with(&quot;x&quot;), names_to = &quot;year&quot;, names_prefix = &quot;x&quot;, values_to = &quot;value&quot;) |&gt;
+  mutate(gdp = value/1e12, 
+         year = as.numeric(year),
+         name = country_name, 
+         code = country_code) |&gt;
+  filter(year &gt;= 2013) |&gt;
+  select(name, code, year, gdp)</code></pre>
+</div>
+<div id="taiwan" class="section level4">
+<h4>Taiwan</h4>
+<ul>
+<li>Scapping GDP data from specific website</li>
+<li>Extracting and filtering GDP data</li>
+</ul>
+<pre class="r"><code>fetch_tw_gdp = function(){
+  url = &quot;https://countryeconomy.com/gdp/taiwan&quot;
+  tw_gdp_html = read_html(url)
+  mydata &lt;- tw_gdp_html|&gt; html_table()
+  return(mydata[[1]])
+}
+
+extract_gdp = function(string){
+  str_vec = str_extract(string, &quot;\\d*,\\d*&quot;) |&gt; 
+    str_split(&quot;,&quot;) |&gt; 
+    nth(1)
+  s = &quot;&quot;
+  for(e in str_vec){
+    s = str_c(s, e)
+  }
+  return(s)
+}
+
+tw_gdp = fetch_tw_gdp() |&gt;
+  janitor::clean_names() |&gt;
+  mutate(gdp = map(annual_gdp_2, extract_gdp) |&gt; as.numeric(),
+         year = date |&gt; as.numeric(), 
+         name = &quot;Taiwan, China&quot;,
+         code = &quot;TWN&quot;,
+         gdp = gdp/1e3) |&gt;
+  filter(year &gt;= 2013) |&gt;
+  select(name, code, year, gdp)</code></pre>
+</div>
+</div>
+<div id="merge-gdp-data" class="section level3">
+<h3>Merge GDP data</h3>
+<p>Combine GDP data in Hong Kong, Macau, Taiwan.</p>
+<pre class="r"><code>country_gdp_clean = bind_rows(country_gdp_clean, sar_gdp, tw_gdp)</code></pre>
+</div>
+<div id="merge-gdp-billionaire" class="section level3">
+<h3>Merge GDP &amp; billionaire</h3>
+<p>Join dataset for billionaires 2013-2023 country GDP info</p>
+<p>some problems: * Hong Kong, Taiwan, Macau: missing GDP data
+(<em>fixed with supplementary data</em>) * missing GDP data for 2023 -
+GDP in <code>bil_gdp_2023_clean</code> inaccurate (<em>use data before
+2023</em>)</p>
+<pre class="r"><code>bil_gdp_2013_2023 &lt;-
+  left_join(bil_2013_2023_clean, country_gdp_clean, by = join_by(alpha_3_code == code, year == year), multiple = &quot;all&quot;) |&gt;
+  mutate(region_gdp = gdp, region_code = alpha_3_code) |&gt;
+  select(-c(gdp, alpha_3_code, name))</code></pre>
+</div>
+</div>
+<div id="industry-level-gdp-for-us" class="section level2">
+<h2>Industry-level GDP for US</h2>
+<div id="basic-cleaning-1" class="section level3">
+<h3>Basic cleaning</h3>
+<ul>
+<li>Renaming variable names</li>
+<li>Tidying data</li>
+</ul>
+<pre class="r"><code>indus_gdp &lt;-
+  read_excel(&quot;../data/raw/usa_industry_gdp.xlsx&quot;, sheet = 18, skip = 4)
+
+indus_gdp_clean &lt;-
+  indus_gdp |&gt; 
+  slice(3:30) |&gt; 
+  rename(
+    &quot;industries&quot; = &quot;...2&quot;,
+    &quot;2017&quot; = &quot;...3&quot;,
+    &quot;2018&quot; = &quot;...4&quot;,
+    &quot;2019&quot; = &quot;...5&quot;,
+    &quot;2020&quot; = &quot;...6&quot;,
+    &quot;2021&quot; = &quot;...7&quot;,
+    &quot;2022&quot; = &quot;2020...8&quot;) |&gt;
+  filter(!(industries %in% c(&quot;Finance, insurance, real estate, rental, and leasing&quot;,
+                            &quot;Educational services, health care, and social assistance&quot;,
+                      &quot;Arts, entertainment, recreation, accommodation, and food services&quot;))) |&gt; 
+  select(industries, `2017`:`2022`) |&gt; 
+  pivot_longer(`2017`:`2022`, names_to = &quot;year&quot;, values_to = &quot;industry_gdp&quot;) |&gt; 
+  mutate(year = as.numeric(year))</code></pre>
+</div>
+<div id="merge-industry-level-gdp-billionaire" class="section level3">
+<h3>Merge industry-level GDP &amp; billionaire</h3>
+<ul>
+<li>Create two summary tables with industry names</li>
+<li>Use regex to match the two dataset</li>
+</ul>
+<pre class="r"><code># extract key words to merge two datasets by industries variable
+#
+# industry names from industry_gdp_clean
+df1 &lt;- indus_gdp_clean |&gt; select(industries) |&gt; unique()
+# industry names from bil_2013_2023_clean
+df2 &lt;- bil_2013_2023_clean |&gt; select(industries) |&gt; drop_na() |&gt; 
+  unique() |&gt; 
+  mutate(
+    categories = industries,
+    # rename some industries for better match results
+    categories = recode(categories, 
+                        &quot;Technology&quot; = &quot;Information&quot;,
+                        &quot;Politics&quot; = &quot;State and local&quot;,
+                        &quot;Logistics&quot; = &quot;Transportation and warehousing&quot;,
+                        &quot;Medicine&quot; = &quot;Health care&quot;)) |&gt; 
+  # extract keywords for each industry
+  separate(categories, into = c(&quot;word1&quot;, &quot;word2&quot;), sep = &quot; &amp; &quot;) |&gt; 
+  pivot_longer(
+    word1:word2,
+    names_to = &quot;order&quot;,
+    values_to = &quot;keywords&quot;
+  ) |&gt; 
+  drop_na(keywords)
+
+# use regex to perform inexact matching
+reg_match &lt;-
+  regex_inner_join(df1, df2, by=c(&quot;industries&quot; = &quot;keywords&quot;), ignore_case = TRUE) |&gt; 
+  distinct(industries.y, .keep_all = TRUE) |&gt;
+  # removed service industry bc it&#39;s too general
+  filter(industries.y != &quot;Service&quot;) |&gt; 
+  select(industries.x, industries.y)</code></pre>
+</div>
+</div>
+<div id="final-dataset" class="section level2">
+<h2>Final dataset</h2>
+<p>Merging 3 datasets:</p>
+<ul>
+<li><p>Billionaire</p></li>
+<li><p>Region-level GDP</p></li>
+<li><p>Industry-level GDP</p></li>
+</ul>
+<pre class="r"><code>bil_gdp_indus_2013_2023 &lt;-
+  bil_gdp_2013_2023 |&gt; 
+  left_join(reg_match, c(&quot;industries&quot; = &quot;industries.y&quot;)) |&gt; 
+  left_join(indus_gdp_clean, c(&quot;industries.x&quot; = &quot;industries&quot;, &quot;year&quot; = &quot;year&quot;)) |&gt; 
+  select(-industries.x)</code></pre>
+<pre class="r"><code>### save useful files &amp; add some description</code></pre>
+</div>
+<div id="description-for-tidy-data" class="section level2">
+<h2>Description for tidy data</h2>
+<p>Describe dataset saved for downstream analysis.</p>
+</div>
+
+<hr>
+<div class="footer" style="text-align: center">Copyright &copy; P8105, Fall 2023</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
