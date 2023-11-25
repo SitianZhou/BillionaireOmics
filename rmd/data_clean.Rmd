@@ -1,0 +1,309 @@
+---
+title: "Data cleaning"
+author: "Sitian Zhou, Pei Tian"
+date: "`r Sys.Date()`"
+output: html_document
+---
+```{r setup, include=F}
+knitr::opts_chunk$set(message = F, warning = F)
+```
+
+**Delivering dataset preprocessing to ensure the feasibility of merging different datasets for downstream analysis.**
+
+```{r lib-import}
+library(tidyverse)
+library(rvest)
+library(httr)
+library(readxl)
+library(janitor)
+library(fuzzyjoin)
+```
+
+## Country code
+
+Changed some country names so they match the country name in the billionaire dataset.
+
+```{r country-code}
+country_code <-
+  read_csv("../data/raw/country_code.csv") |> 
+  clean_names() |> 
+  rename(
+    "country_name" = "english_short_name_lower_case"
+  ) |> 
+  mutate(
+    country_name = recode(country_name, 
+                          "United States Of America" = "United States",
+                          "Virgin Islands, British" = "British Virgin Islands",
+                          "Korea, Republic of (South Korea)" = "South Korea",
+                          "Virgin Islands, U.S." = "U.S. Virgin Islands",
+                          "Tanzania, United Republic of" = "Tanzania",
+                          "Turks and Caicos" = "Turks and Caicos Islands",
+                          "Macao" = "Macau")) |> 
+  select(country_name, alpha_3_code)
+
+```
+
+
+### Billionaires 2010-2023
+
+* Filtering for data from 2010 to 2023
+* Converting `net_worth` to numerical value
+* Variables selection
+* Merging with `country_code` dataset for further analysis
+
+```{r recent-ten-years-billionaires}
+bil_2010_2023 <-
+  read_csv("../data/raw/billionaires_1997_2023.csv") |> 
+  filter(year >= 2010)
+
+bil_2010_2023_clean <-
+  bil_2010_2023 |> 
+  mutate(
+    net_worth = str_replace_all(net_worth, " B", ""),
+    net_worth = as.numeric(net_worth), 
+    industries = str_replace_all(business_industries, "[\\['\\]]", ""),
+    country_of_residence = 
+      recode(country_of_residence, 
+             "Eswatini (Swaziland)" = "Swaziland",
+             "Scotland" = "United Kingdom",
+             "Czechia" = "Czech Republic"),
+    industries = 
+      recode(industries,
+             "Fashion and Retail" = "Fashion & Retail",
+             "Finance and Investments" = "Finance & Investments",
+             "Food and Beverage" = "Food & Beverage",
+             "Healthcare" = "Health care",
+             "Media" = "Media & Entertainment")) |> 
+  left_join(country_code, c("country_of_residence" = "country_name")) |> 
+  select(-c(month, rank, last_name, first_name, birth_date, business_category,
+            business_industries, organization_name, position_in_organization))
+
+```
+
+
+## Region-level GDP 
+
+### Basic cleaning
+
+* Filtering for data starts from 2013
+* Changing the unit of gdp to trillion
+
+```{r country-gdp-data}
+country_gdp <-
+  read_csv("../data/raw/country_gdp.csv")
+
+country_gdp_clean <-
+  country_gdp |> 
+  filter(year >= 2010) |> 
+  mutate(gdp = value / 1e12,
+         name = country_name, 
+         code = country_code) |> 
+  select(name, code, year, gdp)
+  
+```
+
+### Supplementary dataset
+
+Given the issue that `Hong Kong`, `Macau` and `Taiwan` are regions with missing GDP data in raw dataset. We use some supplementary dataset to remedy it.
+
+#### Hong Kong & Macau
+```{r sar-gdp-data}
+world_gdp = read_csv("../data/raw/gdp_worldbank.csv", skip = 4) |>
+  janitor::clean_names()
+sar_gdp = world_gdp |>
+  filter(country_name == "Macao SAR, China" | country_name == "Hong Kong SAR, China") |>
+  select(country_name, country_code, starts_with("x")) |>
+  pivot_longer(cols = starts_with("x"), names_to = "year", names_prefix = "x", values_to = "value") |>
+  mutate(gdp = value/1e12, 
+         year = as.numeric(year),
+         name = country_name, 
+         code = country_code) |>
+  filter(year >= 2010) |>
+  select(name, code, year, gdp)
+```
+
+#### Taiwan
+* Scapping GDP data from specific website
+* Extracting and filtering GDP data
+```{r tw-gdp-data}
+fetch_tw_gdp = function(){
+  url = "https://countryeconomy.com/gdp/taiwan"
+  tw_gdp_html = read_html(url)
+  mydata <- tw_gdp_html|> html_table()
+  return(mydata[[1]])
+}
+
+extract_gdp = function(string){
+  str_vec = str_extract(string, "\\d*,\\d*") |> 
+    str_split(",") |> 
+    nth(1)
+  s = ""
+  for(e in str_vec){
+    s = str_c(s, e)
+  }
+  return(s)
+}
+
+tw_gdp = fetch_tw_gdp() |>
+  janitor::clean_names() |>
+  mutate(gdp = map(annual_gdp_2, extract_gdp) |> as.numeric(),
+         year = date |> as.numeric(), 
+         name = "Taiwan, China",
+         code = "TWN",
+         gdp = gdp/1e3) |>
+  filter(year >= 2010) |>
+  select(name, code, year, gdp)
+```
+
+### Merge GDP data
+Combine GDP data in Hong Kong, Macau, Taiwan.
+```{r merge-region-gdp}
+country_gdp_clean = bind_rows(country_gdp_clean, sar_gdp, tw_gdp)
+```
+
+
+## Industry-level GDP for US
+
+### Basic cleaning
+* Renaming variable names
+* Tidying data
+
+```{r import-industry-data}
+indus_gdp <-
+  read_excel("../data/raw/usa_industry_gdp.xlsx", sheet = 18, skip = 4)
+
+indus_gdp_clean <-
+  indus_gdp |> 
+  slice(3:30) |> 
+  rename(
+    "industries" = "...2",
+    "2017" = "...3",
+    "2018" = "...4",
+    "2019" = "...5",
+    "2020" = "...6",
+    "2021" = "...7",
+    "2022" = "2020...8") |>
+  filter(!(industries %in% c("Finance, insurance, real estate, rental, and leasing",
+                            "Educational services, health care, and social assistance",
+                      "Arts, entertainment, recreation, accommodation, and food services"))) |> 
+  select(industries, `2017`:`2022`) |> 
+  pivot_longer(`2017`:`2022`, names_to = "year", values_to = "industry_gdp") |> 
+  mutate(year = as.numeric(year),
+         industry_gdp = industry_gdp / 1000)
+
+```
+
+### Merge industry-level GDP & billionaire
+
+* Create two summary tables with industry names
+* Use regex to match the two dataset
+
+```{r reg-match-industry}
+# extract key words to merge two datasets by industries variable
+#
+# industry names from industry_gdp_clean
+df1 <- indus_gdp_clean |> select(industries) |> unique()
+# industry names from bil_2013_2023_clean (only for USA from 2017 to 2022!)
+df2 <- 
+  bil_2010_2023_clean |> 
+  filter(country_of_residence == "United States" & year >= 2017 & year <= 2022) |> 
+  select(industries) |> 
+  drop_na() |> 
+  unique() |> 
+  mutate(
+    categories = industries,
+    # rename some industries for better match results
+    categories = recode(categories, 
+                        "Technology" = "Information",
+                        "Logistics" = "Transportation and warehousing")) |> 
+  # extract keywords for each industry
+  separate(categories, into = c("word1", "word2"), sep = " & ") |> 
+  pivot_longer(
+    word1:word2,
+    names_to = "order",
+    values_to = "keywords"
+  ) |> 
+  drop_na(keywords)
+
+# use regex to perform inexact matching
+reg_match <-
+  regex_inner_join(df1, df2, by=c("industries" = "keywords"), ignore_case = TRUE) |> 
+  distinct(industries.y, .keep_all = TRUE) |>
+  # removed service industry bc it's too general
+  filter(industries.y != "Service") |> 
+  select(industries.x, industries.y)
+```
+
+### Merge GDP & billionaire
+Join dataset for billionaires 2010-2023 country GDP info
+
+```{r merge-2}
+bil_gdp_2010_2023 <-
+  left_join(bil_2010_2023_clean, country_gdp_clean, 
+            by = join_by(alpha_3_code == code, year == year), multiple = "all") |>
+  mutate(region_gdp = gdp, region_code = alpha_3_code) |>
+  select(-c(gdp, alpha_3_code, name))
+```
+
+## USA industry dataset
+
+Merging 3 datasets:
+
+- Billionaire (filter for US, years b/t 2017 and 2022)
+
+- Region-level GDP (filter for US, years b/t 2017 and 2022)
+
+- Industry-level GDP
+
+```{r prepare-USA-industry-dataset}
+bil_gdp_indus_usa <-
+  bil_gdp_2010_2023 |> 
+  filter(country_of_residence == "United States" & year >= 2017 & year <= 2022) |> 
+  left_join(reg_match, c("industries" = "industries.y")) |> 
+  left_join(indus_gdp_clean, c("industries.x" = "industries", "year" = "year")) |> 
+  select(-industries.x, -region_code)
+
+```
+
+```{r save-data}
+### save useful files & add some description
+write_csv(bil_gdp_2010_2023, "../data/tidy/billionaire_gdp.csv")
+write_csv(bil_gdp_indus_usa, "../data/tidy/billionaire_gdp_indus_usa.csv")
+
+```
+
+## Description for tidy data
+Describe dataset saved for downstream analysis.
+
+
+*billionaire_gdp.csv*
+
+
+`year`:the year in which the data was collected
+
+`net_worth`: net worth of the billionaire (in billions of dollars)
+
+`full_name`, `age`, and `gender`: the name, age, and gender of the billionaire, respectively
+
+`country_of_citizenship`, `country_of_residence`, and `city_of_residence`: residence details spanning country, city, and citizenship of the billionaire
+
+`self_made`: indicates if the billionaire's wealth is self-made or inherited (True/False)
+
+`wealth_status`: current status of the billionaire's wealth, whether it's rising, stable, or declining
+
+`industries`: specific industries within the broader category.
+
+`region_gdp`: the real GDP (in trillions of dollars) for each country or region the billionaire resides
+
+`region_code`: the three-letter code of the corresponding country or region the billionaire resides
+
+
+*billionaire_gdp_indus_usa.csv*
+
+This dataset combines information of billionaires resides in United States from 2017 to 2022, with the annual GDP and the GDP for various industries in United States.
+
+`industry_gdp`: annual GDP (in trillions of dollars) for the industry
+
+
+
+

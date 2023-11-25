@@ -1,8 +1,18 @@
 ---
 title: "Home"
 date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output: 
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+
 ---
 
 ## Contents
 
 - [Project Proposal](./proposal.html)
+- [Data Cleaning](./data_clean.html)
+
+## Update
+- Complete data cleaning 
