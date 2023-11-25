@@ -40,7 +40,5 @@ output:
     theme: cosmo
     toc: true
     toc_float: true
-  github_document:
-    html_preview: false
 
   
