@@ -15,7 +15,7 @@
 
 <title>Data cleaning</title>
 
-<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -421,21 +421,21 @@ billionaire dataset.</p>
                           &quot;Turks and Caicos&quot; = &quot;Turks and Caicos Islands&quot;,
                           &quot;Macao&quot; = &quot;Macau&quot;)) |&gt; 
   select(country_name, alpha_3_code)</code></pre>
-<div id="billionaires-2013-2023" class="section level3">
-<h3>Billionaires 2013-2023</h3>
+<div id="billionaires-2010-2023" class="section level3">
+<h3>Billionaires 2010-2023</h3>
 <ul>
-<li>Filtering for data from 2013 to 2023</li>
+<li>Filtering for data from 2010 to 2023</li>
 <li>Converting <code>net_worth</code> to numerical value</li>
 <li>Variables selection</li>
 <li>Merging with <code>country_code</code> dataset for further
 analysis</li>
 </ul>
-<pre class="r"><code>bil_2013_2023 &lt;-
+<pre class="r"><code>bil_2010_2023 &lt;-
   read_csv(&quot;../data/raw/billionaires_1997_2023.csv&quot;) |&gt; 
-  filter(year &gt;= 2013)
+  filter(year &gt;= 2010)
 
-bil_2013_2023_clean &lt;-
-  bil_2013_2023 |&gt; 
+bil_2010_2023_clean &lt;-
+  bil_2010_2023 |&gt; 
   mutate(
     net_worth = str_replace_all(net_worth, &quot; B&quot;, &quot;&quot;),
     net_worth = as.numeric(net_worth), 
@@ -456,36 +456,6 @@ bil_2013_2023_clean &lt;-
   select(-c(month, rank, last_name, first_name, birth_date, business_category,
             business_industries, organization_name, position_in_organization))</code></pre>
 </div>
-<div id="billionaires-2023" class="section level3">
-<h3>Billionaires 2023</h3>
-<ul>
-<li>Changing the unit of <code>final_worth</code> to billion; result
-column as <code>net_worth</code></li>
-<li>Cleaning <code>gdp_country</code>; changed the unit to trillion</li>
-<li>Recording <code>gender</code></li>
-<li>Variables selection</li>
-</ul>
-<pre class="r"><code>bil_gdp_2023 &lt;-
-  read_csv(&quot;../data/raw/billionaires_2023.csv&quot;)
-
-bil_gdp_2023_clean &lt;-
-  bil_gdp_2023 |&gt; 
-  clean_names() |&gt; 
-  mutate(
-    net_worth = final_worth / 1000,
-    gdp_country = str_replace_all(gdp_country, &quot;[$,]&quot;, &quot;&quot;),
-    gdp_country = as.numeric(gdp_country) / 1e12,
-    gender = 
-      case_match(
-        gender,
-        &quot;F&quot; ~ &quot;Female&quot;,
-        &quot;M&quot; ~ &quot;Male&quot;)) |&gt;
-  select(net_worth, full_name = person_name, age, gender, 
-         country_of_citizenship, country_of_residence = country, 
-         city_of_residence = city, industries, cpi_country, 
-         cpi_change_country, gdp_country, life_expectancy_country, 
-         latitude_country, longitude_country)</code></pre>
-</div>
 </div>
 <div id="region-level-gdp" class="section level2">
 <h2>Region-level GDP</h2>
@@ -500,7 +470,7 @@ bil_gdp_2023_clean &lt;-
 
 country_gdp_clean &lt;-
   country_gdp |&gt; 
-  filter(year &gt;= 2013) |&gt; 
+  filter(year &gt;= 2010) |&gt; 
   mutate(gdp = value / 1e12,
          name = country_name, 
          code = country_code) |&gt; 
@@ -523,7 +493,7 @@ sar_gdp = world_gdp |&gt;
          year = as.numeric(year),
          name = country_name, 
          code = country_code) |&gt;
-  filter(year &gt;= 2013) |&gt;
+  filter(year &gt;= 2010) |&gt;
   select(name, code, year, gdp)</code></pre>
 </div>
 <div id="taiwan" class="section level4">
@@ -557,7 +527,7 @@ tw_gdp = fetch_tw_gdp() |&gt;
          name = &quot;Taiwan, China&quot;,
          code = &quot;TWN&quot;,
          gdp = gdp/1e3) |&gt;
-  filter(year &gt;= 2013) |&gt;
+  filter(year &gt;= 2010) |&gt;
   select(name, code, year, gdp)</code></pre>
 </div>
 </div>
@@ -565,18 +535,6 @@ tw_gdp = fetch_tw_gdp() |&gt;
 <h3>Merge GDP data</h3>
 <p>Combine GDP data in Hong Kong, Macau, Taiwan.</p>
 <pre class="r"><code>country_gdp_clean = bind_rows(country_gdp_clean, sar_gdp, tw_gdp)</code></pre>
-</div>
-<div id="merge-gdp-billionaire" class="section level3">
-<h3>Merge GDP &amp; billionaire</h3>
-<p>Join dataset for billionaires 2013-2023 country GDP info</p>
-<p>some problems: * Hong Kong, Taiwan, Macau: missing GDP data
-(<em>fixed with supplementary data</em>) * missing GDP data for 2023 -
-GDP in <code>bil_gdp_2023_clean</code> inaccurate (<em>use data before
-2023</em>)</p>
-<pre class="r"><code>bil_gdp_2013_2023 &lt;-
-  left_join(bil_2013_2023_clean, country_gdp_clean, by = join_by(alpha_3_code == code, year == year), multiple = &quot;all&quot;) |&gt;
-  mutate(region_gdp = gdp, region_code = alpha_3_code) |&gt;
-  select(-c(gdp, alpha_3_code, name))</code></pre>
 </div>
 </div>
 <div id="industry-level-gdp-for-us" class="section level2">
@@ -606,7 +564,8 @@ indus_gdp_clean &lt;-
                       &quot;Arts, entertainment, recreation, accommodation, and food services&quot;))) |&gt; 
   select(industries, `2017`:`2022`) |&gt; 
   pivot_longer(`2017`:`2022`, names_to = &quot;year&quot;, values_to = &quot;industry_gdp&quot;) |&gt; 
-  mutate(year = as.numeric(year))</code></pre>
+  mutate(year = as.numeric(year),
+         industry_gdp = industry_gdp / 1000)</code></pre>
 </div>
 <div id="merge-industry-level-gdp-billionaire" class="section level3">
 <h3>Merge industry-level GDP &amp; billionaire</h3>
@@ -618,17 +577,19 @@ indus_gdp_clean &lt;-
 #
 # industry names from industry_gdp_clean
 df1 &lt;- indus_gdp_clean |&gt; select(industries) |&gt; unique()
-# industry names from bil_2013_2023_clean
-df2 &lt;- bil_2013_2023_clean |&gt; select(industries) |&gt; drop_na() |&gt; 
+# industry names from bil_2013_2023_clean (only for USA from 2017 to 2022!)
+df2 &lt;- 
+  bil_2010_2023_clean |&gt; 
+  filter(country_of_residence == &quot;United States&quot; &amp; year &gt;= 2017 &amp; year &lt;= 2022) |&gt; 
+  select(industries) |&gt; 
+  drop_na() |&gt; 
   unique() |&gt; 
   mutate(
     categories = industries,
     # rename some industries for better match results
     categories = recode(categories, 
                         &quot;Technology&quot; = &quot;Information&quot;,
-                        &quot;Politics&quot; = &quot;State and local&quot;,
-                        &quot;Logistics&quot; = &quot;Transportation and warehousing&quot;,
-                        &quot;Medicine&quot; = &quot;Health care&quot;)) |&gt; 
+                        &quot;Logistics&quot; = &quot;Transportation and warehousing&quot;)) |&gt; 
   # extract keywords for each industry
   separate(categories, into = c(&quot;word1&quot;, &quot;word2&quot;), sep = &quot; &amp; &quot;) |&gt; 
   pivot_longer(
@@ -646,25 +607,64 @@ reg_match &lt;-
   filter(industries.y != &quot;Service&quot;) |&gt; 
   select(industries.x, industries.y)</code></pre>
 </div>
+<div id="merge-gdp-billionaire" class="section level3">
+<h3>Merge GDP &amp; billionaire</h3>
+<p>Join dataset for billionaires 2010-2023 country GDP info</p>
+<pre class="r"><code>bil_gdp_2010_2023 &lt;-
+  left_join(bil_2010_2023_clean, country_gdp_clean, 
+            by = join_by(alpha_3_code == code, year == year), multiple = &quot;all&quot;) |&gt;
+  mutate(region_gdp = gdp, region_code = alpha_3_code) |&gt;
+  select(-c(gdp, alpha_3_code, name))</code></pre>
 </div>
-<div id="final-dataset" class="section level2">
-<h2>Final dataset</h2>
+</div>
+<div id="usa-industry-dataset" class="section level2">
+<h2>USA industry dataset</h2>
 <p>Merging 3 datasets:</p>
 <ul>
-<li><p>Billionaire</p></li>
-<li><p>Region-level GDP</p></li>
+<li><p>Billionaire (filter for US, years b/t 2017 and 2022)</p></li>
+<li><p>Region-level GDP (filter for US, years b/t 2017 and
+2022)</p></li>
 <li><p>Industry-level GDP</p></li>
 </ul>
-<pre class="r"><code>bil_gdp_indus_2013_2023 &lt;-
-  bil_gdp_2013_2023 |&gt; 
+<pre class="r"><code>bil_gdp_indus_usa &lt;-
+  bil_gdp_2010_2023 |&gt; 
+  filter(country_of_residence == &quot;United States&quot; &amp; year &gt;= 2017 &amp; year &lt;= 2022) |&gt; 
   left_join(reg_match, c(&quot;industries&quot; = &quot;industries.y&quot;)) |&gt; 
   left_join(indus_gdp_clean, c(&quot;industries.x&quot; = &quot;industries&quot;, &quot;year&quot; = &quot;year&quot;)) |&gt; 
-  select(-industries.x)</code></pre>
-<pre class="r"><code>### save useful files &amp; add some description</code></pre>
+  select(-industries.x, -region_code)</code></pre>
+<pre class="r"><code>### save useful files &amp; add some description
+write_csv(bil_gdp_2010_2023, &quot;../data/tidy/billionaire_gdp.csv&quot;)
+write_csv(bil_gdp_indus_usa, &quot;../data/tidy/billionaire_gdp_indus_usa.csv&quot;)</code></pre>
 </div>
 <div id="description-for-tidy-data" class="section level2">
 <h2>Description for tidy data</h2>
 <p>Describe dataset saved for downstream analysis.</p>
+<p><em>billionaire_gdp.csv</em></p>
+<p><code>year</code>:the year in which the data was collected</p>
+<p><code>net_worth</code>: net worth of the billionaire (in billions of
+dollars)</p>
+<p><code>full_name</code>, <code>age</code>, and <code>gender</code>:
+the name, age, and gender of the billionaire, respectively</p>
+<p><code>country_of_citizenship</code>,
+<code>country_of_residence</code>, and <code>city_of_residence</code>:
+residence details spanning country, city, and citizenship of the
+billionaire</p>
+<p><code>self_made</code>: indicates if the billionaire’s wealth is
+self-made or inherited (True/False)</p>
+<p><code>wealth_status</code>: current status of the billionaire’s
+wealth, whether it’s rising, stable, or declining</p>
+<p><code>industries</code>: specific industries within the broader
+category.</p>
+<p><code>region_gdp</code>: the real GDP (in trillions of dollars) for
+each country or region the billionaire resides</p>
+<p><code>region_code</code>: the three-letter code of the corresponding
+country or region the billionaire resides</p>
+<p><em>billionaire_gdp_indus_usa.csv</em></p>
+<p>This dataset combines information of billionaires resides in United
+States from 2017 to 2022, with the annual GDP and the GDP for various
+industries in United States.</p>
+<p><code>industry_gdp</code>: annual GDP (in trillions of dollars) for
+the industry</p>
 </div>
 
 <hr>
