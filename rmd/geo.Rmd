@@ -1,0 +1,83 @@
+---
+title: "Geographic Analysis"
+author: "Pei Tian"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(message = F, warning = F)
+```
+
+```{r lib-import}
+library(tidyverse)
+library(leaflet)
+library(sf)
+library(rnaturalearth)
+```
+
+## Aims
+Interactive visualization for top-ranked billionaires in different regions (countries, continents)
+
+Interactive visualization for GDP of different countries in different years
+
+Compare billionaire distribution in different regions (such as average wealth, gender composition)
+
+```{r}
+world <- ne_countries(scale = "medium", returnclass = "sf")
+bil_gdp = read_csv("../data/tidy/billionaire_gdp.csv") 
+bil_gdp = bil_gdp |>
+  select(-wealth_status) |>
+  mutate(gender = factor(gender),
+         year = as.integer(year),
+         age = as.integer(age),
+         country_of_residence = factor(country_of_residence),
+         country_of_citizenship = factor(country_of_citizenship),
+         region_code = factor(region_code),
+         industries = factor(industries),
+         self_made = factor(self_made)
+         )
+country_data = read_csv("../data/raw/country_gdp.csv")
+```
+```{r}
+world |>
+  left_join(country_data, by = join_by(adm0_a3 == region_code)) |>
+  filter(is.na(region_gdp))
+``` 
+
+```{r}
+world |>
+  select(adm0_a3) |>
+  unique() |>
+  dim()
+```
+
+```{r}
+country_data |> 
+  select(country_code) |>
+  unique() |>
+  dim()
+```
+
+
+
+## Choice
+- Gender
+- Year
+- Age
+- Industry
+- Self-made
+## Chart
+Histogram (Age)
+Track Wealth
+Boxplot Industry
+## Interactive Map
+
+```{r}
+leaflet() |>
+  addProviderTiles("CartoDB.Positron") |>  # You can choose different tile providers
+  addPolygons(data = world, fillColor = "lightblue", fillOpacity = 0.3, color = "white", weight = 1) 
+
+```
+
+
