@@ -11,7 +11,7 @@
 
 <meta name="author" content="Sitian Zhou, Pei Tian" />
 
-<meta name="date" content="2023-11-25" />
+<meta name="date" content="2023-11-26" />
 
 <title>Data cleaning</title>
 
@@ -388,7 +388,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Data cleaning</h1>
 <h4 class="author">Sitian Zhou, Pei Tian</h4>
-<h4 class="date">2023-11-25</h4>
+<h4 class="date">2023-11-26</h4>
 
 </div>
 
@@ -634,7 +634,8 @@ reg_match &lt;-
   select(-industries.x, -region_code)</code></pre>
 <pre class="r"><code>### save useful files &amp; add some description
 write_csv(bil_gdp_2010_2023, &quot;../data/tidy/billionaire_gdp.csv&quot;)
-write_csv(bil_gdp_indus_usa, &quot;../data/tidy/billionaire_gdp_indus_usa.csv&quot;)</code></pre>
+write_csv(bil_gdp_indus_usa, &quot;../data/tidy/billionaire_gdp_indus_usa.csv&quot;)
+write_csv(country_gdp_clean, &quot;../data/tidy/gdp.csv&quot;)</code></pre>
 </div>
 <div id="description-for-tidy-data" class="section level2">
 <h2>Description for tidy data</h2>
@@ -665,10 +666,15 @@ States from 2017 to 2022, with the annual GDP and the GDP for various
 industries in United States.</p>
 <p><code>industry_gdp</code>: annual GDP (in trillions of dollars) for
 the industry</p>
+<p><em>gdp.csv</em></p>
+<p>This dataset includes information of GDP data of each region</p>
+<p><code>name</code>: region name (country or SAR(special administration
+area)) <code>code</code>: region code <code>year</code>: year
+<code>gdp</code>: GDP value (billion as unit)</p>
 </div>
 
 <hr>
-<div class="footer" style="text-align: center">Copyright &copy; P8105, Fall 2023</div>
+<div class="footer" style="text-align: center">Copyright &copy; <a href="https://p8105.com/">P8105</a>, Fall 2023</div>
 
 
 </div>

@@ -269,7 +269,7 @@ bil_gdp_indus_usa <-
 ### save useful files & add some description
 write_csv(bil_gdp_2010_2023, "../data/tidy/billionaire_gdp.csv")
 write_csv(bil_gdp_indus_usa, "../data/tidy/billionaire_gdp_indus_usa.csv")
-
+write_csv(country_gdp_clean, "../data/tidy/gdp.csv")
 ```
 
 ## Description for tidy data
@@ -304,6 +304,14 @@ This dataset combines information of billionaires resides in United States from 
 
 `industry_gdp`: annual GDP (in trillions of dollars) for the industry
 
+*gdp.csv*
+
+This dataset includes information of GDP data of each region
+
+`name`: region name (country or SAR(special administration area))
+`code`: region code
+`year`: year
+`gdp`: GDP value (billion as unit)
 
 
 
