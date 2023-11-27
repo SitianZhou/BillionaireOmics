@@ -14,6 +14,16 @@ library(tidyverse)
 library(leaflet)
 library(sf)
 library(rnaturalearth)
+library(patchwork)
+library(plotly)
+
+theme_set(
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(family = "Helvetica")
+  )
+)
+
 ```
 
 ## Aims
@@ -23,61 +33,157 @@ Interactive visualization for GDP of different countries in different years
 
 Compare billionaire distribution in different regions (such as average wealth, gender composition)
 
-```{r}
+```{r data-preprocessing}
 world <- ne_countries(scale = "medium", returnclass = "sf")
 bil_gdp = read_csv("../data/tidy/billionaire_gdp.csv") 
 bil_gdp = bil_gdp |>
   select(-wealth_status) |>
-  mutate(gender = factor(gender),
+  mutate(gender = factor(ifelse(is.na(gender), "Unknown", gender)),
          year = as.integer(year),
          age = as.integer(age),
          country_of_residence = factor(country_of_residence),
          country_of_citizenship = factor(country_of_citizenship),
          region_code = factor(region_code),
-         industries = factor(industries),
-         self_made = factor(self_made)
+         industries = factor(ifelse(is.na(industries), "Unknown", industries)),
+         self_made = factor(ifelse(is.na(self_made), "Unknown", self_made))
          )
-country_data = read_csv("../data/raw/country_gdp.csv")
-```
-```{r}
-world |>
-  left_join(country_data, by = join_by(adm0_a3 == region_code)) |>
-  filter(is.na(region_gdp))
-``` 
 
-```{r}
-world |>
-  select(adm0_a3) |>
-  unique() |>
-  dim()
-```
+gdp_data = read_csv("../data/raw/gdp_worldbank.csv", skip = 4) |>
+  janitor::clean_names() |>
+  select(country_name, country_code, starts_with("x")) |>
+  pivot_longer(cols = starts_with("x"), names_to = "year", names_prefix = "x", values_to = "value") |>
+  mutate(gdp = value/1e12, 
+         year = as.integer(year),
+         name = country_name, 
+         code = country_code) |>
+  filter(year >= 2010) |>
+  select(name, code, year, gdp)
 
-```{r}
-country_data |> 
-  select(country_code) |>
-  unique() |>
-  dim()
 ```
 
-
-
-## Choice
-- Gender
-- Year
-- Age
-- Industry
-- Self-made
-## Chart
-Histogram (Age)
-Track Wealth
-Boxplot Industry
 ## Interactive Map
+Input: `year`
+top3 Billionaire in each country as label
+GDP reveal as color
 
-```{r}
+```{r gdp-geo-view}
+target_year = 2021
+gdp_viz = gdp_data |>
+  filter(year == target_year) |>
+  left_join(world, by = join_by(code == adm0_a3)) |>
+  st_as_sf()
+
 leaflet() |>
   addProviderTiles("CartoDB.Positron") |>  # You can choose different tile providers
-  addPolygons(data = world, fillColor = "lightblue", fillOpacity = 0.3, color = "white", weight = 1) 
+  addPolygons(data = gdp_viz, 
+              fillColor = ~colorQuantile("YlOrRd", gdp)(gdp), 
+              fillOpacity = 0.3, color = "white", weight = 1,
+              highlightOptions = highlightOptions(
+                color = "black", weight = 2, bringToFront = TRUE)) 
+```
+
+## Chart
+### Inter-region analysis
+1. Barplot: count in different region
+  Input: year, age
+  View: 
+  - gender
+  - industry
+  - self-made
+  
+```{r}
+target_year = 2022
+target_age_range = c(1, 100)
+inter_data = bil_gdp |>
+  filter(year == target_year & age >= target_age_range[1] & age <= target_age_range[2])
 
 ```
+
+```{r}
+count_by_region = inter_data |>
+  group_by(region_code) |>
+  summarise(count = n()) |>
+  mutate(region_code = fct_reorder(region_code, count))
+count_view = count_by_region |>
+  filter(count >= 3 & !is.na(region_code)) |>
+  ggplot(aes(x = region_code, y = count, fill = "tomato")) +
+  geom_bar(stat = "identity") +
+  labs(title = "Billionaire Count", x = "Region", y = "Count") +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1), 
+        legend.position = "none")
+ggplotly(count_view)
+```
+
+```{r}
+count_by_gender = inter_data |>
+  group_by(region_code, gender) |>
+  summarise(gender_count = n(), .groups = "drop_last") |>
+  left_join(count_by_region, by = join_by(region_code == region_code)) |>
+  filter(count >= 3 & !is.na(region_code) ) |>
+  mutate(prct = gender_count / count * 100)
+gender_view = count_by_gender |>
+  ggplot(aes(x = region_code, y = prct, fill = gender)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("tomato", "lightblue", "grey"), 
+                    labels = levels(count_by_gender$gender)) +
+  labs(title = "Gender Distribution", x = "Region", y = "Precent") +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+ggplotly(gender_view)
+```
+```{r}
+count_by_self_made = inter_data |>
+  group_by(region_code, self_made) |>
+  summarise(self_made_count = n(), .groups = "drop_last") |>
+  left_join(count_by_region, by = join_by(region_code == region_code)) |>
+  filter(count >= 3 & !is.na(region_code) ) |>
+  mutate(prct = self_made_count / count * 100)
+self_made_view = count_by_self_made |>
+  ggplot(aes(x = region_code, y = prct, fill = self_made)) +
+  geom_bar(stat = "identity", alpha = .8) +
+  scale_fill_manual(values = c("orange", "violet", "grey"), 
+                    labels = levels(count_by_self_made$self_made)) +
+  labs(title = "Self-made Distribution", x = "Region", y = "Precent") +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+ggplotly(self_made_view)
+```
+```{r}
+count_by_industries = inter_data |>
+  group_by(region_code, industries) |>
+  summarise(industries_count = n(), .groups = "drop_last") |>
+  left_join(count_by_region, by = join_by(region_code == region_code)) |>
+  filter(count >= 3 & !is.na(region_code) ) |>
+  mutate(prct = industries_count / count * 100)
+industries_view = count_by_industries |>
+  ggplot(aes(x = region_code, y = prct, fill = industries)) +
+  geom_bar(stat = "identity", alpha = .8) +
+  labs(title = "Industry Distribution", x = "Region", y = "Precent") +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) 
+ggplotly(industries_view)
+```
+
+
+
+### Intra-region analysis
+
+2. Specific country: 
+  Input: year, country
+  - GDP time curve
+  - gender, self-made, industry: pie
+  - age: histogram
+  - wealth: top 5
+
+```{r}
+inter_data |>
+  group_by(region_code, gender) |>
+  summarise(gender_count = n(), .groups = "drop_last") |>
+  left_join(count_by_region, by = join_by(region_code == region_code)) |>
+  filter(count >= 3 & !is.na(region_code) ) |>
+  mutate(region_code = fct_reorder(region_code, count),
+         prct = gender_count / count) |>
+```
+
+
+
+
 
 

@@ -11,6 +11,7 @@ library(shiny)
 library(shinydashboard)
 library(leaflet)
 library(DT)
+library(plotly)
 
 # Define UI for application
 header = dashboardHeader(
@@ -21,13 +22,33 @@ sidebar = dashboardSidebar(
   sidebarMenu(
     menuItem("Global Map", tabName = "dashboard", icon = icon("map")),
     menuItem("Chart", tabName = "charts", icon = icon("chart-bar"),
-        menuSubItem("Age Distribution", tabName = "hist"),
-        menuSubItem("Wealth Track", tabName = "track"),
-        menuSubItem("Industry Condition", tabName = "industry")
+        menuSubItem("Inter-Region", tabName = "view1"),
+        menuSubItem("Intra-Region", tabName = "view2")
     ),
     menuItem("Data", tabName = "data", icon = icon("database"))
   )
 )
+
+map = fluidRow(
+        column(width = 9,
+            box(width = NULL, solidHeader = TRUE,
+                leafletOutput("map", height = 500)
+            ),
+        ),
+        column(width = 3, 
+            box(
+                width = "100%",
+                sliderInput("mapYear", "Select Year:", 
+                    min = 2010, max = 2022, value = 2022)
+            )
+        ),
+        column(width = 12,
+            box(
+                width = "100%",
+                DTOutput("mapTable")
+            )
+        )
+    )
 
 db = fluidRow(
     box(
@@ -42,37 +63,39 @@ db = fluidRow(
 
 )
 
+h = 200
+view1 = fluidRow(
+    
+    column(width = 8,
+        box(width = "50%", solidHeader = TRUE,
+            plotlyOutput("view1a", height = h),
+            plotlyOutput("view1b", height = h),
+            plotlyOutput("view1c", height = h),
+            plotlyOutput("view1d", height = h)
+        )
+    ), 
+    column(width = 4,
+        box(width = "100%", solidHeader = TRUE,
+            sliderInput("view1Year", "Select Year:", 
+                min = 2010, max = 2022, value = 2022)
+        ),
+        box(width = "100%", solidHeader = TRUE,
+            sliderInput("view1Age", "Select Age:", 
+                min = 1, max = 100, value = c(1, 100))
+        )
+    )
+)
+
+view2 = fluidRow(
+    
+)
+
 
 body = dashboardBody(
     tabItems(
-        tabItem(tabName = "dashboard",
-        fluidRow(
-            box(width = NULL, solidHeader = TRUE,
-            leafletOutput("map", height = 500)
-            )
-        )
-        ),
-        tabItem(tabName = "hist",
-        fluidRow(
-            box(width = NULL, solidHeader = TRUE,
-            plotOutput("hist", height = 500)
-            )
-        )
-        ),
-        tabItem(tabName = "track",
-        fluidRow(
-            box(width = NULL, solidHeader = TRUE,
-            plotOutput("track", height = 500)
-            )
-        )
-        ),
-        tabItem(tabName = "industry",
-        fluidRow(
-            box(width = NULL, solidHeader = TRUE,
-            plotOutput("industry", height = 500)
-            )
-        )
-        ),
+        tabItem(tabName = "dashboard", map),
+        tabItem(tabName = "view1", view1),
+        tabItem(tabName = "view2", view2),
         tabItem(tabName = "data", db)
     )
 )
