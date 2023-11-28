@@ -6,8 +6,31 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(plotly)
 ```
 
-## R Markdown
+```{r}
+str(data)
+```
+
+## GDP-Temporal Wealth Patterns:
+Examine the rise and fall of billionaire wealth across different economic cycles, including booms, busts, and recoveries.
+
+```{r}
+
+```
+
+### Gender
+
+### Industry-Lifecycles and Billionaire Wealth 
+Explore how technological disruptions in various sectors impact the net worth and ranking of billionaires over time.
+
+```{r}
+
+```
+
 
 
