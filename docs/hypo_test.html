@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Sitian Zhou, Mengxiao Luan, Shuchen Dong" />
+
+<meta name="date" content="2023-11-27" />
+
+<title>hypo_test</title>
+
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+<link rel="shortcut icon" href="./static/favicon.ico">
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Billionaire Landscope</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="index.html">Datasets</a>
+</li>
+<li>
+  <a href="index.html">Proposal</a>
+</li>
+<li>
+  <a href="index.html">Data Cleaning</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    EDA
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="index.html">Categorical Analysis</a>
+    </li>
+    <li>
+      <a href="index.html">Longitudinal Analysis</a>
+    </li>
+    <li>
+      <a href="index.html">Geographic Analysis</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="index.html">Statistical Analysis</a>
+</li>
+<li>
+  <a href="index.html">Regression</a>
+</li>
+<li>
+  <a href="index.html">Shiny App</a>
+</li>
+<li>
+  <a href="index.html">Report</a>
+</li>
+<li>
+  <a href="mailto:pei.tian@columbia.com">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/SitianZhou/P8105_Final_Proj">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">hypo_test</h1>
+<h4 class="author">Sitian Zhou, Mengxiao Luan, Shuchen Dong</h4>
+<h4 class="date">2023-11-27</h4>
+
+</div>
+
+
+<pre class="r"><code>bil_data &lt;-
+  read_csv(&quot;../data/billionaire_gdp.csv&quot;)
+
+bil_13_23 &lt;-
+  bil_data |&gt; 
+  filter(year == 2013 | year == 2023)</code></pre>
+<div
+id="two-sample-prop-test-compare-the-proportion-of-female-billionaires-in-2013-and-2023"
+class="section level2">
+<h2>Two sample prop test: Compare the proportion of female billionaires
+in 2013 and 2023</h2>
+<p><span class="math inline">\(H_0: p_{female\_2013} =
+p_{female\_2023}\)</span> vs. <span class="math inline">\(H_1:
+p_{female\_2013} \neq p_{female\_2023}\)</span></p>
+<pre class="r"><code>bil_gender_sum &lt;-
+  bil_13_23 |&gt;
+  drop_na(gender) |&gt; 
+  group_by(year) |&gt; 
+  summarize(
+    total = n(),
+    female = sum(gender == &quot;Female&quot;))
+bil_gender_sum|&gt; 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">year</th>
+<th align="right">total</th>
+<th align="right">female</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">2013</td>
+<td align="right">1464</td>
+<td align="right">142</td>
+</tr>
+<tr class="even">
+<td align="right">2023</td>
+<td align="right">2640</td>
+<td align="right">337</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># perform 2-sample prop test for proportion of female billionaires in year 2013 and 2023
+prop.test(c(filter(bil_gender_sum, year == 2013) |&gt; 
+              pull(female), filter(bil_gender_sum, year == 2023) |&gt; pull(female)), 
+          n = c(filter(bil_gender_sum, year == 2013) |&gt; 
+                  pull(total), filter(bil_gender_sum, year == 2023) |&gt; pull(total))) |&gt; 
+  broom::tidy() |&gt; 
+  knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="7%" />
+<col width="7%" />
+<col width="45%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">estimate1</th>
+<th align="right">estimate2</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">parameter</th>
+<th align="right">conf.low</th>
+<th align="right">conf.high</th>
+<th align="left">method</th>
+<th align="left">alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0969945</td>
+<td align="right">0.1276515</td>
+<td align="right">8.290742</td>
+<td align="right">0.0039848</td>
+<td align="right">1</td>
+<td align="right">-0.0509833</td>
+<td align="right">-0.0103307</td>
+<td align="left">2-sample test for equality of proportions with
+continuity correction</td>
+<td align="left">two.sided</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div
+id="two-sample-prop-test-compare-proportions-of-billionaires-in-health-care-industry-in-2013-and-2023"
+class="section level2">
+<h2>Two sample prop test: Compare proportions of billionaires in health
+care industry in 2013 and 2023</h2>
+<p><span class="math inline">\(H_0: p_{healthcare\_2013} =
+p_{healthcare\_2023}\)</span> vs. <span class="math inline">\(H_1:
+p_{healthcare\_2013} \neq p_{healthcare\_2023}\)</span></p>
+<pre class="r"><code>bil_indus_sum &lt;-
+  bil_13_23 |&gt; 
+  group_by(year) |&gt; 
+  summarize(
+    total = n(),
+    indus = sum(industries == &quot;Health care&quot;))
+bil_indus_sum|&gt; 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">year</th>
+<th align="right">total</th>
+<th align="right">indus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">2013</td>
+<td align="right">1469</td>
+<td align="right">59</td>
+</tr>
+<tr class="even">
+<td align="right">2023</td>
+<td align="right">2640</td>
+<td align="right">201</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>prop.test(x = c(filter(bil_indus_sum, year == 2013) |&gt; 
+              pull(indus), filter(bil_indus_sum, year == 2023) |&gt; pull(indus)), 
+          n = c(filter(bil_indus_sum, year == 2013) |&gt; 
+              pull(total), filter(bil_indus_sum, year == 2023) |&gt; pull(total))) |&gt; 
+  broom::tidy() |&gt; 
+  knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="5%" />
+<col width="6%" />
+<col width="7%" />
+<col width="7%" />
+<col width="45%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">estimate1</th>
+<th align="right">estimate2</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">parameter</th>
+<th align="right">conf.low</th>
+<th align="right">conf.high</th>
+<th align="left">method</th>
+<th align="left">alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0401634</td>
+<td align="right">0.0761364</td>
+<td align="right">20.00355</td>
+<td align="right">7.7e-06</td>
+<td align="right">1</td>
+<td align="right">-0.0507562</td>
+<td align="right">-0.0211898</td>
+<td align="left">2-sample test for equality of proportions with
+continuity correction</td>
+<td align="left">two.sided</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="anova-compare-the-net-worth-among-multiple-age-groups-in-2023"
+class="section level2">
+<h2>ANOVA: compare the net worth among multiple age groups in 2023</h2>
+<div id="diagnostics" class="section level3">
+<h3>Diagnostics</h3>
+<pre class="r"><code>bil_age &lt;-
+  bil_data |&gt; 
+  drop_na(age) |&gt; 
+  filter(year == 2023) |&gt; 
+  mutate(
+    age_group = 
+      case_when(
+        age &lt;= 55 ~ &quot;55 and below&quot;,
+        age &gt; 55 &amp; age &lt;= 65 ~ &quot;55~65&quot;,
+        age &gt; 65 &amp; age &lt;= 75 ~ &quot;65~75&quot;,
+        age &gt; 75 ~ &quot;over 75&quot;),
+    age_group = 
+      fct_relevel(age_group, c(&quot;55 and below&quot;, &quot;55~65&quot;, &quot;65~75&quot;, &quot;over 75&quot;)))
+# distribution of residuals
+model_ori = lm(net_worth ~ age_group, data = bil_age)
+
+model_ori[[2]] |&gt; 
+  as.data.frame() |&gt; 
+  rename(&quot;residuals&quot; = &quot;model_ori[[2]]&quot;) |&gt; 
+  ggplot(aes(x = residuals)) + geom_histogram() +
+  labs(x = &quot;residual&quot;, title = &quot;Histogram of errors&quot;)</code></pre>
+<p><img src="hypo_test_files/figure-html/anova%20diagnostics-1.png" width="672" /></p>
+<pre class="r"><code># boxplot
+bil_age |&gt; 
+  ggplot(aes(x = age_group, y = net_worth, fill = age_group)) + geom_boxplot()</code></pre>
+<p><img src="hypo_test_files/figure-html/anova%20diagnostics-2.png" width="672" /></p>
+<p>From the boxplot above, we can tell that the distribution of
+<code>net_worth</code> in each age group is right-skewed, which violates
+the normality and homoscedasticity assumptions of ANOVA. Hence, we have
+to transform the data before performing the ANOVA test.</p>
+</div>
+<div id="data-transformation" class="section level3">
+<h3>Data Transformation</h3>
+<pre class="r"><code># use boxcox method to transform the data
+L1 = boxcox(model_ori ,objective.name = &quot;Shapiro-Wilk&quot;,optimize = TRUE)$lambda
+
+bil_age &lt;-
+  bil_age |&gt; 
+  mutate(
+    net_worth_tran = (net_worth^(L1)-1)/L1)</code></pre>
+</div>
+<div id="diagnostics-after-transformation" class="section level3">
+<h3>Diagnostics After Transformation</h3>
+<pre class="r"><code># distribution of residuals
+model_t = lm(net_worth_tran ~ age_group, data = bil_age)
+
+model_t[[2]] |&gt; 
+  as.data.frame() |&gt; 
+  rename(&quot;residuals&quot; = &quot;model_t[[2]]&quot;) |&gt; 
+  ggplot(aes(x = residuals)) + geom_histogram() +
+  labs(x = &quot;residual&quot;, title = &quot;Histogram of errors&quot;)</code></pre>
+<p><img src="hypo_test_files/figure-html/anova%20diagnostics%20post-tran-1.png" width="672" /></p>
+<pre class="r"><code># boxplot
+bil_age |&gt; 
+  ggplot(aes(x = age_group, y = net_worth_tran, fill = age_group)) + geom_boxplot()</code></pre>
+<p><img src="hypo_test_files/figure-html/anova%20diagnostics%20post-tran-2.png" width="672" /></p>
+</div>
+<div id="anova-results" class="section level3">
+<h3>ANOVA Results</h3>
+<p><span class="math inline">\(H_0: \mu_{55\space and \space below} =
+\mu_{55-65} = \mu_{65-75} = \mu_{over \space 75}\)</span> vs. <span
+class="math inline">\(H_1:\)</span> at least one <span
+class="math inline">\(\mu\)</span> differs</p>
+<pre class="r"><code>summary(model_t) |&gt; broom::glance()</code></pre>
+<pre><code># A tibble: 1 × 8
+  r.squared adj.r.squared sigma statistic  p.value    df df.residual  nobs
+      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;       &lt;int&gt; &lt;dbl&gt;
+1    0.0177        0.0165 0.388      15.4 6.16e-10     3        2571  2575</code></pre>
+<p>Since the test result of ANOVA is significant, we want to know which
+group(s) have different mean <code>net_worth_tran</code> from the
+rest.</p>
+</div>
+<div id="pairwise-comparisons" class="section level3">
+<h3>Pairwise Comparisons</h3>
+<pre class="r"><code>res &lt;- aov(net_worth_tran ~ age_group, data = bil_age)
+TukeyHSD(res) |&gt; broom::tidy()</code></pre>
+<pre><code># A tibble: 6 × 7
+  term      contrast          null.value estimate conf.low conf.high adj.p.value
+  &lt;chr&gt;     &lt;chr&gt;                  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
+1 age_group 55~65-55 and bel…          0   0.0546 -5.49e-4    0.110     5.35e- 2
+2 age_group 65~75-55 and bel…          0   0.0936  3.76e-2    0.150     1.05e- 4
+3 age_group over 75-55 and b…          0   0.146   8.86e-2    0.203     2.58e-11
+4 age_group 65~75-55~65                0   0.0390 -1.50e-2    0.0931    2.47e- 1
+5 age_group over 75-55~65              0   0.0914  3.59e-2    0.147     1.38e- 4
+6 age_group over 75-65~75              0   0.0523 -3.99e-3    0.109     7.95e- 2</code></pre>
+<div id="visualize-the-result-in-a-boxplot" class="section level4">
+<h4>Visualize the result in a boxplot</h4>
+<pre class="r"><code>letter &lt;- multcompLetters4(res, TukeyHSD(res))
+letter_df &lt;- as.data.frame.list(letter[[1]])
+dt &lt;- 
+  bil_age |&gt; 
+  group_by(age_group) |&gt; 
+  summarize(pos = quantile(net_worth_tran)[4]) |&gt;  
+  mutate(letter = letter_df |&gt; pull(Letters))
+
+bil_age |&gt; 
+  ggplot(aes(x = age_group, y = net_worth_tran, fill = age_group)) + 
+  geom_boxplot() +
+  geom_text(data = dt, aes(x = age_group, y = pos, label = letter), 
+            hjust = -1.25, vjust = -0.8)</code></pre>
+<p><img src="hypo_test_files/figure-html/results%20visualization-1.png" width="672" /></p>
+</div>
+</div>
+</div>
+
+<hr>
+<div class="footer" style="text-align: center">Copyright &copy; P8105, Fall 2023</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

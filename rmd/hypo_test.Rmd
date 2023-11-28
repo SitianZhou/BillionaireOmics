@@ -1,0 +1,204 @@
+---
+title: "hypo_test"
+author: "Sitian Zhou, Mengxiao Luan, Shuchen Dong"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: "hide"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(multcompView)
+library(EnvStats)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  comment = NA
+  )
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+```
+
+
+```{r import & subset data}
+bil_data <-
+  read_csv("../data/billionaire_gdp.csv")
+
+bil_13_23 <-
+  bil_data |> 
+  filter(year == 2013 | year == 2023)
+```
+
+## Two sample prop test: Compare the proportion of female billionaires in 2013 and 2023
+
+$H_0: p_{female\_2013} = p_{female\_2023}$ vs. $H_1: p_{female\_2013} \neq p_{female\_2023}$
+
+
+```{r female billionaires summary}
+bil_gender_sum <-
+  bil_13_23 |>
+  drop_na(gender) |> 
+  group_by(year) |> 
+  summarize(
+    total = n(),
+    female = sum(gender == "Female"))
+bil_gender_sum|> 
+  knitr::kable()
+```
+
+
+```{r female billionaires prop.test}
+# perform 2-sample prop test for proportion of female billionaires in year 2013 and 2023
+prop.test(c(filter(bil_gender_sum, year == 2013) |> 
+              pull(female), filter(bil_gender_sum, year == 2023) |> pull(female)), 
+          n = c(filter(bil_gender_sum, year == 2013) |> 
+                  pull(total), filter(bil_gender_sum, year == 2023) |> pull(total))) |> 
+  broom::tidy() |> 
+  knitr::kable()
+```
+
+
+## Two sample prop test: Compare proportions of billionaires in health care industry in 2013 and 2023
+
+$H_0: p_{healthcare\_2013} = p_{healthcare\_2023}$ vs. $H_1: p_{healthcare\_2013} \neq p_{healthcare\_2023}$
+
+```{r industry summary}
+bil_indus_sum <-
+  bil_13_23 |> 
+  group_by(year) |> 
+  summarize(
+    total = n(),
+    indus = sum(industries == "Health care"))
+bil_indus_sum|> 
+  knitr::kable()
+```
+
+
+```{r prop.test for the industry in 2013 and 2023}
+prop.test(x = c(filter(bil_indus_sum, year == 2013) |> 
+              pull(indus), filter(bil_indus_sum, year == 2023) |> pull(indus)), 
+          n = c(filter(bil_indus_sum, year == 2013) |> 
+              pull(total), filter(bil_indus_sum, year == 2023) |> pull(total))) |> 
+  broom::tidy() |> 
+  knitr::kable()
+```
+
+## ANOVA: compare the net worth among multiple age groups in 2023
+
+### Diagnostics
+
+```{r anova diagnostics}
+bil_age <-
+  bil_data |> 
+  drop_na(age) |> 
+  filter(year == 2023) |> 
+  mutate(
+    age_group = 
+      case_when(
+        age <= 55 ~ "55 and below",
+        age > 55 & age <= 65 ~ "55~65",
+        age > 65 & age <= 75 ~ "65~75",
+        age > 75 ~ "over 75"),
+    age_group = 
+      fct_relevel(age_group, c("55 and below", "55~65", "65~75", "over 75")))
+# distribution of residuals
+model_ori = lm(net_worth ~ age_group, data = bil_age)
+
+model_ori[[2]] |> 
+  as.data.frame() |> 
+  rename("residuals" = "model_ori[[2]]") |> 
+  ggplot(aes(x = residuals)) + geom_histogram() +
+  labs(x = "residual", title = "Histogram of errors")
+
+# boxplot
+bil_age |> 
+  ggplot(aes(x = age_group, y = net_worth, fill = age_group)) + geom_boxplot()
+```
+
+From the boxplot above, we can tell that the distribution of `net_worth` in each age group is right-skewed, which violates the normality and homoscedasticity assumptions of ANOVA. Hence, we have to transform the data before performing the ANOVA test.
+
+### Data Transformation
+
+
+```{r transformation}
+# use boxcox method to transform the data
+L1 = boxcox(model_ori ,objective.name = "Shapiro-Wilk",optimize = TRUE)$lambda
+
+bil_age <-
+  bil_age |> 
+  mutate(
+    net_worth_tran = (net_worth^(L1)-1)/L1)
+
+```
+
+### Diagnostics After Transformation
+
+```{r anova diagnostics post-tran}
+# distribution of residuals
+model_t = lm(net_worth_tran ~ age_group, data = bil_age)
+
+model_t[[2]] |> 
+  as.data.frame() |> 
+  rename("residuals" = "model_t[[2]]") |> 
+  ggplot(aes(x = residuals)) + geom_histogram() +
+  labs(x = "residual", title = "Histogram of errors")
+
+# boxplot
+bil_age |> 
+  ggplot(aes(x = age_group, y = net_worth_tran, fill = age_group)) + geom_boxplot()
+
+```
+
+### ANOVA Results
+
+$H_0: \mu_{55\space and \space below} = \mu_{55-65} = \mu_{65-75} = \mu_{over \space 75}$ vs.
+$H_1:$ at least one $\mu$ differs
+
+```{r anova results}
+summary(model_t) |> broom::glance()
+```
+
+Since the test result of ANOVA is significant, we want to know which group(s) have different mean `net_worth_tran` from the rest.
+
+### Pairwise Comparisons
+
+```{r pairwise comparisons}
+res <- aov(net_worth_tran ~ age_group, data = bil_age)
+TukeyHSD(res) |> broom::tidy()
+
+```
+
+#### Visualize the result in a boxplot
+```{r results visualization}
+letter <- multcompLetters4(res, TukeyHSD(res))
+letter_df <- as.data.frame.list(letter[[1]])
+dt <- 
+  bil_age |> 
+  group_by(age_group) |> 
+  summarize(pos = quantile(net_worth_tran)[4]) |>  
+  mutate(letter = letter_df |> pull(Letters))
+
+bil_age |> 
+  ggplot(aes(x = age_group, y = net_worth_tran, fill = age_group)) + 
+  geom_boxplot() +
+  geom_text(data = dt, aes(x = age_group, y = pos, label = letter), 
+            hjust = -1.25, vjust = -0.8)
+```
+
+
+
+
+
