@@ -11,9 +11,9 @@
 
 <meta name="author" content="Sitian Zhou, Mengxiao Luan, Shuchen Dong" />
 
-<meta name="date" content="2023-11-27" />
+<meta name="date" content="2023-11-28" />
 
-<title>hypo_test</title>
+<title>Hypothesis Testing</title>
 
 <script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -398,13 +398,20 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">hypo_test</h1>
+<h1 class="title toc-ignore">Hypothesis Testing</h1>
 <h4 class="author">Sitian Zhou, Mengxiao Luan, Shuchen Dong</h4>
-<h4 class="date">2023-11-27</h4>
+<h4 class="date">2023-11-28</h4>
 
 </div>
 
 
+<p>Comments:</p>
+<ol style="list-style-type: decimal">
+<li><p>ANOVA assumptions violated (?) even after transformation b/c the
+test is too sensitive with large sample size</p></li>
+<li><p>need to combine with results in longitudinal EDA to determine
+which year/industry to look at</p></li>
+</ol>
 <pre class="r"><code>bil_data &lt;-
   read_csv(&quot;../data/billionaire_gdp.csv&quot;)
 
