@@ -98,12 +98,14 @@ First depict the overall wealth distribution of the billionaires.
 wealth_distribution_1 =
   bil_2023 |>
   ggplot(aes(x = net_worth)) +
-  geom_histogram()
+  geom_histogram() +
+  labs(x = "net wealth(billion dollars)")
 
 wealth_distribution_2 =
   bil_2023 |>
   ggplot(aes(x = net_worth)) +
-  geom_density()
+  geom_density() +
+  labs(x = "net wealth(billion dollars)")
 
 ggarrange(wealth_distribution_1, wealth_distribution_2,
           labels = c("A", "B"), ncol = 1, nrow = 2) |>
@@ -112,7 +114,33 @@ ggarrange(wealth_distribution_1, wealth_distribution_2,
                     face = "bold", size = 15))
 ```
 
-It can be seen from the plots that the wealth distribution in 2023 is right-skewed, with outliers lying on the right side of the axis.
+It can be seen from the plots that the wealth distribution in 2023 is right-skewed, with outliers lying on the right side of the axis. 
+
+Further transformation may be required for detailed tests and regression model fitting. Try a relatively simple transformation to better visualize the distribution shown above.
+
+```{r transformation}
+MASS::boxcox(lm(net_worth ~ 1, data = bil_2023))
+
+wealth_distribution_3 =
+  bil_2023 |>
+  ggplot(aes(x = net_worth^(-0.5))) +
+  geom_histogram() +
+  labs(x = "net wealth(transformed)")
+
+wealth_distribution_4 =
+  bil_2023 |>
+  ggplot(aes(x = net_worth^(-0.5))) +
+  geom_density() +
+  labs(x = "net wealth(transformed)")
+
+ggarrange(wealth_distribution_3, wealth_distribution_4,
+          labels = c("A", "B"), ncol = 1, nrow = 2) |>
+  annotate_figure(
+    top = text_grob("Transformed Wealth Distribution of Billionaires in 2023",
+                    face = "bold", size = 15))
+```
+
+The transformed distribution shows better normality compared with orignial data, yet more precise methods should be applied in further analysis, with the specific procedure depending on the analytic goal.
 
 Divide the whole population into several wealth groups to see detailed distribution in different groups.
 
@@ -148,19 +176,25 @@ billionairs_wealth |>
   count(net_worth) |>
   plot_ly(x = ~net_worth, y = ~n, color = ~net_worth,
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires in Different Wealth Groups")
+  layout(title = "Number of Billionaires in Different Wealth Groups",
+         xaxis = list(title = "net wealth(billion dollars)"),
+         yaxis = list(title = "number of billionaires"))
 
 ## age
 billionairs_wealth |>
   plot_ly(y = ~age, color = ~net_worth, type = "box", colors = "viridis") |>
-  layout(title = "Age Distribution of Different Wealth Groups")
+  layout(title = "Age Distribution of Different Wealth Groups",
+         xaxis = list(title = "net wealth(billion dollars)"),
+         yaxis = list(title = "age of billionaires"))
 
 ## gender
 wealth_gender_distribution =
   billionairs_wealth |>
   ggplot(aes(x = net_worth, fill = gender)) + 
   geom_histogram(stat = "count", position = "dodge", binwidth = 15) +
-  labs(title = "Gender Distribution of Different Wealth Groups")
+  labs(title = "Gender Distribution of Different Wealth Groups",
+       xaxis = list(title = "net wealth(billion dollars)"),
+       yaxis = list(title = "number of billionaires"))
 
 ggplotly(wealth_gender_distribution)
 ```
@@ -189,13 +223,17 @@ bil_2023 |>
   count(self_made) |>
   plot_ly(x = ~self_made, y =~n, color = ~self_made,
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires: Self-Made or Not")
+  layout(title = "Number of Billionaires: Self-Made or Not",
+         xaxis = list(title = "approach: self-made or not"),
+         yaxis = list(title = "number of billionaires"))
 
 ## net worth
 bil_2023 |>
   plot_ly(y = ~net_worth, color = ~self_made, 
           type = "box", colors = "viridis") |>
-  layout(title = "Net Wealth of Self-Made or Not Billionaires")
+  layout(title = "Net Wealth of Self-Made or Not Billionaires",
+         xaxis = list(title = "approach: self-made or not"),
+         yaxis = list(title = "net wealth(billion dollars)"))
 ```
 
 The proportion of self-made billionaires is way larger, yet there is no significant difference in the wealth distribution plot of the two groups.
@@ -220,13 +258,17 @@ bil_2023 |>
   count(wealth_status) |>
   plot_ly(x = ~wealth_status, y =~n, color = ~wealth_status,
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires with Different Wealth Status")
+  layout(title = "Number of Billionaires with Different Wealth Status",
+         xaxis = list(title = "wealth status"),
+         yaxis = list(title = "number of billionaires"))
 
 ## net worth
 bil_2023 |>
   plot_ly(y = ~net_worth, color = ~wealth_status, 
           type = "box", colors = "viridis") |>
-  layout(title = "Net Wealth of Billionaires with Different Wealth Status")
+  layout(title = "Net Wealth of Billionaires with Different Wealth Status",
+         xaxis = list(title = "wealth status"),
+         yaxis = list(title = "net wealth(billion dollars)"))
 ```
 
 The outliers in decreased and increased groups may indicate that billionaires with large amount of wealth tend to fluctuate in respect of net wealth.
@@ -285,18 +327,24 @@ billionairs_age |>
   count(age) |>
   plot_ly(x = ~age, y = ~n, color = ~age, 
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires in Different Age Groups")
+  layout(title = "Number of Billionaires in Different Age Groups",
+         xaxis = list(title = "age"),
+         yaxis = list(title = "number of billionaires"))
 
 ## net worth
 billionairs_age |>
   plot_ly(y = ~net_worth, color = ~age, type = "box", colors = "viridis") |>
-  layout(title = "Net Wealth of Different Age Groups")
+  layout(title = "Net Wealth of Different Age Groups",
+         xaxis = list(title = "age"),
+         yaxis = list(title = "net wealth(billion dollars)"))
 
 age_distribution_3 =  
   billionairs_age |>
   ggplot(aes(x = age, y = net_worth)) + 
   geom_violin(aes(fill = age), alpha = 0.5) +
-  labs(title = "Net Wealth of Different Age Groups")
+  labs(title = "Net Wealth of Different Age Groups",
+       x = "age of billionaires",
+       y = "net wealth(billion dollars)")
 
 ggplotly(age_distribution_3)
 ```
@@ -323,18 +371,24 @@ bil_2023 |>
   count(gender) |>
   plot_ly(x = ~gender, y = ~n, color = ~gender,
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires of Different Genders")
+  layout(title = "Number of Billionaires of Different Genders",
+         xaxis = list(title = "gender"),
+         yaxis = list(title = "number of billionaires"))
 
 ## net worth
 bil_2023 |>
   plot_ly(y = ~net_worth, color = ~gender, type = "box", colors = "viridis") |>
-  layout(title = "Net Wealth of Different Gender Groups")
+  layout(title = "Net Wealth of Different Gender Groups",
+         xaxis = list(title = "gender"),
+         yaxis = list(title = "net wealth(billion dollars)"))
 
 gender_distribution =   
   bil_2023 |>
   ggplot(aes(x = gender, y = net_worth)) +
   geom_violin(aes(fill = gender), alpha = 0.5) +
-  labs(title = "Net Wealth of Different Gender Groups")
+  labs(title = "Net Wealth of Different Gender Groups",
+       x = "gender of billionaires",
+       y = "net wealth(billion dollars)")
 
 ggplotly(gender_distribution)
 ```
@@ -349,7 +403,9 @@ age_gender_distribution =
   ggplot(aes(x = age, y = net_worth)) +
   geom_violin(aes(fill = age)) +
   facet_grid(gender~.) +
-  labs(title = "Net Wealth of Different Aenders and Age Groups")
+  labs(title = "Net Wealth of Different Aenders and Age Groups",
+       x = "age of billionaires",
+       y = "net wealth(billion dollars)")
 
 ggplotly(age_gender_distribution)
 ```
@@ -376,7 +432,9 @@ bil_2023 |>
   mutate(country_of_citizenship = fct_reorder(country_of_citizenship, n)) |>
   plot_ly(x = ~country_of_citizenship, y = ~n, color = ~country_of_citizenship,
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires with Different Citizenship")
+  layout(title = "Number of Billionaires with Different Citizenship",
+         xaxis = list(title = "country of citizenship"),
+         yaxis = list(title = "number of billionaires"))
 
 ## net worth of top 10
 citizenship = 
@@ -391,7 +449,9 @@ bil_2023 |>
   filter(country_of_citizenship %in% citizenship) |>
   plot_ly(x = ~country_of_citizenship, y = ~net_worth, 
           color = ~country_of_citizenship, type = "box", colors = "viridis") |>
-  layout(title = "Net Wealth of Billionaires with Different Citizenship")
+  layout(title = "Net Wealth of Billionaires with Different Citizenship",
+         xaxis = list(title = "country of citizenship(top 10)"),
+         yaxis = list(title = "net wealth(billion dollars)"))
 ```
 
 ```{r residence}
@@ -410,7 +470,9 @@ bil_2023 |>
   mutate(country_of_residence = fct_reorder(country_of_residence, n)) |>
   plot_ly(x = ~country_of_residence, y = ~n, color = ~country_of_residence,
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires with Different Residence")
+  layout(title = "Number of Billionaires with Different Residence",
+         xaxis = list(title = "country of residence"),
+         yaxis = list(title = "number of billionaires"))
 
 ## net worth in top 10
 residence = 
@@ -425,7 +487,9 @@ bil_2023 |>
   filter(country_of_residence %in% residence) |>
   plot_ly(x = ~country_of_residence, y = ~net_worth, 
           color = ~country_of_residence, type = "box", colors = "viridis") |>
-  layout(title = "Net Wealth of Billionaires with Different Residence")
+  layout(title = "Net Wealth of Billionaires with Different Residence",
+         xaxis = list(title = "country of residence(top 10)"),
+         yaxis = list(title = "net wealth(billion dollars)"))
 ```
 
 There are actually many overlaps in the country with most cizitenship and residence, which leads to the similarity in the two box plots.
@@ -450,20 +514,26 @@ bil_2023 |>
   mutate(industries = fct_reorder(industries, n)) |>
   plot_ly(x = ~industries, y = ~n, color = ~industries,
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires in Different Industries")
+  layout(title = "Number of Billionaires in Different Industries",
+         xaxis = list(title = "industry field"),
+         yaxis = list(title = "number of billionaires"))
 
 ## net worth
 bil_2023 |>
   plot_ly(x = ~industries, y = ~net_worth, color = ~industries,
           type = "box", colors = "viridis") |>
-  layout(title = "Net Wealth of Billionaires in Different Industries")
+  layout(title = "Net Wealth of Billionaires in Different Industries",
+         xaxis = list(title = "industry field"),
+         yaxis = list(title = "net wealth(billion dollars)"))
 
 bil_2023 |>
   mutate(industries = fct_reorder(industries, net_worth)) |>
   ggplot(aes(y = industries, x = net_worth)) +
   geom_violin(aes(fill = industries), alpha = 0.5) +
   theme(legend.position = "bottom") +
-  labs(title = "Net Wealth of Billionaires in Different Industries")
+  labs(title = "Net Wealth of Billionaires in Different Industries",
+       x = "industry field",
+       y = "net wealth(billion dollars)")
 ```
 
 The wealth distributions in different industries look close to each other due to the extreme outliers, which requires further test to verify the potential trends.
@@ -502,7 +572,9 @@ year_gender_distribution_1 =
   bil_2013_2023 |>
   ggplot(aes(x = gender, group = year, fill = year)) +
   geom_histogram(stat = "count", position = "dodge") +
-  labs(title = "Gender Distribution: 2013 versus 2023")
+  labs(title = "Gender Distribution: 2013 versus 2023",
+       x = "gender of billionaires",
+       y = "number of billionaires")
 
 ggplotly(year_gender_distribution_1)
 
@@ -510,13 +582,18 @@ ggplotly(year_gender_distribution_1)
 bil_2013_2023 |>
   plot_ly(x = ~year, y = ~net_worth, color = ~year,
           type = "box", colors = "viridis") |>
-  layout(title = "Overall Wealth Distribution: 2013 versus 2023")
+  layout(title = "Overall Wealth Distribution: 2013 versus 2023",
+         xaxis = list(title = "year of data collection"),
+         yaxis = list(title = "net wealth(billion dollars)"))
 
 year_gender_distribution_2 =
   bil_2013_2023 |>
   ggplot(aes(y = net_worth, x = gender, fill = gender)) +
   geom_violin() +
-  facet_grid(.~year)
+  facet_grid(.~year) +
+  labs(title = "Wealth Distribution over Gender and Year",
+       x = "gender of billionaires",
+       y = "net wealth(billion dollars)")
 
 ggplotly(year_gender_distribution_2)
 ```
@@ -541,7 +618,9 @@ bil_gdp |>
   plot_ly(x = ~industries, y = ~n_obs, color = ~industries,
           mode = "markers", text = ~text_label, 
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires in Different Industries")
+  layout(title = "Number of Billionaires in Different Industries",
+         xaxis = list(title = "industry field"),
+         yaxis = list(title = "number of billionaires"))
 
 ## net worth
 bil_gdp |>
@@ -553,7 +632,9 @@ bil_gdp |>
   plot_ly(x = ~industries, y = ~net_worth, color = ~industries, 
           mode = "markers", text = ~text_label, 
           type = "scatter", colors = "viridis") |>
-  layout(title = "Net Wealth versus Industry GDP")
+  layout(title = "Net Wealth versus Industry GDP",
+         xaxis = list(title = "industry GDP(trillion dollars)"),
+         yaxis = list(title = "net wealth of billionaires(billion dollars)"))
 ```
 
 It can be seen from the plot that the number and net wealth of billionaires are quite different in different industries, with largest number and wealth falling in Finance & Investments and Technology, respectively.
