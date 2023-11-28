@@ -13,6 +13,8 @@ library(leaflet)
 library(DT)
 library(plotly)
 
+source("./utils.R")
+
 # Define UI for application
 header = dashboardHeader(
   title = "BillionairesOmics"
@@ -22,8 +24,8 @@ sidebar = dashboardSidebar(
   sidebarMenu(
     menuItem("Global Map", tabName = "dashboard", icon = icon("map")),
     menuItem("Chart", tabName = "charts", icon = icon("chart-bar"),
-        menuSubItem("Inter-Region", tabName = "view1"),
-        menuSubItem("Intra-Region", tabName = "view2")
+        menuSubItem("Global", tabName = "view1"),
+        menuSubItem("Regional", tabName = "view2")
     ),
     menuItem("Data", tabName = "data", icon = icon("database"))
   )
@@ -38,7 +40,7 @@ map = fluidRow(
         column(width = 3, 
             box(
                 width = "100%",
-                sliderInput("mapYear", "Select Year:", 
+                sliderInput("mapYear", "Year:", 
                     min = 2010, max = 2022, value = 2022)
             )
         ),
@@ -63,31 +65,52 @@ db = fluidRow(
 
 )
 
-h = 200
+h = 250
 view1 = fluidRow(
     
-    column(width = 8,
+    column(width = 9,
         box(width = "50%", solidHeader = TRUE,
             plotlyOutput("view1a", height = h),
             plotlyOutput("view1b", height = h),
             plotlyOutput("view1c", height = h),
-            plotlyOutput("view1d", height = h)
+            plotlyOutput("view1d", height = h*1.5)
         )
     ), 
-    column(width = 4,
+    column(width = 3,
         box(width = "100%", solidHeader = TRUE,
-            sliderInput("view1Year", "Select Year:", 
+            sliderInput("view1Year", "Year:", 
                 min = 2010, max = 2022, value = 2022)
         ),
         box(width = "100%", solidHeader = TRUE,
-            sliderInput("view1Age", "Select Age:", 
+            sliderInput("view1Age", "Age:", 
                 min = 1, max = 100, value = c(1, 100))
         )
     )
 )
 
+h = 300
 view2 = fluidRow(
-    
+    column(width = 9,
+        box(width = "50%", solidHeader = TRUE,
+            plotlyOutput("view2a", height = h),
+            plotlyOutput("view2b", height = h),
+            plotlyOutput("view2c", height = h*1.5)
+        )
+    ),
+    column(width = 3,
+        box(width = "100%", solidHeader = TRUE,
+            sliderInput("view2Year", "Year:", 
+                min = 2010, max = 2022, value = 2022)
+        ),
+        box(width = "100%", solidHeader = TRUE,
+            sliderInput("view2Rank", "Rank Range:", 
+                min = 1, max = 20, value = c(1, 10))
+        ),
+        box(width = NULL, solidHeader = TRUE,
+            checkboxGroupInput("view2Region", "Region:",
+                choices = region_options(), selected = c("United States (USA)", "China (CHN)"))
+        )
+    )
 )
 
 
@@ -99,58 +122,6 @@ body = dashboardBody(
         tabItem(tabName = "data", db)
     )
 )
-
-# test_body = fluidRow(
-#     column(width = 9,
-#       box(width = NULL, solidHeader = TRUE,
-#         leafletOutput("busmap", height = 500)
-#       ),
-#       box(width = NULL,
-#         uiOutput("numVehiclesTable")
-#       )
-#     ),
-#     column(width = 3,
-#       box(width = NULL, status = "warning",
-#         uiOutput("routeSelect"),
-#         checkboxGroupInput("directions", "Show",
-#           choices = c(
-#             Northbound = 4,
-#             Southbound = 1,
-#             Eastbound = 2,
-#             Westbound = 3
-#           ),
-#           selected = c(1, 2, 3, 4)
-#         ),
-#         p(
-#           class = "text-muted",
-#           paste("Note: a route number can have several different trips, each",
-#                 "with a different path. Only the most commonly-used path will",
-#                 "be displayed on the map."
-#           )
-#         ),
-#         actionButton("zoomButton", "Zoom to fit buses")
-#       ),
-#       box(width = NULL, status = "warning",
-#         selectInput("interval", "Refresh interval",
-#           choices = c(
-#             "15 seconds" = 15,
-#             "30 seconds" = 30,
-#             "1 minute" = 60,
-#             "2 minutes" = 120,
-#             "5 minutes" = 300,
-#             "10 minutes" = 600
-#           ),
-#           selected = "60"
-#         ),
-#         uiOutput("timeSinceLastUpdate"),
-#         actionButton("refresh", "Refresh now"),
-#         p(class = "text-muted",
-#           br(),
-#           "Source data updates every 15 seconds."
-#         )
-#       )
-#     )
-#   )
 
 dashboardPage(
   header,
