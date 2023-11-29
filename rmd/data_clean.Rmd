@@ -80,6 +80,36 @@ bil_2010_2023_clean <-
 
 ```
 
+### Billionaires 2023 with GDP data
+
+* changed the unit of `final_worth` to billion; result column as `net_worth`
+* cleaned `gdp_country`; changed the unit to trillion
+* recoded `gender`
+* selected/renamed variables
+
+```{r}
+bil_gdp_2023 <-
+  read_csv("../data/raw/billionaires_2023.csv")
+
+bil_gdp_2023_clean <-
+  bil_gdp_2023 |> 
+  clean_names() |> 
+  mutate(
+    net_worth = final_worth / 1000,
+    gdp_country = str_replace_all(gdp_country, "[$,]", ""),
+    gdp_country = as.numeric(gdp_country) / 1e12,
+    gender = 
+      case_match(
+        gender,
+        "F" ~ "Female",
+        "M" ~ "Male")) |>
+  select(net_worth, full_name = person_name, age, gender, 
+         country_of_citizenship, country_of_residence = country, 
+         city_of_residence = city, industries, self_made, cpi_country, 
+         cpi_change_country, gdp_country, life_expectancy_country)
+
+```
+
 
 ## Region-level GDP 
 
@@ -270,6 +300,7 @@ bil_gdp_indus_usa <-
 write_csv(bil_gdp_2010_2023, "../data/tidy/billionaire_gdp.csv")
 write_csv(bil_gdp_indus_usa, "../data/tidy/billionaire_gdp_indus_usa.csv")
 write_csv(country_gdp_clean, "../data/tidy/gdp.csv")
+write_csv(bil_gdp_2023_clean, "../data/tidy/billionaire_2023.csv")
 ```
 
 ## Description for tidy data
@@ -293,7 +324,7 @@ Describe dataset saved for downstream analysis.
 
 `industries`: specific industries within the broader category.
 
-`region_gdp`: the real GDP (in trillions of dollars) for each country or region the billionaire resides
+`region_gdp`: the real GDP (in trillions of dollars) for each country or region the billionaire resides. It only contains GDP data from 2010 to 2022.
 
 `region_code`: the three-letter code of the corresponding country or region the billionaire resides
 
@@ -313,5 +344,23 @@ This dataset includes information of GDP data of each region
 `year`: year
 `gdp`: GDP value (billion as unit)
 
+*billionaire_2023.csv*
 
+`year`:the year in which the data was collected
+
+`net_worth`: net worth of the billionaire (in billions of dollars)
+
+`full_name`, `age`, and `gender`: the name, age, and gender of the billionaire, respectively
+
+`country_of_citizenship`, `country_of_residence`, and `city_of_residence`: residence details spanning country, city, and citizenship of the billionaire
+
+`self_made`: Indicates whether the billionaire is self-made (True/False).
+
+`cpi_country`: Consumer Price Index (CPI) for the billionaire's country
+
+`cpi_change_country`: CPI change for the billionaire's country
+
+`gdp_country`: Gross Domestic Product (GDP) for the billionaire's country
+
+`life_expectancy_country`: Life expectancy in the billionaire's country.
 

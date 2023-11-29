@@ -11,11 +11,11 @@
 
 <meta name="author" content="Sitian Zhou, Pei Tian" />
 
-<meta name="date" content="2023-11-26" />
+<meta name="date" content="2023-11-29" />
 
 <title>Data cleaning</title>
 
-<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -388,7 +388,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Data cleaning</h1>
 <h4 class="author">Sitian Zhou, Pei Tian</h4>
-<h4 class="date">2023-11-26</h4>
+<h4 class="date">2023-11-29</h4>
 
 </div>
 
@@ -455,6 +455,35 @@ bil_2010_2023_clean &lt;-
   left_join(country_code, c(&quot;country_of_residence&quot; = &quot;country_name&quot;)) |&gt; 
   select(-c(month, rank, last_name, first_name, birth_date, business_category,
             business_industries, organization_name, position_in_organization))</code></pre>
+</div>
+<div id="billionaires-2023-with-gdp-data" class="section level3">
+<h3>Billionaires 2023 with GDP data</h3>
+<ul>
+<li>changed the unit of <code>final_worth</code> to billion; result
+column as <code>net_worth</code></li>
+<li>cleaned <code>gdp_country</code>; changed the unit to trillion</li>
+<li>recoded <code>gender</code></li>
+<li>selected/renamed variables</li>
+</ul>
+<pre class="r"><code>bil_gdp_2023 &lt;-
+  read_csv(&quot;../data/raw/billionaires_2023.csv&quot;)
+
+bil_gdp_2023_clean &lt;-
+  bil_gdp_2023 |&gt; 
+  clean_names() |&gt; 
+  mutate(
+    net_worth = final_worth / 1000,
+    gdp_country = str_replace_all(gdp_country, &quot;[$,]&quot;, &quot;&quot;),
+    gdp_country = as.numeric(gdp_country) / 1e12,
+    gender = 
+      case_match(
+        gender,
+        &quot;F&quot; ~ &quot;Female&quot;,
+        &quot;M&quot; ~ &quot;Male&quot;)) |&gt;
+  select(net_worth, full_name = person_name, age, gender, 
+         country_of_citizenship, country_of_residence = country, 
+         city_of_residence = city, industries, self_made, cpi_country, 
+         cpi_change_country, gdp_country, life_expectancy_country)</code></pre>
 </div>
 </div>
 <div id="region-level-gdp" class="section level2">
@@ -635,7 +664,8 @@ reg_match &lt;-
 <pre class="r"><code>### save useful files &amp; add some description
 write_csv(bil_gdp_2010_2023, &quot;../data/tidy/billionaire_gdp.csv&quot;)
 write_csv(bil_gdp_indus_usa, &quot;../data/tidy/billionaire_gdp_indus_usa.csv&quot;)
-write_csv(country_gdp_clean, &quot;../data/tidy/gdp.csv&quot;)</code></pre>
+write_csv(country_gdp_clean, &quot;../data/tidy/gdp.csv&quot;)
+write_csv(bil_gdp_2023_clean, &quot;../data/tidy/billionaire_2023.csv&quot;)</code></pre>
 </div>
 <div id="description-for-tidy-data" class="section level2">
 <h2>Description for tidy data</h2>
@@ -657,7 +687,8 @@ wealth, whether it’s rising, stable, or declining</p>
 <p><code>industries</code>: specific industries within the broader
 category.</p>
 <p><code>region_gdp</code>: the real GDP (in trillions of dollars) for
-each country or region the billionaire resides</p>
+each country or region the billionaire resides. It only contains GDP
+data from 2010 to 2022.</p>
 <p><code>region_code</code>: the three-letter code of the corresponding
 country or region the billionaire resides</p>
 <p><em>billionaire_gdp_indus_usa.csv</em></p>
@@ -671,6 +702,26 @@ the industry</p>
 <p><code>name</code>: region name (country or SAR(special administration
 area)) <code>code</code>: region code <code>year</code>: year
 <code>gdp</code>: GDP value (billion as unit)</p>
+<p><em>billionaire_2023.csv</em></p>
+<p><code>year</code>:the year in which the data was collected</p>
+<p><code>net_worth</code>: net worth of the billionaire (in billions of
+dollars)</p>
+<p><code>full_name</code>, <code>age</code>, and <code>gender</code>:
+the name, age, and gender of the billionaire, respectively</p>
+<p><code>country_of_citizenship</code>,
+<code>country_of_residence</code>, and <code>city_of_residence</code>:
+residence details spanning country, city, and citizenship of the
+billionaire</p>
+<p><code>self_made</code>: Indicates whether the billionaire is
+self-made (True/False).</p>
+<p><code>cpi_country</code>: Consumer Price Index (CPI) for the
+billionaire’s country</p>
+<p><code>cpi_change_country</code>: CPI change for the billionaire’s
+country</p>
+<p><code>gdp_country</code>: Gross Domestic Product (GDP) for the
+billionaire’s country</p>
+<p><code>life_expectancy_country</code>: Life expectancy in the
+billionaire’s country.</p>
 </div>
 
 <hr>
