@@ -403,9 +403,8 @@ gdp &lt;- read.csv(&quot;../data/gdp.csv&quot;)</code></pre>
 <h2>GDP-Temporal Wealth Patterns:</h2>
 <p>Examine the rise and fall of billionaire wealth across different
 economic cycles, including booms, busts, and recoveries.</p>
-</div>
-<div id="different-country-gdp-overtime." class="section level2">
-<h2>1. different country GDP overtime.</h2>
+<div id="different-country-gdp-overtime." class="section level3">
+<h3>different country GDP overtime.</h3>
 <pre class="r"><code>countries &lt;- c(&quot;USA&quot;, &quot;CHN&quot;, &quot;RUS&quot;, &quot;JPN&quot;, &quot;DEU&quot;)
 
 gdp_selected &lt;- 
@@ -423,9 +422,9 @@ ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
 </div>
 <div
 id="for-billionaire_gdp-net_worth-for-different-country-top-5-over-time"
-class="section level2">
-<h2>2. for billionaire_gdp, net_worth for different country top 5 over
-time</h2>
+class="section level3">
+<h3>for billionaire_gdp, net_worth for different country top 5 over
+time</h3>
 <pre class="r"><code>data_filtered &lt;- billionaire_gdp %&gt;%
   filter(year &gt;= 2010 &amp; year &lt;= 2023)
 
@@ -454,8 +453,10 @@ ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group
        x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
        color = &quot;Country of Citizenship&quot;)</code></pre>
 <p><img src="time_data_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<div id="gender" class="section level3">
-<h3>Gender</h3>
+</div>
+</div>
+<div id="gender" class="section level2">
+<h2>Gender</h2>
 <pre class="r"><code>billionaires_filtered &lt;- billionaire_gdp_indus_usa %&gt;%
   filter(year &gt;= 2017 &amp; year &lt;= 2022) %&gt;%
   na.omit()
@@ -473,14 +474,12 @@ ggplot(average_net_worth_by_year_gender, aes(x = year, y = average_net_worth, co
 <p><img src="time_data_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
 <div id="industry-lifecycles-and-billionaire-wealth"
-class="section level3">
-<h3>Industry-Lifecycles and Billionaire Wealth</h3>
+class="section level2">
+<h2>Industry-Lifecycles and Billionaire Wealth</h2>
 <p>Explore how technological disruptions in various sectors impact the
 net worth and ranking of billionaires over time.</p>
-</div>
-</div>
-<div id="industry-gdp-change-over-time" class="section level2">
-<h2>industry gdp change over time</h2>
+<div id="industry-gdp-change-over-time" class="section level3">
+<h3>industry gdp change over time</h3>
 <pre class="r"><code>data_filtered &lt;- billionaire_gdp_indus_usa %&gt;%
   filter(year &gt;= 2017 &amp; year &lt;= 2022)
 
@@ -496,6 +495,7 @@ ggplot(average_gdp_by_year_industry, aes(x = year, y = average_industry_gdp, gro
        x = &quot;Year&quot;, y = &quot;Industry GDP&quot;,
        color = &quot;Industries&quot;)</code></pre>
 <p><img src="time_data_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
 </div>
 <div
 id="find-different-city-of-residence-billionaire-net-worth-change-over-time"

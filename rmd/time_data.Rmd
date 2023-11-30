@@ -27,7 +27,7 @@ gdp <- read.csv("../data/gdp.csv")
 ## GDP-Temporal Wealth Patterns:
 Examine the rise and fall of billionaire wealth across different economic cycles, including booms, busts, and recoveries.
 
-## 1. different country GDP overtime.
+### different country GDP overtime.
 ```{r warning=FALSE}
 countries <- c("USA", "CHN", "RUS", "JPN", "DEU")
 
@@ -45,7 +45,7 @@ ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
 
 ```
 
-## 2. for billionaire_gdp, net_worth for different country top 5 over time
+### for billionaire_gdp, net_worth for different country top 5 over time
 ```{r warning=FALSE}
 data_filtered <- billionaire_gdp %>%
   filter(year >= 2010 & year <= 2023)
@@ -77,7 +77,7 @@ ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group
 
 ```
 
-### Gender
+## Gender
 
 ```{r warning=FALSE}
 
@@ -98,10 +98,10 @@ ggplot(average_net_worth_by_year_gender, aes(x = year, y = average_net_worth, co
 
 ```
 
-### Industry-Lifecycles and Billionaire Wealth 
+## Industry-Lifecycles and Billionaire Wealth 
 Explore how technological disruptions in various sectors impact the net worth and ranking of billionaires over time.
 
-## industry gdp change over time
+### industry gdp change over time
 ```{r warning=FALSE}
 
 data_filtered <- billionaire_gdp_indus_usa %>%
