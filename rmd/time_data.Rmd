@@ -2,18 +2,21 @@
 title: "EDA_Longitudinal"
 date: "2023-11-28"
 output: html_document
+        github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
-library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+
 library(dplyr)
-library(plotly)
+library(ggplot2)
 ```
 
-```{r}
-str(data)
+## load data
+```{r warning=FALSE}
+billionaire_gdp_indus_usa <- read.csv("./data/billionaire_gdp_indus_usa.csv")
+billionaire_gdp <- read.csv("./data/billionaire_gdp.csv")
+gdp <- read.csv("./data/gdp.csv")
 ```
 
 ## GDP-Temporal Wealth Patterns:
