@@ -43,7 +43,7 @@ bil_13_23 <-
   filter(year == 2013 | year == 2023)
 ```
 
-## Paired two sample prop test: compare wealth of billionaires between 2013 and 2023
+## Paired t-test: compare wealth of billionaires between 2013 and 2023
 
 ```{r}
 bil_name_13 <-
@@ -73,60 +73,6 @@ t.test(bil_diff_13_23 |> pull(`2023`), bil_diff_13_23 |> pull(`2013`), paired = 
 
 
 
-## Two sample prop test: Compare the proportion of female billionaires in 2013 and 2023
-
-$H_0: p_{female\_2013} = p_{female\_2023}$ vs. $H_1: p_{female\_2013} \neq p_{female\_2023}$
-
-
-```{r female billionaires summary}
-bil_gender_sum <-
-  bil_13_23 |>
-  drop_na(gender) |> 
-  group_by(year) |> 
-  summarize(
-    total = n(),
-    female = sum(gender == "Female"))
-bil_gender_sum|> 
-  knitr::kable()
-```
-
-
-```{r female billionaires prop.test}
-# perform 2-sample prop test for proportion of female billionaires in year 2013 and 2023
-prop.test(c(filter(bil_gender_sum, year == 2013) |> 
-              pull(female), filter(bil_gender_sum, year == 2023) |> pull(female)), 
-          n = c(filter(bil_gender_sum, year == 2013) |> 
-                  pull(total), filter(bil_gender_sum, year == 2023) |> pull(total))) |> 
-  broom::tidy() |> 
-  knitr::kable()
-```
-
-
-## Two sample prop test: Compare proportions of billionaires in health care industry in 2013 and 2023
-
-$H_0: p_{healthcare\_2013} = p_{healthcare\_2023}$ vs. $H_1: p_{healthcare\_2013} \neq p_{healthcare\_2023}$
-
-```{r industry summary}
-bil_indus_sum <-
-  bil_13_23 |> 
-  group_by(year) |> 
-  summarize(
-    total = n(),
-    indus = sum(industries == "Health care"))
-bil_indus_sum|> 
-  knitr::kable()
-```
-
-
-```{r prop.test for the industry in 2013 and 2023}
-prop.test(x = c(filter(bil_indus_sum, year == 2013) |> 
-              pull(indus), filter(bil_indus_sum, year == 2023) |> pull(indus)), 
-          n = c(filter(bil_indus_sum, year == 2013) |> 
-              pull(total), filter(bil_indus_sum, year == 2023) |> pull(total))) |> 
-  broom::tidy() |> 
-  knitr::kable()
-```
-
 ## t-test: compaire the wealth among gender groups in billionaires 2023
 
 ### test for equal variance
@@ -141,7 +87,7 @@ var.test(filter(bil_gender, gender == "Male") |> pull(net_worth),
        filter(bil_gender, gender == "Female") |> pull(net_worth))
 ```
 
-## perform the t-test
+### perform the t-test
 
 ```{r gender t-test}
 t.test(filter(bil_gender, gender == "Male") |> pull(net_worth), 
@@ -284,6 +230,60 @@ prop_res_df |>
   knitr::kable(digits = 3)
 ```
 
+## Other tests (w/ independence issue)
 
+### Two sample prop test: Compare the proportion of female billionaires in 2013 and 2023
+
+$H_0: p_{female\_2013} = p_{female\_2023}$ vs. $H_1: p_{female\_2013} \neq p_{female\_2023}$
+
+
+```{r female billionaires summary}
+bil_gender_sum <-
+  bil_13_23 |>
+  drop_na(gender) |> 
+  group_by(year) |> 
+  summarize(
+    total = n(),
+    female = sum(gender == "Female"))
+bil_gender_sum|> 
+  knitr::kable()
+```
+
+
+```{r female billionaires prop.test}
+# perform 2-sample prop test for proportion of female billionaires in year 2013 and 2023
+prop.test(c(filter(bil_gender_sum, year == 2013) |> 
+              pull(female), filter(bil_gender_sum, year == 2023) |> pull(female)), 
+          n = c(filter(bil_gender_sum, year == 2013) |> 
+                  pull(total), filter(bil_gender_sum, year == 2023) |> pull(total))) |> 
+  broom::tidy() |> 
+  knitr::kable()
+```
+
+
+### Two sample prop test: Compare proportions of billionaires in health care industry in 2013 and 2023
+
+$H_0: p_{healthcare\_2013} = p_{healthcare\_2023}$ vs. $H_1: p_{healthcare\_2013} \neq p_{healthcare\_2023}$
+
+```{r industry summary}
+bil_indus_sum <-
+  bil_13_23 |> 
+  group_by(year) |> 
+  summarize(
+    total = n(),
+    indus = sum(industries == "Health care"))
+bil_indus_sum|> 
+  knitr::kable()
+```
+
+
+```{r prop.test for the industry in 2013 and 2023}
+prop.test(x = c(filter(bil_indus_sum, year == 2013) |> 
+              pull(indus), filter(bil_indus_sum, year == 2023) |> pull(indus)), 
+          n = c(filter(bil_indus_sum, year == 2013) |> 
+              pull(total), filter(bil_indus_sum, year == 2023) |> pull(total))) |> 
+  broom::tidy() |> 
+  knitr::kable()
+```
 
 

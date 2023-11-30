@@ -413,10 +413,10 @@ bil_13_23 &lt;-
   bil_data |&gt; 
   filter(year == 2013 | year == 2023)</code></pre>
 <div
-id="paired-two-sample-prop-test-compare-wealth-of-billionaires-between-2013-and-2023"
+id="paired-t-test-compare-wealth-of-billionaires-between-2013-and-2023"
 class="section level2">
-<h2>Paired two sample prop test: compare wealth of billionaires between
-2013 and 2023</h2>
+<h2>Paired t-test: compare wealth of billionaires between 2013 and
+2023</h2>
 <pre class="r"><code>bil_name_13 &lt;-
   bil_data |&gt; 
   filter(year == 2013) |&gt; 
@@ -452,176 +452,6 @@ mean difference
        3.450127 </code></pre>
 </div>
 <div
-id="two-sample-prop-test-compare-the-proportion-of-female-billionaires-in-2013-and-2023"
-class="section level2">
-<h2>Two sample prop test: Compare the proportion of female billionaires
-in 2013 and 2023</h2>
-<p><span class="math inline">\(H_0: p_{female\_2013} =
-p_{female\_2023}\)</span> vs. <span class="math inline">\(H_1:
-p_{female\_2013} \neq p_{female\_2023}\)</span></p>
-<pre class="r"><code>bil_gender_sum &lt;-
-  bil_13_23 |&gt;
-  drop_na(gender) |&gt; 
-  group_by(year) |&gt; 
-  summarize(
-    total = n(),
-    female = sum(gender == &quot;Female&quot;))
-bil_gender_sum|&gt; 
-  knitr::kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="right">year</th>
-<th align="right">total</th>
-<th align="right">female</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">2013</td>
-<td align="right">1420</td>
-<td align="right">138</td>
-</tr>
-<tr class="even">
-<td align="right">2023</td>
-<td align="right">2638</td>
-<td align="right">336</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code># perform 2-sample prop test for proportion of female billionaires in year 2013 and 2023
-prop.test(c(filter(bil_gender_sum, year == 2013) |&gt; 
-              pull(female), filter(bil_gender_sum, year == 2023) |&gt; pull(female)), 
-          n = c(filter(bil_gender_sum, year == 2013) |&gt; 
-                  pull(total), filter(bil_gender_sum, year == 2023) |&gt; pull(total))) |&gt; 
-  broom::tidy() |&gt; 
-  knitr::kable()</code></pre>
-<table>
-<colgroup>
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="7%" />
-<col width="7%" />
-<col width="45%" />
-<col width="7%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="right">estimate1</th>
-<th align="right">estimate2</th>
-<th align="right">statistic</th>
-<th align="right">p.value</th>
-<th align="right">parameter</th>
-<th align="right">conf.low</th>
-<th align="right">conf.high</th>
-<th align="left">method</th>
-<th align="left">alternative</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">0.0971831</td>
-<td align="right">0.1273692</td>
-<td align="right">7.863506</td>
-<td align="right">0.0050442</td>
-<td align="right">1</td>
-<td align="right">-0.0507079</td>
-<td align="right">-0.0096643</td>
-<td align="left">2-sample test for equality of proportions with
-continuity correction</td>
-<td align="left">two.sided</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div
-id="two-sample-prop-test-compare-proportions-of-billionaires-in-health-care-industry-in-2013-and-2023"
-class="section level2">
-<h2>Two sample prop test: Compare proportions of billionaires in health
-care industry in 2013 and 2023</h2>
-<p><span class="math inline">\(H_0: p_{healthcare\_2013} =
-p_{healthcare\_2023}\)</span> vs. <span class="math inline">\(H_1:
-p_{healthcare\_2013} \neq p_{healthcare\_2023}\)</span></p>
-<pre class="r"><code>bil_indus_sum &lt;-
-  bil_13_23 |&gt; 
-  group_by(year) |&gt; 
-  summarize(
-    total = n(),
-    indus = sum(industries == &quot;Health care&quot;))
-bil_indus_sum|&gt; 
-  knitr::kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="right">year</th>
-<th align="right">total</th>
-<th align="right">indus</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">2013</td>
-<td align="right">1425</td>
-<td align="right">57</td>
-</tr>
-<tr class="even">
-<td align="right">2023</td>
-<td align="right">2638</td>
-<td align="right">200</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>prop.test(x = c(filter(bil_indus_sum, year == 2013) |&gt; 
-              pull(indus), filter(bil_indus_sum, year == 2023) |&gt; pull(indus)), 
-          n = c(filter(bil_indus_sum, year == 2013) |&gt; 
-              pull(total), filter(bil_indus_sum, year == 2023) |&gt; pull(total))) |&gt; 
-  broom::tidy() |&gt; 
-  knitr::kable()</code></pre>
-<table>
-<colgroup>
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="5%" />
-<col width="6%" />
-<col width="7%" />
-<col width="7%" />
-<col width="45%" />
-<col width="7%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="right">estimate1</th>
-<th align="right">estimate2</th>
-<th align="right">statistic</th>
-<th align="right">p.value</th>
-<th align="right">parameter</th>
-<th align="right">conf.low</th>
-<th align="right">conf.high</th>
-<th align="left">method</th>
-<th align="left">alternative</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">0.04</td>
-<td align="right">0.075815</td>
-<td align="right">19.42937</td>
-<td align="right">1.04e-05</td>
-<td align="right">1</td>
-<td align="right">-0.0506924</td>
-<td align="right">-0.0209376</td>
-<td align="left">2-sample test for equality of proportions with
-continuity correction</td>
-<td align="left">two.sided</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div
 id="t-test-compaire-the-wealth-among-gender-groups-in-billionaires-2023"
 class="section level2">
 <h2>t-test: compaire the wealth among gender groups in billionaires
@@ -647,9 +477,8 @@ sample estimates:
 ratio of variances 
            1.20689 </code></pre>
 </div>
-</div>
-<div id="perform-the-t-test" class="section level2">
-<h2>perform the t-test</h2>
+<div id="perform-the-t-test" class="section level3">
+<h3>perform the t-test</h3>
 <pre class="r"><code>t.test(filter(bil_gender, gender == &quot;Male&quot;) |&gt; pull(net_worth), 
        filter(bil_gender, gender == &quot;Female&quot;) |&gt; pull(net_worth),
        var.equal = TRUE) |&gt; 
@@ -659,6 +488,7 @@ ratio of variances
      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
 1   -0.224      3.79      4.01    -0.464   0.643      1418    -1.17     0.723
 # ℹ 2 more variables: method &lt;chr&gt;, alternative &lt;chr&gt;</code></pre>
+</div>
 </div>
 <div id="anova-compare-the-wealth-among-multiple-age-groups-in-2023"
 class="section level2">
@@ -873,6 +703,179 @@ prop_res_df |&gt;
 </tr>
 </tbody>
 </table>
+</div>
+<div id="other-tests-w-independence-issue" class="section level2">
+<h2>Other tests (w/ independence issue)</h2>
+<div
+id="two-sample-prop-test-compare-the-proportion-of-female-billionaires-in-2013-and-2023"
+class="section level3">
+<h3>Two sample prop test: Compare the proportion of female billionaires
+in 2013 and 2023</h3>
+<p><span class="math inline">\(H_0: p_{female\_2013} =
+p_{female\_2023}\)</span> vs. <span class="math inline">\(H_1:
+p_{female\_2013} \neq p_{female\_2023}\)</span></p>
+<pre class="r"><code>bil_gender_sum &lt;-
+  bil_13_23 |&gt;
+  drop_na(gender) |&gt; 
+  group_by(year) |&gt; 
+  summarize(
+    total = n(),
+    female = sum(gender == &quot;Female&quot;))
+bil_gender_sum|&gt; 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">year</th>
+<th align="right">total</th>
+<th align="right">female</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">2013</td>
+<td align="right">1420</td>
+<td align="right">138</td>
+</tr>
+<tr class="even">
+<td align="right">2023</td>
+<td align="right">2638</td>
+<td align="right">336</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># perform 2-sample prop test for proportion of female billionaires in year 2013 and 2023
+prop.test(c(filter(bil_gender_sum, year == 2013) |&gt; 
+              pull(female), filter(bil_gender_sum, year == 2023) |&gt; pull(female)), 
+          n = c(filter(bil_gender_sum, year == 2013) |&gt; 
+                  pull(total), filter(bil_gender_sum, year == 2023) |&gt; pull(total))) |&gt; 
+  broom::tidy() |&gt; 
+  knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="7%" />
+<col width="7%" />
+<col width="45%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">estimate1</th>
+<th align="right">estimate2</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">parameter</th>
+<th align="right">conf.low</th>
+<th align="right">conf.high</th>
+<th align="left">method</th>
+<th align="left">alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0971831</td>
+<td align="right">0.1273692</td>
+<td align="right">7.863506</td>
+<td align="right">0.0050442</td>
+<td align="right">1</td>
+<td align="right">-0.0507079</td>
+<td align="right">-0.0096643</td>
+<td align="left">2-sample test for equality of proportions with
+continuity correction</td>
+<td align="left">two.sided</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div
+id="two-sample-prop-test-compare-proportions-of-billionaires-in-health-care-industry-in-2013-and-2023"
+class="section level3">
+<h3>Two sample prop test: Compare proportions of billionaires in health
+care industry in 2013 and 2023</h3>
+<p><span class="math inline">\(H_0: p_{healthcare\_2013} =
+p_{healthcare\_2023}\)</span> vs. <span class="math inline">\(H_1:
+p_{healthcare\_2013} \neq p_{healthcare\_2023}\)</span></p>
+<pre class="r"><code>bil_indus_sum &lt;-
+  bil_13_23 |&gt; 
+  group_by(year) |&gt; 
+  summarize(
+    total = n(),
+    indus = sum(industries == &quot;Health care&quot;))
+bil_indus_sum|&gt; 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">year</th>
+<th align="right">total</th>
+<th align="right">indus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">2013</td>
+<td align="right">1425</td>
+<td align="right">57</td>
+</tr>
+<tr class="even">
+<td align="right">2023</td>
+<td align="right">2638</td>
+<td align="right">200</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>prop.test(x = c(filter(bil_indus_sum, year == 2013) |&gt; 
+              pull(indus), filter(bil_indus_sum, year == 2023) |&gt; pull(indus)), 
+          n = c(filter(bil_indus_sum, year == 2013) |&gt; 
+              pull(total), filter(bil_indus_sum, year == 2023) |&gt; pull(total))) |&gt; 
+  broom::tidy() |&gt; 
+  knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="5%" />
+<col width="6%" />
+<col width="7%" />
+<col width="7%" />
+<col width="45%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">estimate1</th>
+<th align="right">estimate2</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">parameter</th>
+<th align="right">conf.low</th>
+<th align="right">conf.high</th>
+<th align="left">method</th>
+<th align="left">alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.04</td>
+<td align="right">0.075815</td>
+<td align="right">19.42937</td>
+<td align="right">1.04e-05</td>
+<td align="right">1</td>
+<td align="right">-0.0506924</td>
+<td align="right">-0.0209376</td>
+<td align="left">2-sample test for equality of proportions with
+continuity correction</td>
+<td align="left">two.sided</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 
 <hr>
