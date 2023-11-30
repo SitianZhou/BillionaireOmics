@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Shuchen Dong, Sitian Zhou,Mengxiao Luan" />
+<meta name="author" content="Shuchen Dong, Sitian Zhou, Mengxiao Luan" />
 
 
 <title>EDA_Longitudinal</title>
@@ -386,7 +386,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">EDA_Longitudinal</h1>
-<h4 class="author">Shuchen Dong, Sitian Zhou,Mengxiao Luan</h4>
+<h4 class="author">Shuchen Dong, Sitian Zhou, Mengxiao Luan</h4>
 <h4 class="date">r Sys.Date()`</h4>
 
 </div>
@@ -412,12 +412,11 @@ gdp_selected &lt;-
 # draw GDP plot
 ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
   geom_line() +
-  theme_minimal() +
   labs(title = &quot;GDP Change from 2010 to 2022&quot;,
        x = &quot;Year&quot;, y = &quot;GDP&quot;,
        color = &quot;Country Code&quot;) +
   scale_x_continuous(breaks = 2010:2022) </code></pre>
-<p><img src="time_data_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/5%20country%20gdp-1.png" width="672" /></p>
 </div>
 <div
 id="for-billionaire_gdp-net_worth-for-different-country-top-5-over-time"
@@ -447,11 +446,10 @@ total_net_worth_by_year_country &lt;- top_countries_data %&gt;%
 # plot
 ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group = country_of_citizenship, color = country_of_citizenship)) +
   geom_line() +
-  theme_minimal() +
   labs(title = &quot;Total Net Worth of billionaire by Top 5 Countries from 2010 to 2023&quot;,
        x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
        color = &quot;Country of Citizenship&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/networth%205%20countries%20overtime-1.png" width="672" /></p>
 </div>
 </div>
 <div id="gender" class="section level2">
@@ -470,7 +468,7 @@ ggplot(average_net_worth_by_year_gender, aes(x = year, y = average_net_worth, co
   labs(title = &quot;Average Net Worth by Gender from 2017 to 2022&quot;,
        x = &quot;Year&quot;, y = &quot;Average Net Worth (in billions)&quot;,
        color = &quot;Gender&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/ave_net_worth%20by%20gender-1.png" width="672" /></p>
 </div>
 <div id="industry-lifecycles-and-billionaire-wealth"
 class="section level2">
@@ -480,20 +478,21 @@ net worth and ranking of billionaires over time.</p>
 <div id="industry-gdp-change-over-time" class="section level3">
 <h3>industry gdp change over time</h3>
 <pre class="r"><code>data_filtered &lt;- billionaire_gdp_indus_usa %&gt;%
-  filter(year &gt;= 2017 &amp; year &lt;= 2022)
+  filter(year &gt;= 2017 &amp; year &lt;= 2022) %&gt;% 
+  drop_na(industry_gdp)
 
 
 average_gdp_by_year_industry &lt;- data_filtered %&gt;%
   group_by(year, industries) %&gt;%
   summarise(average_industry_gdp = mean(industry_gdp, na.rm = TRUE))
 
-ggplot(average_gdp_by_year_industry, aes(x = year, y = average_industry_gdp, group = industries, color = industries)) +
-  geom_line() +
-  theme_minimal() +
-  labs(title = &quot;Industry GDP by Year from 2017 to 2022&quot;,
-       x = &quot;Year&quot;, y = &quot;Industry GDP&quot;,
-       color = &quot;Industries&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+average_gdp_by_year_industry |&gt; 
+  ggplot(aes(x = year, y = average_industry_gdp, group = industries, color = industries)) +
+    geom_line() +
+    labs(title = &quot;Industry GDP by Year from 2017 to 2022&quot;,
+         x = &quot;Year&quot;, y = &quot;Industry GDP&quot;,
+         color = &quot;Industries&quot;)</code></pre>
+<p><img src="time_data_files/figure-html/US%20industry%20gdp%20overtime-1.png" width="672" /></p>
 </div>
 </div>
 <div
@@ -522,7 +521,7 @@ ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_re
        x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
        color = &quot;City of Residence&quot;) +
   theme(legend.position = &quot;bottom&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+<p><img src="time_data_files/figure-html/net_worth%20vs%20cities%20overtime-1.png" width="672" />
 Here are the top 5, and there are indeed 5 more. This is because in some
 years, the total city of net worth is surpassed by others.</p>
 </div>
@@ -535,11 +534,112 @@ years, the total city of net worth is surpassed by others.</p>
 
 ggplot(self_made_trend, aes(x = year, y = count, color = self_made, group = self_made)) +
   geom_line() +
-  theme_minimal() +
   labs(title = &quot;Self-Made Status Count Over Years&quot;,
        x = &quot;Year&quot;, y = &quot;Count&quot;,
        color = &quot;Self-Made Status&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/line-selfmade-overtime-1.png" width="672" /></p>
+<div id="section" class="section level6">
+<h6></h6>
+<p>update</p>
+</div>
+</div>
+<div id="number-of-billionaires-in-different-gender-groups-across-years"
+class="section level2">
+<h2>number of billionaires in different gender groups across years</h2>
+<pre class="r"><code>billionaire_gdp |&gt; 
+  drop_na(gender) |&gt; 
+  group_by(year, gender) |&gt; 
+  summarize(n = n()) |&gt; 
+  ggplot(aes(x = year, y = n, fill = gender)) +
+  geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;) +
+  scale_x_continuous(breaks = 2010:2023)</code></pre>
+<p><img src="time_data_files/figure-html/barplot-gender-1.png" width="672" /></p>
+<pre class="r"><code># scale it to 1 to analyze the proportions
+bil_gender_prop &lt;-
+  billionaire_gdp|&gt; 
+  drop_na(gender) |&gt; 
+  group_by(year, gender) |&gt; 
+  summarize(n = n()) |&gt; 
+  group_by(year) |&gt; 
+  mutate(total = sum(n),
+         prop = n/ total)
+
+bil_gender_prop |&gt; 
+  ggplot(aes(x = year, y = prop, fill = gender))+
+  geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
+  scale_x_continuous(breaks = 2010:2023)</code></pre>
+<p><img src="time_data_files/figure-html/barplot-gender-scaled-1.png" width="672" /></p>
+</div>
+<div
+id="number-of-billionaires-in-different-industries-across-years-not-very-informative"
+class="section level2">
+<h2>number of billionaires in different industries across years (not
+very informative?)</h2>
+<pre class="r"><code>billionaire_gdp |&gt; 
+  drop_na(industries) |&gt; 
+  group_by(year, industries) |&gt; 
+  summarize(n = n()) |&gt; 
+  ggplot(aes(x = year, y = n, fill = industries)) +
+  geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
+  scale_x_continuous(breaks = 2010:2023)</code></pre>
+<p><img src="time_data_files/figure-html/barplot-all%20industries-1.png" width="672" />
+## A quick overview: trend of average net worth of all billionaires
+across year</p>
+<pre class="r"><code>billionaire_gdp |&gt; 
+  group_by(year) |&gt; 
+  summarize(ave_net_worth = mean(net_worth)) |&gt; 
+  ggplot(aes(x = year, y = ave_net_worth)) +
+  geom_line() +
+  geom_point() +
+  scale_x_continuous(breaks = 2010:2023)</code></pre>
+<p><img src="time_data_files/figure-html/ave_net_worth%20overtime-1.png" width="672" />
+<em>takeaways</em> 1. net worth plummeted in 2016 and 2020, and then
+skyrocketed in 2021</p>
+<pre class="r"><code>billionaire_gdp |&gt; 
+  drop_na(self_made) |&gt; 
+  group_by(year, self_made) |&gt; 
+  summarize(n = n()) |&gt; 
+  ggplot(aes(x = year, y = n, fill = self_made)) +
+  geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;) +
+  scale_x_continuous(breaks = 2010:2023)</code></pre>
+<p><img src="time_data_files/figure-html/barplot-self_made-1.png" width="672" /></p>
+<pre class="r"><code># scale it to 1 to analyze the proportions
+bil_selfmade_prop &lt;-
+  billionaire_gdp|&gt; 
+  drop_na(self_made) |&gt; 
+  group_by(year, self_made) |&gt; 
+  summarize(n = n()) |&gt; 
+  group_by(year) |&gt; 
+  mutate(total = sum(n),
+         prop = n/ total)
+
+bil_selfmade_prop |&gt; 
+  ggplot(aes(x = year, y = prop, fill = self_made)) +
+  geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
+  scale_x_continuous(breaks = 2010:2023)</code></pre>
+<p><img src="time_data_files/figure-html/barplot-self_made-scaled-1.png" width="672" /></p>
+<pre class="r"><code>billionaire_gdp_indus_usa |&gt; 
+  drop_na(industry_gdp) |&gt; 
+  group_by(year, industries) |&gt; 
+  summarize(n = n()) |&gt; 
+  ggplot(aes(x = year, y = n, fill = industries)) +
+  geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
+  scale_x_continuous(breaks = 2017:2022)</code></pre>
+<p><img src="time_data_files/figure-html/barplot-US%20industries-1.png" width="672" /></p>
+<pre class="r"><code>bil_us_indus_prop &lt;-
+  billionaire_gdp_indus_usa |&gt; 
+  drop_na(industry_gdp) |&gt; 
+  group_by(year, industries) |&gt; 
+  summarize(n = n())|&gt; 
+  group_by(year) |&gt; 
+  mutate(total = sum(n),
+         prop = n / total)
+
+bil_us_indus_prop |&gt; 
+  ggplot(aes(x = year, y = prop, fill = industries)) +
+  geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
+  scale_x_continuous(breaks = 2017:2022)</code></pre>
+<p><img src="time_data_files/figure-html/barplot-US%20industreis%20scaled-1.png" width="672" /></p>
 </div>
 
 <hr>

@@ -1,23 +1,36 @@
 ---
 title: "EDA_Longitudinal"
-author: "Shuchen Dong, Sitian Zhou,Mengxiao Luan"
+author: "Shuchen Dong, Sitian Zhou, Mengxiao Luan"
 date: "r Sys.Date()`"
 output: html_document
        
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE,
+                      warning = FALSE)
 
 library(tidyverse)
 library(readxl)
 library(dplyr)
 library(ggplot2)
+
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
 
 ## load data
-```{r warning=FALSE}
+```{r import data}
 billionaire_gdp_indus_usa <- read.csv("../data/billionaire_gdp_indus_usa.csv")
 billionaire_gdp <- read.csv("../data/billionaire_gdp.csv")
 gdp <- read.csv("../data/gdp.csv")
@@ -28,7 +41,7 @@ gdp <- read.csv("../data/gdp.csv")
 Examine the rise and fall of billionaire wealth across different economic cycles, including booms, busts, and recoveries.
 
 ### 5 different country GDP overtime.
-```{r warning=FALSE}
+```{r 5 country gdp}
 countries <- c("USA", "CHN", "RUS", "JPN", "DEU")
 
 gdp_selected <- 
@@ -37,7 +50,6 @@ gdp_selected <-
 # draw GDP plot
 ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
   geom_line() +
-  theme_minimal() +
   labs(title = "GDP Change from 2010 to 2022",
        x = "Year", y = "GDP",
        color = "Country Code") +
@@ -46,7 +58,7 @@ ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
 ```
 
 ### for billionaire_gdp, net_worth for different country top 5 over time
-```{r warning=FALSE}
+```{r networth 5 countries overtime}
 data_filtered <- billionaire_gdp %>%
   filter(year >= 2010 & year <= 2023)
 
@@ -70,7 +82,6 @@ total_net_worth_by_year_country <- top_countries_data %>%
 # plot
 ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group = country_of_citizenship, color = country_of_citizenship)) +
   geom_line() +
-  theme_minimal() +
   labs(title = "Total Net Worth of billionaire by Top 5 Countries from 2010 to 2023",
        x = "Year", y = "Total Net Worth (Billions)",
        color = "Country of Citizenship")
@@ -79,7 +90,7 @@ ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group
 
 ## Gender
 
-```{r warning=FALSE}
+```{r ave_net_worth by gender}
 
 billionaires_filtered <- billionaire_gdp_indus_usa %>%
   filter(year >= 2017 & year <= 2022) %>%
@@ -102,29 +113,28 @@ ggplot(average_net_worth_by_year_gender, aes(x = year, y = average_net_worth, co
 Explore how technological disruptions in various sectors impact the net worth and ranking of billionaires over time.
 
 ### industry gdp change over time
-```{r warning=FALSE}
-
+```{r US industry gdp overtime}
 data_filtered <- billionaire_gdp_indus_usa %>%
-  filter(year >= 2017 & year <= 2022)
+  filter(year >= 2017 & year <= 2022) %>% 
+  drop_na(industry_gdp)
 
 
 average_gdp_by_year_industry <- data_filtered %>%
   group_by(year, industries) %>%
   summarise(average_industry_gdp = mean(industry_gdp, na.rm = TRUE))
 
-ggplot(average_gdp_by_year_industry, aes(x = year, y = average_industry_gdp, group = industries, color = industries)) +
-  geom_line() +
-  theme_minimal() +
-  labs(title = "Industry GDP by Year from 2017 to 2022",
-       x = "Year", y = "Industry GDP",
-       color = "Industries")
+average_gdp_by_year_industry |> 
+  ggplot(aes(x = year, y = average_industry_gdp, group = industries, color = industries)) +
+    geom_line() +
+    labs(title = "Industry GDP by Year from 2017 to 2022",
+         x = "Year", y = "Industry GDP",
+         color = "Industries")
 
 ```
 
 
 ## find different city of residence billionaire net worth change over time
-```{r warning=FALSE}
-
+```{r net_worth vs cities overtime}
 data_filtered <- billionaire_gdp %>%
   filter(year >= 2010 & year <= 2023, country_of_citizenship == "United States")
 
@@ -151,7 +161,7 @@ Here are the top 5, and there are indeed 5 more. This is because in some years, 
 
 
 ## count self_made over time 
-```{r warning=FALSE}
+```{r line-selfmade-overtime}
 
 self_made_trend <- billionaire_gdp %>%
   group_by(year, self_made) %>%
@@ -160,12 +170,136 @@ self_made_trend <- billionaire_gdp %>%
 
 ggplot(self_made_trend, aes(x = year, y = count, color = self_made, group = self_made)) +
   geom_line() +
-  theme_minimal() +
   labs(title = "Self-Made Status Count Over Years",
        x = "Year", y = "Count",
        color = "Self-Made Status")
 
 ```
+
+######
+update
+
+## number of billionaires in different gender groups across years
+
+```{r barplot-gender}
+billionaire_gdp |> 
+  drop_na(gender) |> 
+  group_by(year, gender) |> 
+  summarize(n = n()) |> 
+  ggplot(aes(x = year, y = n, fill = gender)) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_x_continuous(breaks = 2010:2023)
+```
+
+
+```{r barplot-gender-scaled}
+# scale it to 1 to analyze the proportions
+bil_gender_prop <-
+  billionaire_gdp|> 
+  drop_na(gender) |> 
+  group_by(year, gender) |> 
+  summarize(n = n()) |> 
+  group_by(year) |> 
+  mutate(total = sum(n),
+         prop = n/ total)
+
+bil_gender_prop |> 
+  ggplot(aes(x = year, y = prop, fill = gender))+
+  geom_bar(position="stack", stat="identity") +
+  scale_x_continuous(breaks = 2010:2023)
+  
+```
+
+## number of billionaires in different industries across years (not very informative?)
+```{r barplot-all industries}
+billionaire_gdp |> 
+  drop_na(industries) |> 
+  group_by(year, industries) |> 
+  summarize(n = n()) |> 
+  ggplot(aes(x = year, y = n, fill = industries)) +
+  geom_bar(position="stack", stat="identity") +
+  scale_x_continuous(breaks = 2010:2023)
+```
+## A quick overview: trend of average net worth of all billionaires across year
+
+```{r ave_net_worth overtime}
+billionaire_gdp |> 
+  group_by(year) |> 
+  summarize(ave_net_worth = mean(net_worth)) |> 
+  ggplot(aes(x = year, y = ave_net_worth)) +
+  geom_line() +
+  geom_point() +
+  scale_x_continuous(breaks = 2010:2023)
+```
+*takeaways*
+1. net worth plummeted in 2016 and 2020, and then skyrocketed in 2021
+
+
+
+
+```{r barplot-self_made}
+billionaire_gdp |> 
+  drop_na(self_made) |> 
+  group_by(year, self_made) |> 
+  summarize(n = n()) |> 
+  ggplot(aes(x = year, y = n, fill = self_made)) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_x_continuous(breaks = 2010:2023)
+```
+
+
+```{r barplot-self_made-scaled}
+# scale it to 1 to analyze the proportions
+bil_selfmade_prop <-
+  billionaire_gdp|> 
+  drop_na(self_made) |> 
+  group_by(year, self_made) |> 
+  summarize(n = n()) |> 
+  group_by(year) |> 
+  mutate(total = sum(n),
+         prop = n/ total)
+
+bil_selfmade_prop |> 
+  ggplot(aes(x = year, y = prop, fill = self_made)) +
+  geom_bar(position="stack", stat="identity") +
+  scale_x_continuous(breaks = 2010:2023)
+```
+
+
+
+```{r barplot-US industries}
+billionaire_gdp_indus_usa |> 
+  drop_na(industry_gdp) |> 
+  group_by(year, industries) |> 
+  summarize(n = n()) |> 
+  ggplot(aes(x = year, y = n, fill = industries)) +
+  geom_bar(position="stack", stat="identity") +
+  scale_x_continuous(breaks = 2017:2022)
+```
+
+```{r barplot-US industreis scaled}
+bil_us_indus_prop <-
+  billionaire_gdp_indus_usa |> 
+  drop_na(industry_gdp) |> 
+  group_by(year, industries) |> 
+  summarize(n = n())|> 
+  group_by(year) |> 
+  mutate(total = sum(n),
+         prop = n / total)
+
+bil_us_indus_prop |> 
+  ggplot(aes(x = year, y = prop, fill = industries)) +
+  geom_bar(position="stack", stat="identity") +
+  scale_x_continuous(breaks = 2017:2022)
+```
+
+
+
+
+
+
+
+
 
 
 
