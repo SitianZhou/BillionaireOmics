@@ -9,12 +9,6 @@ output:
     code_folding: "hide"
 ---
 
-Comments:
-
-1. ANOVA assumptions violated (?) even after transformation b/c the test is too sensitive with large sample size
-
-2. need to combine with results in longitudinal EDA to determine which year/industry to look at
-
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(multcompView)
@@ -41,12 +35,43 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
 ```{r import & subset data}
 bil_data <-
-  read_csv("../data/billionaire_gdp.csv")
+  read_csv("../data/billionaire_gdp.csv") |> 
+  distinct(full_name, year, .keep_all = TRUE)
 
 bil_13_23 <-
   bil_data |> 
   filter(year == 2013 | year == 2023)
 ```
+
+## Paired two sample prop test: compare wealth of billionaires between 2013 and 2023
+
+```{r}
+bil_name_13 <-
+  bil_data |> 
+  filter(year == 2013) |> 
+  select(full_name) |> 
+  unique()
+
+bil_name_23 <-
+  bil_data |> 
+  filter(year == 2023) |> 
+  select(full_name) |> 
+  unique()
+
+bil_diff_13_23 <-
+  inner_join(bil_name_13, bil_name_23) |> 
+  inner_join(bil_13_23, by = "full_name") |> 
+  select(full_name, year, net_worth) |> 
+  pivot_wider(
+    names_from = year,
+    values_from = net_worth
+  )
+
+t.test(bil_diff_13_23 |> pull(`2023`), bil_diff_13_23 |> pull(`2013`), paired = T) 
+```
+
+
+
 
 ## Two sample prop test: Compare the proportion of female billionaires in 2013 and 2023
 
@@ -102,7 +127,32 @@ prop.test(x = c(filter(bil_indus_sum, year == 2013) |>
   knitr::kable()
 ```
 
-## ANOVA: compare the net worth among multiple age groups in 2023
+## t-test: compaire the wealth among gender groups in billionaires 2023
+
+### test for equal variance
+
+```{r}
+bil_gender <-
+  bil_data |> 
+  filter(year == 2013) |> 
+  drop_na(gender)
+
+var.test(filter(bil_gender, gender == "Male") |> pull(net_worth), 
+       filter(bil_gender, gender == "Female") |> pull(net_worth))
+```
+
+## perform the t-test
+
+```{r gender t-test}
+t.test(filter(bil_gender, gender == "Male") |> pull(net_worth), 
+       filter(bil_gender, gender == "Female") |> pull(net_worth),
+       var.equal = TRUE) |> 
+  broom::tidy()
+  
+```
+
+
+## ANOVA: compare the wealth among multiple age groups in 2023
 
 ### Diagnostics
 
@@ -204,6 +254,35 @@ bil_age |>
             hjust = -1.25, vjust = -0.8)
 ```
 
+
+## prop.test: is the proportion of billionaires reside in US greater than 25%?
+
+```{r}
+bil_res_sum <-
+  bil_data |> 
+  filter(year == 2023) |> 
+  drop_na(country_of_residence) |>
+  count(country_of_residence) |>
+  arrange(desc(n)) |> 
+  mutate(total = sum(n)) |> 
+  slice(1:10)
+
+prop.test(x = 753, n = 2601) |> broom::tidy()
+
+prop_res_df <-
+  bil_res_sum |> 
+  nest(data = -country_of_residence) |> 
+  mutate(
+    prop_res = map(data, \(df) prop.test(df |> pull(n), df |> pull(total))),
+    tidy_res = map(prop_res, broom::tidy)
+  ) |> 
+  select(-prop_res, -data) |> 
+  unnest(tidy_res) |> 
+  select(country_of_residence, estimate, conf.low, conf.high)
+
+prop_res_df |> 
+  knitr::kable(digits = 3)
+```
 
 
 

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Sitian Zhou, Mengxiao Luan, Shuchen Dong" />
 
-<meta name="date" content="2023-11-28" />
+<meta name="date" content="2023-11-30" />
 
 <title>Hypothesis Testing</title>
 
@@ -400,24 +400,57 @@ div.tocify {
 
 <h1 class="title toc-ignore">Hypothesis Testing</h1>
 <h4 class="author">Sitian Zhou, Mengxiao Luan, Shuchen Dong</h4>
-<h4 class="date">2023-11-28</h4>
+<h4 class="date">2023-11-30</h4>
 
 </div>
 
 
-<p>Comments:</p>
-<ol style="list-style-type: decimal">
-<li><p>ANOVA assumptions violated (?) even after transformation b/c the
-test is too sensitive with large sample size</p></li>
-<li><p>need to combine with results in longitudinal EDA to determine
-which year/industry to look at</p></li>
-</ol>
 <pre class="r"><code>bil_data &lt;-
-  read_csv(&quot;../data/billionaire_gdp.csv&quot;)
+  read_csv(&quot;../data/billionaire_gdp.csv&quot;) |&gt; 
+  distinct(full_name, year, .keep_all = TRUE)
 
 bil_13_23 &lt;-
   bil_data |&gt; 
   filter(year == 2013 | year == 2023)</code></pre>
+<div
+id="paired-two-sample-prop-test-compare-wealth-of-billionaires-between-2013-and-2023"
+class="section level2">
+<h2>Paired two sample prop test: compare wealth of billionaires between
+2013 and 2023</h2>
+<pre class="r"><code>bil_name_13 &lt;-
+  bil_data |&gt; 
+  filter(year == 2013) |&gt; 
+  select(full_name) |&gt; 
+  unique()
+
+bil_name_23 &lt;-
+  bil_data |&gt; 
+  filter(year == 2023) |&gt; 
+  select(full_name) |&gt; 
+  unique()
+
+bil_diff_13_23 &lt;-
+  inner_join(bil_name_13, bil_name_23) |&gt; 
+  inner_join(bil_13_23, by = &quot;full_name&quot;) |&gt; 
+  select(full_name, year, net_worth) |&gt; 
+  pivot_wider(
+    names_from = year,
+    values_from = net_worth
+  )
+
+t.test(bil_diff_13_23 |&gt; pull(`2023`), bil_diff_13_23 |&gt; pull(`2013`), paired = T) </code></pre>
+<pre><code>
+    Paired t-test
+
+data:  pull(bil_diff_13_23, `2023`) and pull(bil_diff_13_23, `2013`)
+t = 7.8559, df = 787, p-value = 1.302e-14
+alternative hypothesis: true mean difference is not equal to 0
+95 percent confidence interval:
+ 2.588031 4.312223
+sample estimates:
+mean difference 
+       3.450127 </code></pre>
+</div>
 <div
 id="two-sample-prop-test-compare-the-proportion-of-female-billionaires-in-2013-and-2023"
 class="section level2">
@@ -446,13 +479,13 @@ bil_gender_sum|&gt;
 <tbody>
 <tr class="odd">
 <td align="right">2013</td>
-<td align="right">1464</td>
-<td align="right">142</td>
+<td align="right">1420</td>
+<td align="right">138</td>
 </tr>
 <tr class="even">
 <td align="right">2023</td>
-<td align="right">2640</td>
-<td align="right">337</td>
+<td align="right">2638</td>
+<td align="right">336</td>
 </tr>
 </tbody>
 </table>
@@ -490,13 +523,13 @@ prop.test(c(filter(bil_gender_sum, year == 2013) |&gt;
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.0969945</td>
-<td align="right">0.1276515</td>
-<td align="right">8.290742</td>
-<td align="right">0.0039848</td>
+<td align="right">0.0971831</td>
+<td align="right">0.1273692</td>
+<td align="right">7.863506</td>
+<td align="right">0.0050442</td>
 <td align="right">1</td>
-<td align="right">-0.0509833</td>
-<td align="right">-0.0103307</td>
+<td align="right">-0.0507079</td>
+<td align="right">-0.0096643</td>
 <td align="left">2-sample test for equality of proportions with
 continuity correction</td>
 <td align="left">two.sided</td>
@@ -531,13 +564,13 @@ bil_indus_sum|&gt;
 <tbody>
 <tr class="odd">
 <td align="right">2013</td>
-<td align="right">1469</td>
-<td align="right">59</td>
+<td align="right">1425</td>
+<td align="right">57</td>
 </tr>
 <tr class="even">
 <td align="right">2023</td>
-<td align="right">2640</td>
-<td align="right">201</td>
+<td align="right">2638</td>
+<td align="right">200</td>
 </tr>
 </tbody>
 </table>
@@ -574,13 +607,13 @@ bil_indus_sum|&gt;
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.0401634</td>
-<td align="right">0.0761364</td>
-<td align="right">20.00355</td>
-<td align="right">7.7e-06</td>
+<td align="right">0.04</td>
+<td align="right">0.075815</td>
+<td align="right">19.42937</td>
+<td align="right">1.04e-05</td>
 <td align="right">1</td>
-<td align="right">-0.0507562</td>
-<td align="right">-0.0211898</td>
+<td align="right">-0.0506924</td>
+<td align="right">-0.0209376</td>
 <td align="left">2-sample test for equality of proportions with
 continuity correction</td>
 <td align="left">two.sided</td>
@@ -588,9 +621,48 @@ continuity correction</td>
 </tbody>
 </table>
 </div>
-<div id="anova-compare-the-net-worth-among-multiple-age-groups-in-2023"
+<div
+id="t-test-compaire-the-wealth-among-gender-groups-in-billionaires-2023"
 class="section level2">
-<h2>ANOVA: compare the net worth among multiple age groups in 2023</h2>
+<h2>t-test: compaire the wealth among gender groups in billionaires
+2023</h2>
+<div id="test-for-equal-variance" class="section level3">
+<h3>test for equal variance</h3>
+<pre class="r"><code>bil_gender &lt;-
+  bil_data |&gt; 
+  filter(year == 2013) |&gt; 
+  drop_na(gender)
+
+var.test(filter(bil_gender, gender == &quot;Male&quot;) |&gt; pull(net_worth), 
+       filter(bil_gender, gender == &quot;Female&quot;) |&gt; pull(net_worth))</code></pre>
+<pre><code>
+    F test to compare two variances
+
+data:  pull(filter(bil_gender, gender == &quot;Male&quot;), net_worth) and pull(filter(bil_gender, gender == &quot;Female&quot;), net_worth)
+F = 1.2069, num df = 1281, denom df = 137, p-value = 0.1593
+alternative hypothesis: true ratio of variances is not equal to 1
+95 percent confidence interval:
+ 0.9280269 1.5300553
+sample estimates:
+ratio of variances 
+           1.20689 </code></pre>
+</div>
+</div>
+<div id="perform-the-t-test" class="section level2">
+<h2>perform the t-test</h2>
+<pre class="r"><code>t.test(filter(bil_gender, gender == &quot;Male&quot;) |&gt; pull(net_worth), 
+       filter(bil_gender, gender == &quot;Female&quot;) |&gt; pull(net_worth),
+       var.equal = TRUE) |&gt; 
+  broom::tidy()</code></pre>
+<pre><code># A tibble: 1 × 10
+  estimate estimate1 estimate2 statistic p.value parameter conf.low conf.high
+     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1   -0.224      3.79      4.01    -0.464   0.643      1418    -1.17     0.723
+# ℹ 2 more variables: method &lt;chr&gt;, alternative &lt;chr&gt;</code></pre>
+</div>
+<div id="anova-compare-the-wealth-among-multiple-age-groups-in-2023"
+class="section level2">
+<h2>ANOVA: compare the wealth among multiple age groups in 2023</h2>
 <div id="diagnostics" class="section level3">
 <h3>Diagnostics</h3>
 <pre class="r"><code>bil_age &lt;-
@@ -660,7 +732,7 @@ class="math inline">\(\mu\)</span> differs</p>
 <pre><code># A tibble: 1 × 8
   r.squared adj.r.squared sigma statistic  p.value    df df.residual  nobs
       &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;       &lt;int&gt; &lt;dbl&gt;
-1    0.0177        0.0165 0.388      15.4 6.16e-10     3        2571  2575</code></pre>
+1    0.0178        0.0166 0.388      15.5 5.35e-10     3        2569  2573</code></pre>
 <p>Since the test result of ANOVA is significant, we want to know which
 group(s) have different mean <code>net_worth_tran</code> from the
 rest.</p>
@@ -672,12 +744,12 @@ TukeyHSD(res) |&gt; broom::tidy()</code></pre>
 <pre><code># A tibble: 6 × 7
   term      contrast          null.value estimate conf.low conf.high adj.p.value
   &lt;chr&gt;     &lt;chr&gt;                  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
-1 age_group 55~65-55 and bel…          0   0.0546 -5.49e-4    0.110     5.35e- 2
-2 age_group 65~75-55 and bel…          0   0.0936  3.76e-2    0.150     1.05e- 4
-3 age_group over 75-55 and b…          0   0.146   8.86e-2    0.203     2.58e-11
-4 age_group 65~75-55~65                0   0.0390 -1.50e-2    0.0931    2.47e- 1
-5 age_group over 75-55~65              0   0.0914  3.59e-2    0.147     1.38e- 4
-6 age_group over 75-65~75              0   0.0523 -3.99e-3    0.109     7.95e- 2</code></pre>
+1 age_group 55~65-55 and bel…          0   0.0553  1.31e-4    0.110     0.0492  
+2 age_group 65~75-55 and bel…          0   0.0937  3.76e-2    0.150     0.000105
+3 age_group over 75-55 and b…          0   0.147   8.93e-2    0.204     0       
+4 age_group 65~75-55~65                0   0.0384 -1.57e-2    0.0924    0.262   
+5 age_group over 75-55~65              0   0.0914  3.59e-2    0.147     0.000138
+6 age_group over 75-65~75              0   0.0531 -3.25e-3    0.109     0.0732  </code></pre>
 <div id="visualize-the-result-in-a-boxplot" class="section level4">
 <h4>Visualize the result in a boxplot</h4>
 <pre class="r"><code>letter &lt;- multcompLetters4(res, TukeyHSD(res))
@@ -696,6 +768,111 @@ bil_age |&gt;
 <p><img src="hypo_test_files/figure-html/results%20visualization-1.png" width="672" /></p>
 </div>
 </div>
+</div>
+<div
+id="prop.test-is-the-proportion-of-billionaires-reside-in-us-greater-than-25"
+class="section level2">
+<h2>prop.test: is the proportion of billionaires reside in US greater
+than 25%?</h2>
+<pre class="r"><code>bil_res_sum &lt;-
+  bil_data |&gt; 
+  filter(year == 2023) |&gt; 
+  drop_na(country_of_residence) |&gt;
+  count(country_of_residence) |&gt;
+  arrange(desc(n)) |&gt; 
+  mutate(total = sum(n)) |&gt; 
+  slice(1:10)
+
+prop.test(x = 753, n = 2601) |&gt; broom::tidy()</code></pre>
+<pre><code># A tibble: 1 × 8
+  estimate statistic   p.value parameter conf.low conf.high method   alternative
+     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;      
+1    0.290      460. 4.47e-102         1    0.272     0.307 1-sampl… two.sided  </code></pre>
+<pre class="r"><code>prop_res_df &lt;-
+  bil_res_sum |&gt; 
+  nest(data = -country_of_residence) |&gt; 
+  mutate(
+    prop_res = map(data, \(df) prop.test(df |&gt; pull(n), df |&gt; pull(total))),
+    tidy_res = map(prop_res, broom::tidy)
+  ) |&gt; 
+  select(-prop_res, -data) |&gt; 
+  unnest(tidy_res) |&gt; 
+  select(country_of_residence, estimate, conf.low, conf.high)
+
+prop_res_df |&gt; 
+  knitr::kable(digits = 3)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">country_of_residence</th>
+<th align="right">estimate</th>
+<th align="right">conf.low</th>
+<th align="right">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">United States</td>
+<td align="right">0.290</td>
+<td align="right">0.272</td>
+<td align="right">0.308</td>
+</tr>
+<tr class="even">
+<td align="left">China</td>
+<td align="right">0.201</td>
+<td align="right">0.186</td>
+<td align="right">0.217</td>
+</tr>
+<tr class="odd">
+<td align="left">India</td>
+<td align="right">0.060</td>
+<td align="right">0.052</td>
+<td align="right">0.070</td>
+</tr>
+<tr class="even">
+<td align="left">Germany</td>
+<td align="right">0.039</td>
+<td align="right">0.032</td>
+<td align="right">0.048</td>
+</tr>
+<tr class="odd">
+<td align="left">United Kingdom</td>
+<td align="right">0.032</td>
+<td align="right">0.025</td>
+<td align="right">0.039</td>
+</tr>
+<tr class="even">
+<td align="left">Russia</td>
+<td align="right">0.030</td>
+<td align="right">0.024</td>
+<td align="right">0.038</td>
+</tr>
+<tr class="odd">
+<td align="left">Switzerland</td>
+<td align="right">0.030</td>
+<td align="right">0.024</td>
+<td align="right">0.038</td>
+</tr>
+<tr class="even">
+<td align="left">Hong Kong</td>
+<td align="right">0.026</td>
+<td align="right">0.021</td>
+<td align="right">0.033</td>
+</tr>
+<tr class="odd">
+<td align="left">Italy</td>
+<td align="right">0.021</td>
+<td align="right">0.016</td>
+<td align="right">0.028</td>
+</tr>
+<tr class="even">
+<td align="left">Singapore</td>
+<td align="right">0.017</td>
+<td align="right">0.013</td>
+<td align="right">0.023</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 <hr>
