@@ -602,7 +602,7 @@ The total number of billionaires have increased over time, with a larger amount 
 
 ## Switch to GDP data
 
-The GDP of different industries may be more relevant to the arise and distribution of billionaires rather than the field type itself. The combination of these data is depicted as below.
+The GDP of different industries may be more relevant to the arise and distribution of billionaires rather than the field type itself. The combination of these data is depicted as below, which only focuses on industry GDP in the US due to the restriction of available data.
 
 ```{r gdp}
 # visualization
@@ -618,7 +618,7 @@ bil_gdp |>
   plot_ly(x = ~industries, y = ~n_obs, color = ~industries,
           mode = "markers", text = ~text_label, 
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of Billionaires in Different Industries",
+  layout(title = "Number of Billionaires in Different Industries in USA, 2023",
          xaxis = list(title = "industry field"),
          yaxis = list(title = "number of billionaires"))
 
@@ -632,7 +632,7 @@ bil_gdp |>
   plot_ly(x = ~industries, y = ~net_worth, color = ~industries, 
           mode = "markers", text = ~text_label, 
           type = "scatter", colors = "viridis") |>
-  layout(title = "Net Wealth versus Industry GDP",
+  layout(title = "Net Wealth versus Industry GDP in USA, 2023",
          xaxis = list(title = "industry GDP(trillion dollars)"),
          yaxis = list(title = "net wealth of billionaires(billion dollars)"))
 ```
