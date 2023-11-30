@@ -82,6 +82,7 @@ total_net_worth_by_year_country <- top_countries_data %>%
 # plot
 ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group = country_of_citizenship, color = country_of_citizenship)) +
   geom_line() +
+  theme_minimal() +
   labs(title = "Total Net Worth of billionaire by Top 5 Countries from 2010 to 2023",
        x = "Year", y = "Total Net Worth (Billions)",
        color = "Country of Citizenship")
@@ -92,18 +93,19 @@ ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group
 
 ```{r ave_net_worth by gender}
 
-billionaires_filtered <- billionaire_gdp_indus_usa %>%
-  filter(year >= 2017 & year <= 2022) %>%
-  na.omit()
+billionaires_filtered <- billionaire_gdp %>%
+  filter(year >= 2010 & year <= 2022) %>%  na.omit()
 
 average_net_worth_by_year_gender <- billionaires_filtered %>%
   group_by(year, gender) %>%
-  summarise(average_net_worth = mean(net_worth, na.rm = TRUE))
+  summarise(average_net_worth = sum(net_worth, na.rm = TRUE))
+
+
 
 ggplot(average_net_worth_by_year_gender, aes(x = year, y = average_net_worth, color = gender)) +
   geom_line() +
   theme_minimal() +
-  labs(title = "Average Net Worth by Gender from 2017 to 2022",
+  labs(title = "Total Net Worth by Gender from 2017 to 2022",
        x = "Year", y = "Average Net Worth (in billions)",
        color = "Gender")
 
@@ -121,12 +123,12 @@ data_filtered <- billionaire_gdp_indus_usa %>%
 
 average_gdp_by_year_industry <- data_filtered %>%
   group_by(year, industries) %>%
-  summarise(average_industry_gdp = mean(industry_gdp, na.rm = TRUE))
+  summarise(average_industry_gdp = sum(industry_gdp, na.rm = TRUE))
 
 average_gdp_by_year_industry |> 
   ggplot(aes(x = year, y = average_industry_gdp, group = industries, color = industries)) +
     geom_line() +
-    labs(title = "Industry GDP by Year from 2017 to 2022",
+    labs(title = "Total Industry GDP by Year from 2017 to 2022 in USA",
          x = "Year", y = "Industry GDP",
          color = "Industries")
 
@@ -157,6 +159,7 @@ ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_re
        color = "City of Residence") +
   theme(legend.position = "bottom")
 ```
+
 Here are the top 5, and there are indeed 5 more. This is because in some years, the total city of net worth is surpassed by others.
 
 

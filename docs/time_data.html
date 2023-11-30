@@ -446,6 +446,7 @@ total_net_worth_by_year_country &lt;- top_countries_data %&gt;%
 # plot
 ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group = country_of_citizenship, color = country_of_citizenship)) +
   geom_line() +
+  theme_minimal() +
   labs(title = &quot;Total Net Worth of billionaire by Top 5 Countries from 2010 to 2023&quot;,
        x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
        color = &quot;Country of Citizenship&quot;)</code></pre>
@@ -454,18 +455,19 @@ ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group
 </div>
 <div id="gender" class="section level2">
 <h2>Gender</h2>
-<pre class="r"><code>billionaires_filtered &lt;- billionaire_gdp_indus_usa %&gt;%
-  filter(year &gt;= 2017 &amp; year &lt;= 2022) %&gt;%
-  na.omit()
+<pre class="r"><code>billionaires_filtered &lt;- billionaire_gdp %&gt;%
+  filter(year &gt;= 2010 &amp; year &lt;= 2022) %&gt;%  na.omit()
 
 average_net_worth_by_year_gender &lt;- billionaires_filtered %&gt;%
   group_by(year, gender) %&gt;%
-  summarise(average_net_worth = mean(net_worth, na.rm = TRUE))
+  summarise(average_net_worth = sum(net_worth, na.rm = TRUE))
+
+
 
 ggplot(average_net_worth_by_year_gender, aes(x = year, y = average_net_worth, color = gender)) +
   geom_line() +
   theme_minimal() +
-  labs(title = &quot;Average Net Worth by Gender from 2017 to 2022&quot;,
+  labs(title = &quot;Total Net Worth by Gender from 2017 to 2022&quot;,
        x = &quot;Year&quot;, y = &quot;Average Net Worth (in billions)&quot;,
        color = &quot;Gender&quot;)</code></pre>
 <p><img src="time_data_files/figure-html/ave_net_worth%20by%20gender-1.png" width="672" /></p>
@@ -484,12 +486,12 @@ net worth and ranking of billionaires over time.</p>
 
 average_gdp_by_year_industry &lt;- data_filtered %&gt;%
   group_by(year, industries) %&gt;%
-  summarise(average_industry_gdp = mean(industry_gdp, na.rm = TRUE))
+  summarise(average_industry_gdp = sum(industry_gdp, na.rm = TRUE))
 
 average_gdp_by_year_industry |&gt; 
   ggplot(aes(x = year, y = average_industry_gdp, group = industries, color = industries)) +
     geom_line() +
-    labs(title = &quot;Industry GDP by Year from 2017 to 2022&quot;,
+    labs(title = &quot;Total Industry GDP by Year from 2017 to 2022 in USA&quot;,
          x = &quot;Year&quot;, y = &quot;Industry GDP&quot;,
          color = &quot;Industries&quot;)</code></pre>
 <p><img src="time_data_files/figure-html/US%20industry%20gdp%20overtime-1.png" width="672" /></p>
@@ -521,9 +523,9 @@ ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_re
        x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
        color = &quot;City of Residence&quot;) +
   theme(legend.position = &quot;bottom&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/net_worth%20vs%20cities%20overtime-1.png" width="672" />
-Here are the top 5, and there are indeed 5 more. This is because in some
-years, the total city of net worth is surpassed by others.</p>
+<p><img src="time_data_files/figure-html/net_worth%20vs%20cities%20overtime-1.png" width="672" /></p>
+<p>Here are the top 5, and there are indeed 5 more. This is because in
+some years, the total city of net worth is surpassed by others.</p>
 </div>
 <div id="count-self_made-over-time" class="section level2">
 <h2>count self_made over time</h2>
