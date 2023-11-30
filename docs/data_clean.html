@@ -11,7 +11,7 @@
 
 <meta name="author" content="Sitian Zhou, Pei Tian" />
 
-<meta name="date" content="2023-11-29" />
+<meta name="date" content="2023-11-30" />
 
 <title>Data cleaning</title>
 
@@ -388,7 +388,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Data cleaning</h1>
 <h4 class="author">Sitian Zhou, Pei Tian</h4>
-<h4 class="date">2023-11-29</h4>
+<h4 class="date">2023-11-30</h4>
 
 </div>
 
@@ -444,7 +444,8 @@ bil_2010_2023_clean &lt;-
       recode(country_of_residence, 
              &quot;Eswatini (Swaziland)&quot; = &quot;Swaziland&quot;,
              &quot;Scotland&quot; = &quot;United Kingdom&quot;,
-             &quot;Czechia&quot; = &quot;Czech Republic&quot;),
+             &quot;Czechia&quot; = &quot;Czech Republic&quot;,
+             &quot;Hong Kong SAR&quot; = &quot;Hong Kong&quot;),
     industries = 
       recode(industries,
              &quot;Fashion and Retail&quot; = &quot;Fashion &amp; Retail&quot;,
@@ -512,18 +513,18 @@ country_gdp_clean &lt;-
 use some supplementary dataset to remedy it.</p>
 <div id="hong-kong-macau" class="section level4">
 <h4>Hong Kong &amp; Macau</h4>
-<pre class="r"><code>world_gdp = read_csv(&quot;../data/raw/gdp_worldbank.csv&quot;, skip = 4) |&gt;
-  janitor::clean_names()
-sar_gdp = world_gdp |&gt;
-  filter(country_name == &quot;Macao SAR, China&quot; | country_name == &quot;Hong Kong SAR, China&quot;) |&gt;
-  select(country_name, country_code, starts_with(&quot;x&quot;)) |&gt;
-  pivot_longer(cols = starts_with(&quot;x&quot;), names_to = &quot;year&quot;, names_prefix = &quot;x&quot;, values_to = &quot;value&quot;) |&gt;
-  mutate(gdp = value/1e12, 
-         year = as.numeric(year),
-         name = country_name, 
-         code = country_code) |&gt;
-  filter(year &gt;= 2010) |&gt;
-  select(name, code, year, gdp)</code></pre>
+<pre class="r"><code># world_gdp = read_csv(&quot;../data/raw/gdp_worldbank.csv&quot;, skip = 4) |&gt;
+#   janitor::clean_names()
+# sar_gdp = world_gdp |&gt;
+#   filter(country_name == &quot;Macao SAR, China&quot; | country_name == &quot;Hong Kong SAR, China&quot;) |&gt;
+#   select(country_name, country_code, starts_with(&quot;x&quot;)) |&gt;
+#   pivot_longer(cols = starts_with(&quot;x&quot;), names_to = &quot;year&quot;, names_prefix = &quot;x&quot;, values_to = &quot;value&quot;) |&gt;
+#   mutate(gdp = value/1e12, 
+#          year = as.numeric(year),
+#          name = country_name, 
+#          code = country_code) |&gt;
+#   filter(year &gt;= 2010) |&gt;
+#   select(name, code, year, gdp)</code></pre>
 </div>
 <div id="taiwan" class="section level4">
 <h4>Taiwan</h4>
@@ -555,7 +556,7 @@ tw_gdp = fetch_tw_gdp() |&gt;
          year = date |&gt; as.numeric(), 
          name = &quot;Taiwan, China&quot;,
          code = &quot;TWN&quot;,
-         gdp = gdp/1e3) |&gt;
+         gdp = gdp/1e6) |&gt;
   filter(year &gt;= 2010) |&gt;
   select(name, code, year, gdp)</code></pre>
 </div>
@@ -563,7 +564,7 @@ tw_gdp = fetch_tw_gdp() |&gt;
 <div id="merge-gdp-data" class="section level3">
 <h3>Merge GDP data</h3>
 <p>Combine GDP data in Hong Kong, Macau, Taiwan.</p>
-<pre class="r"><code>country_gdp_clean = bind_rows(country_gdp_clean, sar_gdp, tw_gdp)</code></pre>
+<pre class="r"><code>country_gdp_clean = bind_rows(country_gdp_clean, tw_gdp)</code></pre>
 </div>
 </div>
 <div id="industry-level-gdp-for-us" class="section level2">

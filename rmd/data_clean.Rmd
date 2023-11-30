@@ -66,7 +66,8 @@ bil_2010_2023_clean <-
       recode(country_of_residence, 
              "Eswatini (Swaziland)" = "Swaziland",
              "Scotland" = "United Kingdom",
-             "Czechia" = "Czech Republic"),
+             "Czechia" = "Czech Republic",
+             "Hong Kong SAR" = "Hong Kong"),
     industries = 
       recode(industries,
              "Fashion and Retail" = "Fashion & Retail",
@@ -138,18 +139,18 @@ Given the issue that `Hong Kong`, `Macau` and `Taiwan` are regions with missing 
 
 #### Hong Kong & Macau
 ```{r sar-gdp-data}
-world_gdp = read_csv("../data/raw/gdp_worldbank.csv", skip = 4) |>
-  janitor::clean_names()
-sar_gdp = world_gdp |>
-  filter(country_name == "Macao SAR, China" | country_name == "Hong Kong SAR, China") |>
-  select(country_name, country_code, starts_with("x")) |>
-  pivot_longer(cols = starts_with("x"), names_to = "year", names_prefix = "x", values_to = "value") |>
-  mutate(gdp = value/1e12, 
-         year = as.numeric(year),
-         name = country_name, 
-         code = country_code) |>
-  filter(year >= 2010) |>
-  select(name, code, year, gdp)
+# world_gdp = read_csv("../data/raw/gdp_worldbank.csv", skip = 4) |>
+#   janitor::clean_names()
+# sar_gdp = world_gdp |>
+#   filter(country_name == "Macao SAR, China" | country_name == "Hong Kong SAR, China") |>
+#   select(country_name, country_code, starts_with("x")) |>
+#   pivot_longer(cols = starts_with("x"), names_to = "year", names_prefix = "x", values_to = "value") |>
+#   mutate(gdp = value/1e12, 
+#          year = as.numeric(year),
+#          name = country_name, 
+#          code = country_code) |>
+#   filter(year >= 2010) |>
+#   select(name, code, year, gdp)
 ```
 
 #### Taiwan
@@ -180,7 +181,7 @@ tw_gdp = fetch_tw_gdp() |>
          year = date |> as.numeric(), 
          name = "Taiwan, China",
          code = "TWN",
-         gdp = gdp/1e3) |>
+         gdp = gdp/1e6) |>
   filter(year >= 2010) |>
   select(name, code, year, gdp)
 ```
@@ -188,7 +189,7 @@ tw_gdp = fetch_tw_gdp() |>
 ### Merge GDP data
 Combine GDP data in Hong Kong, Macau, Taiwan.
 ```{r merge-region-gdp}
-country_gdp_clean = bind_rows(country_gdp_clean, sar_gdp, tw_gdp)
+country_gdp_clean = bind_rows(country_gdp_clean, tw_gdp)
 ```
 
 
