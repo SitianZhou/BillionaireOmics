@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Shuchen Dong, Sitian Zhou,Mengxiao Luan" />
+
+<meta name="date" content="2023-11-28" />
+
+<title>EDA_Longitudinal</title>
+
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+<link rel="shortcut icon" href="./static/favicon.ico">
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Billionaire Landscope</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="index.html">Datasets</a>
+</li>
+<li>
+  <a href="index.html">Proposal</a>
+</li>
+<li>
+  <a href="index.html">Data Cleaning</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    EDA
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="index.html">Categorical Analysis</a>
+    </li>
+    <li>
+      <a href="index.html">Longitudinal Analysis</a>
+    </li>
+    <li>
+      <a href="index.html">Geographic Analysis</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="index.html">Statistical Analysis</a>
+</li>
+<li>
+  <a href="index.html">Regression</a>
+</li>
+<li>
+  <a href="index.html">Shiny App</a>
+</li>
+<li>
+  <a href="index.html">Report</a>
+</li>
+<li>
+  <a href="mailto:pei.tian@columbia.com">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/SitianZhou/P8105_Final_Proj">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">EDA_Longitudinal</h1>
+<h4 class="author">Shuchen Dong, Sitian Zhou,Mengxiao Luan</h4>
+<h4 class="date">2023-11-28</h4>
+
+</div>
+
+
+<div id="load-data" class="section level2">
+<h2>load data</h2>
+<pre class="r"><code>billionaire_gdp_indus_usa &lt;- read.csv(&quot;../data/billionaire_gdp_indus_usa.csv&quot;)
+billionaire_gdp &lt;- read.csv(&quot;../data/billionaire_gdp.csv&quot;)
+gdp &lt;- read.csv(&quot;../data/gdp.csv&quot;)</code></pre>
+</div>
+<div id="gdp-temporal-wealth-patterns" class="section level2">
+<h2>GDP-Temporal Wealth Patterns:</h2>
+<p>Examine the rise and fall of billionaire wealth across different
+economic cycles, including booms, busts, and recoveries.</p>
+</div>
+<div id="different-country-gdp-overtime." class="section level2">
+<h2>1. different country GDP overtime.</h2>
+<pre class="r"><code>countries &lt;- c(&quot;USA&quot;, &quot;CHN&quot;, &quot;RUS&quot;, &quot;JPN&quot;, &quot;DEU&quot;)
+
+gdp_selected &lt;- 
+  gdp[gdp$code %in% countries &amp; gdp$year &gt;= 2010 &amp; gdp$year &lt;= 2022, ]
+
+# draw GDP plot
+ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = &quot;GDP Change from 2010 to 2022&quot;,
+       x = &quot;Year&quot;, y = &quot;GDP&quot;,
+       color = &quot;Country Code&quot;) +
+  scale_x_continuous(breaks = 2010:2022) </code></pre>
+<p><img src="time_data_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div
+id="for-billionaire_gdp-net_worth-for-different-country-top-5-over-time"
+class="section level2">
+<h2>2. for billionaire_gdp, net_worth for different country top 5 over
+time</h2>
+<pre class="r"><code>data_filtered &lt;- billionaire_gdp %&gt;%
+  filter(year &gt;= 2010 &amp; year &lt;= 2023)
+
+# group by country net worth over time 
+total_net_worth_by_country &lt;- data_filtered %&gt;%
+  group_by(country_of_citizenship) %&gt;%
+  summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
+
+# net worth top 5 countries
+top_countries &lt;- total_net_worth_by_country %&gt;%
+  top_n(5, total_net_worth) %&gt;%
+  pull(country_of_citizenship)
+
+top_countries_data &lt;- data_filtered %&gt;%
+  filter(country_of_citizenship %in% top_countries)
+
+total_net_worth_by_year_country &lt;- top_countries_data %&gt;%
+  group_by(year, country_of_citizenship) %&gt;%
+  summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
+
+# plot
+ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group = country_of_citizenship, color = country_of_citizenship)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = &quot;Total Net Worth of billionaire by Top 5 Countries from 2010 to 2023&quot;,
+       x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
+       color = &quot;Country of Citizenship&quot;)</code></pre>
+<p><img src="time_data_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<div id="gender" class="section level3">
+<h3>Gender</h3>
+<pre class="r"><code>billionaires_filtered &lt;- billionaire_gdp_indus_usa %&gt;%
+  filter(year &gt;= 2017 &amp; year &lt;= 2022) %&gt;%
+  na.omit()
+
+average_net_worth_by_year_gender &lt;- billionaires_filtered %&gt;%
+  group_by(year, gender) %&gt;%
+  summarise(average_net_worth = mean(net_worth, na.rm = TRUE))
+
+ggplot(average_net_worth_by_year_gender, aes(x = year, y = average_net_worth, color = gender)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = &quot;Average Net Worth by Gender from 2017 to 2022&quot;,
+       x = &quot;Year&quot;, y = &quot;Average Net Worth (in billions)&quot;,
+       color = &quot;Gender&quot;)</code></pre>
+<p><img src="time_data_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="industry-lifecycles-and-billionaire-wealth"
+class="section level3">
+<h3>Industry-Lifecycles and Billionaire Wealth</h3>
+<p>Explore how technological disruptions in various sectors impact the
+net worth and ranking of billionaires over time.</p>
+</div>
+</div>
+<div id="industry-gdp-change-over-time" class="section level2">
+<h2>industry gdp change over time</h2>
+<pre class="r"><code>data_filtered &lt;- billionaire_gdp_indus_usa %&gt;%
+  filter(year &gt;= 2017 &amp; year &lt;= 2022)
+
+
+average_gdp_by_year_industry &lt;- data_filtered %&gt;%
+  group_by(year, industries) %&gt;%
+  summarise(average_industry_gdp = mean(industry_gdp, na.rm = TRUE))
+
+ggplot(average_gdp_by_year_industry, aes(x = year, y = average_industry_gdp, group = industries, color = industries)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = &quot;Industry GDP by Year from 2017 to 2022&quot;,
+       x = &quot;Year&quot;, y = &quot;Industry GDP&quot;,
+       color = &quot;Industries&quot;)</code></pre>
+<p><img src="time_data_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div
+id="find-different-city-of-residence-billionaire-net-worth-change-over-time"
+class="section level2">
+<h2>find different city of residence billionaire net worth change over
+time</h2>
+<pre class="r"><code>data_filtered &lt;- billionaire_gdp %&gt;%
+  filter(year &gt;= 2010 &amp; year &lt;= 2023, country_of_citizenship == &quot;United States&quot;)
+
+net_worth_by_city_year &lt;- data_filtered %&gt;%
+  group_by(year, city_of_residence) %&gt;%
+  summarise(total_net_worth = sum(net_worth, na.rm = TRUE)) %&gt;%
+  ungroup()
+
+# top5
+top_cities_by_year &lt;- net_worth_by_city_year %&gt;%
+  group_by(year) %&gt;%
+  slice_max(order_by = total_net_worth, n = 5) %&gt;%
+  ungroup()
+
+ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_residence, color = city_of_residence)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = &quot;Top 10 Cities&#39; Net Worth Trend by Year (2010-2023)&quot;,
+       x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
+       color = &quot;City of Residence&quot;) +
+  theme(legend.position = &quot;bottom&quot;)</code></pre>
+<p><img src="time_data_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+Here are the top 5, and there are indeed 5 more. This is because in some
+years, the total city of net worth is surpassed by others.</p>
+</div>
+<div id="count-self_made-over-time" class="section level2">
+<h2>count self_made over time</h2>
+<pre class="r"><code>self_made_trend &lt;- billionaire_gdp %&gt;%
+  group_by(year, self_made) %&gt;%
+  summarise(count = n(), .groups = &#39;drop&#39;)
+
+
+ggplot(self_made_trend, aes(x = year, y = count, color = self_made, group = self_made)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = &quot;Self-Made Status Count Over Years&quot;,
+       x = &quot;Year&quot;, y = &quot;Count&quot;,
+       color = &quot;Self-Made Status&quot;)</code></pre>
+<p><img src="time_data_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+
+<hr>
+<div class="footer" style="text-align: center">Copyright &copy; P8105, Fall 2023</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
