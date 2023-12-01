@@ -407,7 +407,7 @@ div.tocify {
 
 <pre class="r"><code>bil_data &lt;-
   read_csv(&quot;../data/billionaire_gdp.csv&quot;) |&gt; 
-  distinct(full_name, year, .keep_all = TRUE)
+  distinct(year, full_name, .keep_all = TRUE)
 
 bil_13_23 &lt;-
   bil_data |&gt; 
@@ -417,6 +417,10 @@ id="paired-t-test-compare-wealth-of-billionaires-between-2013-and-2023"
 class="section level2">
 <h2>Paired t-test: compare wealth of billionaires between 2013 and
 2023</h2>
+<p><span class="math inline">\(H_0: \mu_{2023} - \mu_{2013} =
+0\)</span></p>
+<p><span class="math inline">\(H_1: \mu_{2023} - \mu_{2013} \neq
+0\)</span></p>
 <pre class="r"><code>bil_name_13 &lt;-
   bil_data |&gt; 
   filter(year == 2013) |&gt; 
@@ -438,18 +442,45 @@ bil_diff_13_23 &lt;-
     values_from = net_worth
   )
 
-t.test(bil_diff_13_23 |&gt; pull(`2023`), bil_diff_13_23 |&gt; pull(`2013`), paired = T) </code></pre>
-<pre><code>
-    Paired t-test
-
-data:  pull(bil_diff_13_23, `2023`) and pull(bil_diff_13_23, `2013`)
-t = 7.8559, df = 787, p-value = 1.302e-14
-alternative hypothesis: true mean difference is not equal to 0
-95 percent confidence interval:
- 2.588031 4.312223
-sample estimates:
-mean difference 
-       3.450127 </code></pre>
+t.test(bil_diff_13_23 |&gt; pull(`2023`), bil_diff_13_23 |&gt; pull(`2013`), paired = T) |&gt; 
+  broom::tidy() |&gt; 
+  knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="10%" />
+<col width="12%" />
+<col width="9%" />
+<col width="12%" />
+<col width="10%" />
+<col width="12%" />
+<col width="17%" />
+<col width="14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">estimate</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">parameter</th>
+<th align="right">conf.low</th>
+<th align="right">conf.high</th>
+<th align="left">method</th>
+<th align="left">alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">3.450127</td>
+<td align="right">7.855902</td>
+<td align="right">0</td>
+<td align="right">787</td>
+<td align="right">2.588031</td>
+<td align="right">4.312223</td>
+<td align="left">Paired t-test</td>
+<td align="left">two.sided</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div
 id="t-test-compaire-the-wealth-among-gender-groups-in-billionaires-2023"
@@ -458,36 +489,112 @@ class="section level2">
 2023</h2>
 <div id="test-for-equal-variance" class="section level3">
 <h3>test for equal variance</h3>
+<p><span class="math inline">\(H_0: \sigma^2_{male} =
+\sigma^2_{female}\)</span></p>
+<p><span class="math inline">\(H_0: \sigma^2_{male} \neq
+\sigma^2_{female}\)</span></p>
 <pre class="r"><code>bil_gender &lt;-
   bil_data |&gt; 
   filter(year == 2013) |&gt; 
   drop_na(gender)
 
 var.test(filter(bil_gender, gender == &quot;Male&quot;) |&gt; pull(net_worth), 
-       filter(bil_gender, gender == &quot;Female&quot;) |&gt; pull(net_worth))</code></pre>
-<pre><code>
-    F test to compare two variances
-
-data:  pull(filter(bil_gender, gender == &quot;Male&quot;), net_worth) and pull(filter(bil_gender, gender == &quot;Female&quot;), net_worth)
-F = 1.2069, num df = 1281, denom df = 137, p-value = 0.1593
-alternative hypothesis: true ratio of variances is not equal to 1
-95 percent confidence interval:
- 0.9280269 1.5300553
-sample estimates:
-ratio of variances 
-           1.20689 </code></pre>
+       filter(bil_gender, gender == &quot;Female&quot;) |&gt; pull(net_worth)) |&gt; 
+  broom::tidy() |&gt; 
+  knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="6%" />
+<col width="6%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="29%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">estimate</th>
+<th align="right">num.df</th>
+<th align="right">den.df</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">conf.low</th>
+<th align="right">conf.high</th>
+<th align="left">method</th>
+<th align="left">alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1.20689</td>
+<td align="right">1281</td>
+<td align="right">137</td>
+<td align="right">1.20689</td>
+<td align="right">0.1593313</td>
+<td align="right">0.9280269</td>
+<td align="right">1.530055</td>
+<td align="left">F test to compare two variances</td>
+<td align="left">two.sided</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="perform-the-t-test" class="section level3">
 <h3>perform the t-test</h3>
+<p><span class="math inline">\(H_0: \mu_{male} =
+\mu_{female}\)</span></p>
+<p><span class="math inline">\(H_1: \mu_{male} \neq
+\mu_{female}\)</span></p>
 <pre class="r"><code>t.test(filter(bil_gender, gender == &quot;Male&quot;) |&gt; pull(net_worth), 
        filter(bil_gender, gender == &quot;Female&quot;) |&gt; pull(net_worth),
        var.equal = TRUE) |&gt; 
-  broom::tidy()</code></pre>
-<pre><code># A tibble: 1 × 10
-  estimate estimate1 estimate2 statistic p.value parameter conf.low conf.high
-     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
-1   -0.224      3.79      4.01    -0.464   0.643      1418    -1.17     0.723
-# ℹ 2 more variables: method &lt;chr&gt;, alternative &lt;chr&gt;</code></pre>
+  broom::tidy() |&gt; 
+  knitr::kable()</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="16%" />
+<col width="10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">estimate</th>
+<th align="right">estimate1</th>
+<th align="right">estimate2</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">parameter</th>
+<th align="right">conf.low</th>
+<th align="right">conf.high</th>
+<th align="left">method</th>
+<th align="left">alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">-0.223834</td>
+<td align="right">3.790296</td>
+<td align="right">4.01413</td>
+<td align="right">-0.4635292</td>
+<td align="right">0.6430562</td>
+<td align="right">1418</td>
+<td align="right">-1.171091</td>
+<td align="right">0.7234232</td>
+<td align="left">Two Sample t-test</td>
+<td align="left">two.sided</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="anova-compare-the-wealth-among-multiple-age-groups-in-2023"
@@ -555,14 +662,46 @@ bil_age |&gt;
 <div id="anova-results" class="section level3">
 <h3>ANOVA Results</h3>
 <p><span class="math inline">\(H_0: \mu_{55\space and \space below} =
-\mu_{55-65} = \mu_{65-75} = \mu_{over \space 75}\)</span> vs. <span
-class="math inline">\(H_1:\)</span> at least one <span
+\mu_{55-65} = \mu_{65-75} = \mu_{over \space 75}\)</span></p>
+<p><span class="math inline">\(H_1:\)</span> at least one <span
 class="math inline">\(\mu\)</span> differs</p>
-<pre class="r"><code>summary(model_t) |&gt; broom::glance()</code></pre>
-<pre><code># A tibble: 1 × 8
-  r.squared adj.r.squared sigma statistic  p.value    df df.residual  nobs
-      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;       &lt;int&gt; &lt;dbl&gt;
-1    0.0178        0.0166 0.388      15.5 5.35e-10     3        2569  2573</code></pre>
+<pre class="r"><code>summary(model_t) |&gt; broom::glance() |&gt; knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="13%" />
+<col width="19%" />
+<col width="13%" />
+<col width="13%" />
+<col width="11%" />
+<col width="4%" />
+<col width="16%" />
+<col width="6%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">r.squared</th>
+<th align="right">adj.r.squared</th>
+<th align="right">sigma</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">df</th>
+<th align="right">df.residual</th>
+<th align="right">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0177886</td>
+<td align="right">0.0166416</td>
+<td align="right">0.3881717</td>
+<td align="right">15.50881</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">2569</td>
+<td align="right">2573</td>
+</tr>
+</tbody>
+</table>
 <p>Since the test result of ANOVA is significant, we want to know which
 group(s) have different mean <code>net_worth_tran</code> from the
 rest.</p>
@@ -570,16 +709,85 @@ rest.</p>
 <div id="pairwise-comparisons" class="section level3">
 <h3>Pairwise Comparisons</h3>
 <pre class="r"><code>res &lt;- aov(net_worth_tran ~ age_group, data = bil_age)
-TukeyHSD(res) |&gt; broom::tidy()</code></pre>
-<pre><code># A tibble: 6 × 7
-  term      contrast          null.value estimate conf.low conf.high adj.p.value
-  &lt;chr&gt;     &lt;chr&gt;                  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
-1 age_group 55~65-55 and bel…          0   0.0553  1.31e-4    0.110     0.0492  
-2 age_group 65~75-55 and bel…          0   0.0937  3.76e-2    0.150     0.000105
-3 age_group over 75-55 and b…          0   0.147   8.93e-2    0.204     0       
-4 age_group 65~75-55~65                0   0.0384 -1.57e-2    0.0924    0.262   
-5 age_group over 75-55~65              0   0.0914  3.59e-2    0.147     0.000138
-6 age_group over 75-65~75              0   0.0531 -3.25e-3    0.109     0.0732  </code></pre>
+TukeyHSD(res) |&gt; broom::tidy() |&gt; knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="11%" />
+<col width="24%" />
+<col width="12%" />
+<col width="11%" />
+<col width="12%" />
+<col width="11%" />
+<col width="14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="left">contrast</th>
+<th align="right">null.value</th>
+<th align="right">estimate</th>
+<th align="right">conf.low</th>
+<th align="right">conf.high</th>
+<th align="right">adj.p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">age_group</td>
+<td align="left">55~65-55 and below</td>
+<td align="right">0</td>
+<td align="right">0.0553045</td>
+<td align="right">0.0001306</td>
+<td align="right">0.1104784</td>
+<td align="right">0.0491993</td>
+</tr>
+<tr class="even">
+<td align="left">age_group</td>
+<td align="left">65~75-55 and below</td>
+<td align="right">0</td>
+<td align="right">0.0936643</td>
+<td align="right">0.0376424</td>
+<td align="right">0.1496862</td>
+<td align="right">0.0001052</td>
+</tr>
+<tr class="odd">
+<td align="left">age_group</td>
+<td align="left">over 75-55 and below</td>
+<td align="right">0</td>
+<td align="right">0.1467478</td>
+<td align="right">0.0893468</td>
+<td align="right">0.2041488</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">age_group</td>
+<td align="left">65<sub>75-55</sub>65</td>
+<td align="right">0</td>
+<td align="right">0.0383598</td>
+<td align="right">-0.0157065</td>
+<td align="right">0.0924261</td>
+<td align="right">0.2622205</td>
+</tr>
+<tr class="odd">
+<td align="left">age_group</td>
+<td align="left">over 75-55~65</td>
+<td align="right">0</td>
+<td align="right">0.0914433</td>
+<td align="right">0.0359493</td>
+<td align="right">0.1469373</td>
+<td align="right">0.0001383</td>
+</tr>
+<tr class="even">
+<td align="left">age_group</td>
+<td align="left">over 75-65~75</td>
+<td align="right">0</td>
+<td align="right">0.0530835</td>
+<td align="right">-0.0032538</td>
+<td align="right">0.1094207</td>
+<td align="right">0.0731789</td>
+</tr>
+</tbody>
+</table>
 <div id="visualize-the-result-in-a-boxplot" class="section level4">
 <h4>Visualize the result in a boxplot</h4>
 <pre class="r"><code>letter &lt;- multcompLetters4(res, TukeyHSD(res))
@@ -599,11 +807,14 @@ bil_age |&gt;
 </div>
 </div>
 </div>
+<div id="other-tests-not-informative-or-w-independence-issue"
+class="section level2">
+<h2>Other tests (not informative or w/ independence issue)</h2>
 <div
 id="prop.test-is-the-proportion-of-billionaires-reside-in-us-greater-than-25"
-class="section level2">
-<h2>prop.test: is the proportion of billionaires reside in US greater
-than 25%?</h2>
+class="section level3">
+<h3>prop.test: is the proportion of billionaires reside in US greater
+than 25%?</h3>
 <pre class="r"><code>bil_res_sum &lt;-
   bil_data |&gt; 
   filter(year == 2023) |&gt; 
@@ -704,8 +915,6 @@ prop_res_df |&gt;
 </tbody>
 </table>
 </div>
-<div id="other-tests-w-independence-issue" class="section level2">
-<h2>Other tests (w/ independence issue)</h2>
 <div
 id="two-sample-prop-test-compare-the-proportion-of-female-billionaires-in-2013-and-2023"
 class="section level3">

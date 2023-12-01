@@ -33,10 +33,11 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
 
+
 ```{r import & subset data}
 bil_data <-
   read_csv("../data/billionaire_gdp.csv") |> 
-  distinct(full_name, year, .keep_all = TRUE)
+  distinct(year, full_name, .keep_all = TRUE)
 
 bil_13_23 <-
   bil_data |> 
@@ -44,6 +45,10 @@ bil_13_23 <-
 ```
 
 ## Paired t-test: compare wealth of billionaires between 2013 and 2023
+
+$H_0: \mu_{2023} - \mu_{2013} = 0$
+
+$H_1: \mu_{2023} - \mu_{2013} \neq 0$
 
 ```{r}
 bil_name_13 <-
@@ -67,7 +72,9 @@ bil_diff_13_23 <-
     values_from = net_worth
   )
 
-t.test(bil_diff_13_23 |> pull(`2023`), bil_diff_13_23 |> pull(`2013`), paired = T) 
+t.test(bil_diff_13_23 |> pull(`2023`), bil_diff_13_23 |> pull(`2013`), paired = T) |> 
+  broom::tidy() |> 
+  knitr::kable()
 ```
 
 
@@ -77,6 +84,10 @@ t.test(bil_diff_13_23 |> pull(`2023`), bil_diff_13_23 |> pull(`2013`), paired = 
 
 ### test for equal variance
 
+$H_0: \sigma^2_{male} = \sigma^2_{female}$
+
+$H_0: \sigma^2_{male} \neq \sigma^2_{female}$
+
 ```{r}
 bil_gender <-
   bil_data |> 
@@ -84,16 +95,23 @@ bil_gender <-
   drop_na(gender)
 
 var.test(filter(bil_gender, gender == "Male") |> pull(net_worth), 
-       filter(bil_gender, gender == "Female") |> pull(net_worth))
+       filter(bil_gender, gender == "Female") |> pull(net_worth)) |> 
+  broom::tidy() |> 
+  knitr::kable()
 ```
 
 ### perform the t-test
+
+$H_0: \mu_{male} = \mu_{female}$
+
+$H_1: \mu_{male} \neq \mu_{female}$
 
 ```{r gender t-test}
 t.test(filter(bil_gender, gender == "Male") |> pull(net_worth), 
        filter(bil_gender, gender == "Female") |> pull(net_worth),
        var.equal = TRUE) |> 
-  broom::tidy()
+  broom::tidy() |> 
+  knitr::kable()
   
 ```
 
@@ -166,11 +184,12 @@ bil_age |>
 
 ### ANOVA Results
 
-$H_0: \mu_{55\space and \space below} = \mu_{55-65} = \mu_{65-75} = \mu_{over \space 75}$ vs.
+$H_0: \mu_{55\space and \space below} = \mu_{55-65} = \mu_{65-75} = \mu_{over \space 75}$
+
 $H_1:$ at least one $\mu$ differs
 
 ```{r anova results}
-summary(model_t) |> broom::glance()
+summary(model_t) |> broom::glance() |> knitr::kable()
 ```
 
 Since the test result of ANOVA is significant, we want to know which group(s) have different mean `net_worth_tran` from the rest.
@@ -179,7 +198,7 @@ Since the test result of ANOVA is significant, we want to know which group(s) ha
 
 ```{r pairwise comparisons}
 res <- aov(net_worth_tran ~ age_group, data = bil_age)
-TukeyHSD(res) |> broom::tidy()
+TukeyHSD(res) |> broom::tidy() |> knitr::kable()
 
 ```
 
@@ -201,7 +220,9 @@ bil_age |>
 ```
 
 
-## prop.test: is the proportion of billionaires reside in US greater than 25%?
+## Other tests (not informative or w/ independence issue)
+
+### prop.test: is the proportion of billionaires reside in US greater than 25%?
 
 ```{r}
 bil_res_sum <-
@@ -230,7 +251,6 @@ prop_res_df |>
   knitr::kable(digits = 3)
 ```
 
-## Other tests (w/ independence issue)
 
 ### Two sample prop test: Compare the proportion of female billionaires in 2013 and 2023
 
