@@ -7,12 +7,6 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
-library(shinydashboard)
-library(leaflet)
-library(DT)
-library(plotly)
-
 source("./utils.R")
 
 # Define UI for application

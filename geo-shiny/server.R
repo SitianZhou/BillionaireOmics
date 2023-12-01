@@ -20,23 +20,32 @@ theme_set(
 function(input, output, session) {
 
     ################## map dashboard ##################
-    gdp_data = reactive({
+    gdp_viz = reactive({
         year_selection(input$mapYear)
     })
 
-    
+    bil_viz = reactive({
+        billionaire_marker(input$mapYear)
+    })
+
     output$map <- renderLeaflet({
       leaflet() |>
         addProviderTiles("CartoDB.Positron") |>  # You can choose different tile providers
-        addPolygons(data = gdp_data(), 
+        addPolygons(data = gdp_viz(), 
                     fillColor = ~colorQuantile("YlOrRd", gdp)(gdp), 
                     fillOpacity = 0.3, color = "white", weight = 1,
+                    label = ~paste("GDP: ", round(gdp, 3), " trillion"),
                     highlightOptions = highlightOptions(
-                      color = "black", weight = 2, bringToFront = TRUE)) 
+                      color = "black", weight = 2, bringToFront = TRUE)) |>
+        addMarkers(data = bil_viz(),
+                  label = ~paste("Region: ", country_of_citizenship),
+                  popup = ~info
+        ) |>
+        setView(lng = 0, lat = 30, zoom = 2) 
     })
 
     output$mapTable <- renderDT({
-        datatable(gdp_data(),
+        datatable(bil_viz(),
                   filter = "top",
                   selection = list(target = 'column'),
                   options = list(

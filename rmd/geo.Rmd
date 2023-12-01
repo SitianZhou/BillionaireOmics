@@ -14,7 +14,6 @@ library(tidyverse)
 library(leaflet)
 library(sf)
 library(rnaturalearth)
-library(patchwork)
 library(plotly)
 
 theme_set(
@@ -26,7 +25,7 @@ theme_set(
 
 ```
 
-## Aims
+## Purposes
 Interactive visualization for top-ranked billionaires in different regions (countries, continents)
 
 Interactive visualization for GDP of different countries in different years
@@ -34,7 +33,6 @@ Interactive visualization for GDP of different countries in different years
 Compare billionaire distribution in different regions (such as average wealth, gender composition)
 
 ```{r data-preprocessing}
-world <- ne_countries(scale = "medium", returnclass = "sf")
 bil_gdp = read_csv("../data/tidy/billionaire_gdp.csv") 
 bil_gdp = bil_gdp |>
   select(-wealth_status) |>
@@ -63,14 +61,30 @@ gdp_data = read_csv("../data/raw/gdp_worldbank.csv", skip = 4) |>
 
 ## Interactive Map
 Input: `year`
-top3 Billionaire in each country as label
-GDP reveal as color
+- top1 Billionaire in each country as label
+- GDP reveal as color
 
-```{r gdp-geo-view}
-target_year = 2021
+```{r geo-data}
+world_polygon = ne_countries(scale = "medium", returnclass = "sf")
+world_point = st_point_on_surface(world_polygon)
+
+```
+
+```{r geo-view}
+target_year = 2022
 gdp_viz = gdp_data |>
   filter(year == target_year) |>
-  left_join(world, by = join_by(code == adm0_a3)) |>
+  left_join(world_polygon, by = join_by(code == adm0_a3)) |>
+  st_as_sf()
+
+bil_viz = bil_gdp |>
+  filter(year == target_year) |>
+  group_by(region_code, year) |>
+  arrange(desc(net_worth)) |>  # Arrange in descending order based on 'value'
+  mutate(rnk = row_number()) |>  # Add rank labels
+  filter(rnk <= 1) |>
+  mutate(info = paste(paste0("Top 1 Billionaire: ", full_name), industries, paste0(net_worth, " billion"), sep = ", ")) |>
+  left_join(world_point, by = join_by(region_code == adm0_a3)) |>
   st_as_sf()
 
 leaflet() |>
@@ -78,8 +92,14 @@ leaflet() |>
   addPolygons(data = gdp_viz, 
               fillColor = ~colorQuantile("YlOrRd", gdp)(gdp), 
               fillOpacity = 0.3, color = "white", weight = 1,
+              label = ~paste("GDP: ", round(gdp, 3), " trillion"),
               highlightOptions = highlightOptions(
-                color = "black", weight = 2, bringToFront = TRUE)) 
+                color = "black", weight = 2, bringToFront = TRUE)) |>
+  addMarkers(data = bil_viz,
+             label = ~paste("Region: ", region_code),
+             popup = ~info
+  ) |>
+  setView(lng = 0, lat = 30, zoom = 2)
 ```
 
 ## Chart
@@ -91,7 +111,7 @@ leaflet() |>
   - industry
   - self-made
   
-```{r}
+```{r inter-data}
 target_year = 2022
 target_age_range = c(1, 100)
 inter_data = bil_gdp |>
@@ -99,7 +119,7 @@ inter_data = bil_gdp |>
 
 ```
 
-```{r}
+```{r count-view}
 count_by_region = inter_data |>
   group_by(region_code) |>
   summarise(count = n()) |>
@@ -114,7 +134,7 @@ count_view = count_by_region |>
 ggplotly(count_view)
 ```
 
-```{r}
+```{r gender-view}
 count_by_gender = inter_data |>
   group_by(region_code, gender) |>
   summarise(gender_count = n(), .groups = "drop_last") |>
@@ -129,7 +149,8 @@ gender_view = count_by_gender |>
   theme(axis.text.x = element_text(angle = -90, hjust = 1)) 
 ggplotly(gender_view)
 ```
-```{r}
+
+```{r self-made-view}
 count_by_self_made = inter_data |>
   group_by(region_code, self_made) |>
   summarise(self_made_count = n(), .groups = "drop_last") |>
@@ -145,7 +166,8 @@ self_made_view = count_by_self_made |>
   theme(axis.text.x = element_text(angle = -90, hjust = 1))
 ggplotly(self_made_view)
 ```
-```{r}
+
+```{r industries-view}
 count_by_industries = inter_data |>
   group_by(region_code, industries) |>
   summarise(industries_count = n(), .groups = "drop_last") |>
@@ -171,12 +193,13 @@ ggplotly(industries_view)
 
 2. Specific country: 
   Input: country
-  - GDP time curve
+  - GDP curve
   - gender, self-made, industry: pie
   - age: histogram
-  - wealth: top 5
-
-```{r}
+  - wealth: top rank
+  
+#### Charts
+```{r gdp-curve}
 code = c("USA", "CHN")
 region_select_all = bil_gdp |> 
   filter(region_code %in% code)
@@ -190,7 +213,7 @@ region_select_all |>
   geom_point() +
   labs(x = "Year", y = "GDP(Billion)", title = "GDP in recent years") 
 ```
-```{r}
+```{r rnk-view}
 rnk_thres = c(1, 10)
 rnk_bar = region_select |>
   group_by(region_code) |>
@@ -204,7 +227,7 @@ rnk_bar = region_select |>
   labs(x = "Rank", y = "Wealth (Billion)", title = "Wealth comparison")
 ggplotly(rnk_bar)
 ```
-```{r}
+```{r age-hist}
 histo = region_select |>
   ggplot(aes(x = age, fill = region_code)) +
   geom_histogram(binwidth = 2) +
@@ -216,7 +239,7 @@ ggplotly(histo)
 
 #### Pie
 
-```{r}
+```{r gender-pie, include=F}
 region_select |>
   group_by(gender, region_code) |>
   summarise(count = n()) |>
@@ -229,7 +252,7 @@ region_select |>
   theme(legend.position = "right") 
 ```
 
-```{r}
+```{r industries-pie, include = F}
 region_select |>
   group_by(industries, region_code) |>
   summarise(count = n()) |>
@@ -246,7 +269,7 @@ region_select |>
   )
 ```
 
-```{r}
+```{r self-made-pie, include = F}
 region_select |>
   group_by(self_made, region_code) |>
   summarise(count = n()) |>
@@ -261,5 +284,7 @@ region_select |>
 ```
 
 
+## Deployment
+These geographic analysis is visualized via Shiny App and deployed to [Shiny App](https://tptrix29.shinyapps.io/p8105-geo-shiny/). 
 
 
