@@ -18,13 +18,13 @@ We conduct some exploratory analysis from three main aspects:
   * net worth of wealth(billions of dollars)
   * approach of becoming a billionaire(self-made or not)
   * wealth status(increasing, decreasing, stable or returning)
-  
+
 * regarding demographic information:
 
   * age
   * gender
   * country(country of citizenship, country of residence)
-  
+
 * regarding economic development:
   
   * industry
@@ -109,13 +109,15 @@ wealth_distribution_1 =
   bil_2023 |>
   ggplot(aes(x = net_worth)) +
   geom_histogram() +
-  labs(x = "Net wealth(billion dollars)")
+  labs(x = "Net wealth(billion dollars)",
+       y = "Count")
 
 wealth_distribution_2 =
   bil_2023 |>
   ggplot(aes(x = net_worth)) +
   geom_density() +
-  labs(x = "Net wealth(billion dollars)")
+  labs(x = "Net wealth(billion dollars)",
+       y = "Density")
 
 ggarrange(wealth_distribution_1, wealth_distribution_2,
           labels = c("A", "B"), ncol = 1, nrow = 2) |>
@@ -134,13 +136,15 @@ wealth_distribution_3 =
   bil_2023 |>
   ggplot(aes(x = net_worth^(-0.5))) +
   geom_histogram() +
-  labs(x = "Net wealth(transformed)")
+  labs(x = "Net wealth(transformed)",
+       y = "Count")
 
 wealth_distribution_4 =
   bil_2023 |>
   ggplot(aes(x = net_worth^(-0.5))) +
   geom_density() +
-  labs(x = "Net wealth(transformed)")
+  labs(x = "Net wealth(transformed)",
+       y = "Density")
 
 ggarrange(wealth_distribution_3, wealth_distribution_4,
           labels = c("A", "B"), ncol = 1, nrow = 2) |>
@@ -304,12 +308,16 @@ Similar to the processing of wealth information, divide the population into four
 age_distribution_1 =
   bil_2023 |>
   ggplot(aes(x = age)) + 
-  geom_histogram()
+  geom_histogram() +
+  labs(x = "Age",
+       y = "Count")
 
 age_distribution_2 =
   bil_2023 |>
   ggplot(aes(x = age)) + 
-  geom_density()
+  geom_density() +
+  labs(x = "Age",
+       y = "Density")
 
 ggarrange(age_distribution_1, age_distribution_2,
           labels = c("A", "B"), ncol = 1, nrow = 2) |>
