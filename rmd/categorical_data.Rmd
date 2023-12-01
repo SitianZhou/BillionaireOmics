@@ -145,8 +145,7 @@ wealth_distribution_4 =
 ggarrange(wealth_distribution_3, wealth_distribution_4,
           labels = c("A", "B"), ncol = 1, nrow = 2) |>
   annotate_figure(
-    top = text_grob("Transformed wealth distribution of billionaires in 2023",
-                    face = "bold", size = 15))
+    top = text_grob("Transformed wealth distribution of billionaires in 2023"))
 ```
 
 The transformed distribution shows better normality compared with orignial data, yet more precise methods should be applied in further analysis, with the specific procedure depending on the analytic goal.
