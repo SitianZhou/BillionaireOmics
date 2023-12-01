@@ -412,6 +412,7 @@ gdp_selected &lt;-
 # draw GDP plot
 ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
   geom_line() +
+  theme_minimal() +
   labs(title = &quot;GDP Change from 2010 to 2022&quot;,
        x = &quot;Year&quot;, y = &quot;GDP&quot;,
        color = &quot;Country Code&quot;) +
@@ -458,17 +459,17 @@ ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group
 <pre class="r"><code>billionaires_filtered &lt;- billionaire_gdp %&gt;%
   filter(year &gt;= 2010 &amp; year &lt;= 2022) %&gt;%  na.omit()
 
-average_net_worth_by_year_gender &lt;- billionaires_filtered %&gt;%
+total_net_worth_by_year_gender &lt;- billionaires_filtered %&gt;%
   group_by(year, gender) %&gt;%
-  summarise(average_net_worth = sum(net_worth, na.rm = TRUE))
+  summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
 
 
 
-ggplot(average_net_worth_by_year_gender, aes(x = year, y = average_net_worth, color = gender)) +
+ggplot(total_net_worth_by_year_gender, aes(x = year, y = total_net_worth, color = gender)) +
   geom_line() +
   theme_minimal() +
   labs(title = &quot;Total Net Worth by Gender from 2017 to 2022&quot;,
-       x = &quot;Year&quot;, y = &quot;Average Net Worth (in billions)&quot;,
+       x = &quot;Year&quot;, y = &quot;Total Net Worth (in billions)&quot;,
        color = &quot;Gender&quot;)</code></pre>
 <p><img src="time_data_files/figure-html/ave_net_worth%20by%20gender-1.png" width="672" /></p>
 </div>
@@ -484,13 +485,14 @@ net worth and ranking of billionaires over time.</p>
   drop_na(industry_gdp)
 
 
-average_gdp_by_year_industry &lt;- data_filtered %&gt;%
+total_gdp_by_year_industry &lt;- data_filtered %&gt;%
   group_by(year, industries) %&gt;%
-  summarise(average_industry_gdp = sum(industry_gdp, na.rm = TRUE))
+  summarise(total_gdp_by_year_industry = sum(industry_gdp, na.rm = TRUE))
 
-average_gdp_by_year_industry |&gt; 
-  ggplot(aes(x = year, y = average_industry_gdp, group = industries, color = industries)) +
+total_gdp_by_year_industry |&gt; 
+  ggplot(aes(x = year, y = total_gdp_by_year_industry, group = industries, color = industries)) +
     geom_line() +
+    theme_minimal() +
     labs(title = &quot;Total Industry GDP by Year from 2017 to 2022 in USA&quot;,
          x = &quot;Year&quot;, y = &quot;Industry GDP&quot;,
          color = &quot;Industries&quot;)</code></pre>
@@ -519,7 +521,7 @@ top_cities_by_year &lt;- net_worth_by_city_year %&gt;%
 ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_residence, color = city_of_residence)) +
   geom_line() +
   theme_minimal() +
-  labs(title = &quot;Top 10 Cities&#39; Net Worth Trend by Year (2010-2023)&quot;,
+  labs(title = &quot;Top 5 Cities&#39; Net Worth Trend by Year (2010-2023)&quot;,
        x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
        color = &quot;City of Residence&quot;) +
   theme(legend.position = &quot;bottom&quot;)</code></pre>
@@ -536,6 +538,7 @@ some years, the total city of net worth is surpassed by others.</p>
 
 ggplot(self_made_trend, aes(x = year, y = count, color = self_made, group = self_made)) +
   geom_line() +
+  theme_minimal() +
   labs(title = &quot;Self-Made Status Count Over Years&quot;,
        x = &quot;Year&quot;, y = &quot;Count&quot;,
        color = &quot;Self-Made Status&quot;)</code></pre>
