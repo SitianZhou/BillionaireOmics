@@ -1,6 +1,59 @@
 ---
-title: "Reg"
+title: "Regression"
 author: "Yuzhe Hu"
-date: "2023-11-28"
-output: github_document
+date: "r Sys.Date()"
+output: html_document
 ---
+The linear regression analysis here is based on data from year 2023.
+```{r library, message=FALSE}
+#Import libraries
+library(readr)
+library(tidyverse)
+library(ggplot2)
+library(reshape2)
+library(car)
+library(carData)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+```
+
+```{r data-import}
+# Read the data
+billionaires23 <- read_csv("./data/billionaire_2023.csv")
+```
+
+Take `net_worth` as the response variable, `age, gender, gdp_country and life_expectancy_country` as predictors.
+```$$\text{net_worth} = \beta_0 + \beta_1 \times \text{age}+ \beta_2 \times \text{gender} + \beta_3 \times \text{gdp_country} + \beta_4 \times \text{life_expectancy_country} + \varepsilon$$
+
+* net_worth: Net worth of the individual in billions.
+* age: Age of the billionaire.
+* gender: Gender of the billionaire.
+* gdp_country: Gross Domestic Product of the country they reside in.
+* life_expectancy_country: Life expectancy in the country they reside in.
+
+```{r lrmodel}
+lrmodel <- lm(net_worth ~ age + gender + gdp_country+life_expectancy_country, data = billionaires23)
+summary(lrmodel)
+```
+
+```{r}
+lrmodel |> 
+  broom::tidy() |> 
+  knitr::kable(digits = 3)
+```
+
+Check multicollinearity
+```{r vif}
+vif(lrmodel) |> 
+  knitr::kable() 
+```
+
+
+
