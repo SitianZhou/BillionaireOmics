@@ -13,23 +13,24 @@ output:
 library(tidyverse)
 library(multcompView)
 library(EnvStats)
+library(plotly)
 
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
   message = FALSE,
-  comment = NA
+  fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+  
   )
 
-options(
-  ggplot2.continuous.colour = "viridis",
-  ggplot2.continuous.fill = "viridis"
+theme_set(
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(family = "Helvetica")
+  )
 )
-
-scale_colour_discrete = scale_colour_viridis_d
-scale_fill_discrete = scale_fill_viridis_d
-
-theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
 
@@ -44,11 +45,17 @@ bil_13_23 <-
   filter(year == 2013 | year == 2023)
 ```
 
-## Paired t-test: compare wealth of billionaires between 2013 and 2023
+## Paired t-test: analyze the wealth variation among billionaires between 2013 and 2023
+
+We focused on billionaires who appeared on both the 2013 and 2023 lists, aiming to assess changes in their net wealth over the span of ten years.
+
+<center>
 
 $H_0: \mu_{2023} - \mu_{2013} = 0$
 
-$H_1: \mu_{2023} - \mu_{2013} \neq 0$
+$H_1: \mu_{2023} - \mu_{2013} \neq 0$ 
+
+</center>
 
 ```{r}
 bil_name_13 <-
@@ -74,21 +81,31 @@ bil_diff_13_23 <-
 
 t.test(bil_diff_13_23 |> pull(`2023`), bil_diff_13_23 |> pull(`2013`), paired = T) |> 
   broom::tidy() |> 
-  knitr::kable()
+  knitr::kable(digits = 3)
 ```
 
+With the result shown above, the p-value is 0, which is sufficiently small to reject the null. We conclude that there is a difference in the net wealth of billionaires on the list in both 2013 and 2023. Furthermore, the 95% confidence interval suggests a discernible increase in billionaires' wealth over the past decade, estimated to range between 2.588 and 4.312 billion dollars.
 
 
+## T-test: compare the wealth distribution between gender groups among billionaires in 2023
 
-## t-test: compaire the wealth among gender groups in billionaires 2023
 
-### test for equal variance
+When examining the data, we noticed that there is a considerable discrepancy in the numbers of female and male billionaires, with a notably smaller count among female billionaires. This led us to investigate whether a substantial difference exists in the actual wealth between these two groups. Our analysis specifically focused on billionaires in the year 2023 to conduct the test.
+
+
+### Test for equal variance
+
+We first perform the F test to see if the variances between the two groups differ.
+
+<center>
 
 $H_0: \sigma^2_{male} = \sigma^2_{female}$
 
-$H_0: \sigma^2_{male} \neq \sigma^2_{female}$
+$H_1: \sigma^2_{male} \neq \sigma^2_{female}$
 
-```{r}
+</center>
+
+```{r test equal variance}
 bil_gender <-
   bil_data |> 
   filter(year == 2013) |> 
@@ -97,28 +114,36 @@ bil_gender <-
 var.test(filter(bil_gender, gender == "Male") |> pull(net_worth), 
        filter(bil_gender, gender == "Female") |> pull(net_worth)) |> 
   broom::tidy() |> 
-  knitr::kable()
+  knitr::kable(digits = 3)
 ```
 
-### perform the t-test
+Given the p-value of 0.159, we fail to reject the null under a 0.05 significance level. Thus, we conclude that the variances between the two groups are equal.
+
+### Perform the t-test
+
+<center>
 
 $H_0: \mu_{male} = \mu_{female}$
 
 $H_1: \mu_{male} \neq \mu_{female}$
+
+</center>
 
 ```{r gender t-test}
 t.test(filter(bil_gender, gender == "Male") |> pull(net_worth), 
        filter(bil_gender, gender == "Female") |> pull(net_worth),
        var.equal = TRUE) |> 
   broom::tidy() |> 
-  knitr::kable()
-  
+  knitr::kable(digits = 3)
 ```
 
+From the result table, we got a p-value of 0.643, which is much greater than 0.05. Thus, with a significance level of 0.05, we fail to reject the null and conclude that in 2023, the wealth of female and male billionaires is the same.
 
-## ANOVA: compare the wealth among multiple age groups in 2023
+## ANOVA: compare the wealth among billionaires in different age groups in 2023
 
 ### Diagnostics
+
+Before conducting the ANOVA test, we wanted to check if all assumptions of the test are met. Hence, we created two diagnostic plots: the distribution of residuals and the boxplot. 
 
 ```{r anova diagnostics}
 bil_age <-
@@ -140,170 +165,140 @@ model_ori = lm(net_worth ~ age_group, data = bil_age)
 model_ori[[2]] |> 
   as.data.frame() |> 
   rename("residuals" = "model_ori[[2]]") |> 
-  ggplot(aes(x = residuals)) + geom_histogram() +
-  labs(x = "residual", title = "Histogram of errors")
+  plot_ly(x = ~residuals, type = "histogram", 
+          marker = list(color = "rgba(68, 1, 84, 0.6)", 
+          line = list(color = "rgb(68, 1, 84)", width = 2)), nbinsx = 50) |> 
+  layout(title = "Distribution of residuals",
+         xaxis = list(title = "Residuals"),
+         yaxis = list(title = "Count"))
 
 # boxplot
 bil_age |> 
-  ggplot(aes(x = age_group, y = net_worth, fill = age_group)) + geom_boxplot()
+  plot_ly(x = ~age_group, y =~net_worth, color = ~age_group,
+          type = "box", colors = "viridis") |>
+  layout(title = "Net wealth of different age groups",
+         xaxis = list(title = "Age of billionaires"),
+         yaxis = list(title = "Net wealth (billion dollars)"))
+
 ```
 
-From the boxplot above, we can tell that the distribution of `net_worth` in each age group is right-skewed, which violates the normality and homoscedasticity assumptions of ANOVA. Hence, we have to transform the data before performing the ANOVA test.
+From the boxplot above, we can tell that the distribution of `net_worth` in each age group is heavily right-skewed, which violates the normality and homoscedasticity assumptions of ANOVA. Hence, we have to transform the data before performing the ANOVA test.
 
-### Data Transformation
+### Data transformation
 
 
 ```{r transformation}
-# use boxcox method to transform the data
 L1 = boxcox(model_ori ,objective.name = "Shapiro-Wilk",optimize = TRUE)$lambda
 
 bil_age <-
   bil_age |> 
   mutate(
-    net_worth_tran = (net_worth^(L1)-1)/L1)
-
+    net_worth_t = (net_worth^(L1)-1)/L1)
 ```
 
-### Diagnostics After Transformation
+To make the data distribution closer to a normal distribution, we used the Box-Cox method to transform the data. We found the $\lambda$ = `r L1 |> round(3)` that provides the best approximation for the normal distribution of our response variable, `net_worth`. We then transformed our data using the formula:
+
+<center>
+
+$Y_{transformed} = \frac{Y^{\lambda}-1}{\lambda}$
+
+</center>
+
+The transformed data is used for the following analysis.
+
 
 ```{r anova diagnostics post-tran}
 # distribution of residuals
-model_t = lm(net_worth_tran ~ age_group, data = bil_age)
+model_t = lm(net_worth_t ~ age_group, data = bil_age)
 
 model_t[[2]] |> 
   as.data.frame() |> 
   rename("residuals" = "model_t[[2]]") |> 
-  ggplot(aes(x = residuals)) + geom_histogram() +
-  labs(x = "residual", title = "Histogram of errors")
+  plot_ly(x = ~residuals, type = "histogram", 
+          marker = list(color = "rgba(68, 1, 84, 0.6)", 
+          line = list(color = "rgb(68, 1, 84)", width = 2)), nbinsx = 30) |> 
+  layout(title = "Distribution of residuals after transformation",
+         xaxis = list(title = "Residuals"),
+         yaxis = list(title = "Count"))
 
 # boxplot
 bil_age |> 
-  ggplot(aes(x = age_group, y = net_worth_tran, fill = age_group)) + geom_boxplot()
+  plot_ly(x = ~age_group, y =~net_worth_t, color = ~age_group,
+          type = "box", colors = "viridis") |>
+  layout(title = "Net wealth of different age groups after transformation",
+         xaxis = list(title = "Age of billionaires"),
+         yaxis = list(title = "Net wealth (transformed)"))
 
 ```
 
-### ANOVA Results
+After transforming the data, we re-created the two diagnostic plots. We can tell that the transformed data have a distribution closer to normal and the variances among age groups are approximately equal. Thus, we may safely proceed and conduct the ANOVA test.
+
+### ANOVA
+
+<center>
 
 $H_0: \mu_{55\space and \space below} = \mu_{55-65} = \mu_{65-75} = \mu_{over \space 75}$
 
 $H_1:$ at least one $\mu$ differs
 
+</center>
+
 ```{r anova results}
-summary(model_t) |> broom::glance() |> knitr::kable()
+summary(model_t) |> broom::glance() |> knitr::kable(digits = 3)
 ```
 
-Since the test result of ANOVA is significant, we want to know which group(s) have different mean `net_worth_tran` from the rest.
+The result table shows a p-value of 0, which is sufficiently small to reject the null. Thus, we conclude that at least one age group has a mean wealth differing from the rest age groups. 
 
-### Pairwise Comparisons
+
+### Post-hoc analysis
+
+Since the ANOVA result suggests that not all age groups have the same mean wealth, we now want to know which group(s) differ in mean wealth. Hence, we conducted Tukey HSD (Honestly Significant Difference) test.
+
 
 ```{r pairwise comparisons}
-res <- aov(net_worth_tran ~ age_group, data = bil_age)
-TukeyHSD(res) |> broom::tidy() |> knitr::kable()
-
+res <- aov(net_worth_t ~ age_group, data = bil_age)
+mydf <- 
+  TukeyHSD(res) |> 
+  broom::tidy() |> 
+  mutate(contrast = recode(contrast, "65~75-55~65" = "65\\~75-55~65"))
+mydf |> knitr::kable(digits = 3)
 ```
 
-#### Visualize the result in a boxplot
+The result table shows that several comparisons are significant under the 0.05 significance level. The group of age 55 and below differs from the 65-75 and the over 75 years old groups, the group of age 55-65 differs from the over 75 years old group as well. Furthermore, distinctions in wealth were observed between the 65-75 and over 75 years old groups. Recognizing the complexity of interpreting the tabulated data, we further annotated the boxplot with the significance letters for better visualization, where different letters imply statistically significant differences in wealth between the respective age groups.
+
+
 ```{r results visualization}
 letter <- multcompLetters4(res, TukeyHSD(res))
 letter_df <- as.data.frame.list(letter[[1]])
-dt <- 
-  bil_age |> 
+dt <- bil_age |> 
   group_by(age_group) |> 
-  summarize(pos = quantile(net_worth_tran)[4]) |>  
+  summarize(pos = max(net_worth_t) + 0.08) |>  
   mutate(letter = letter_df |> pull(Letters))
 
+a <- list(
+  x = dt$age_group,
+  y = dt$pos,
+  text = dt$letter,
+  showarrow = FALSE
+)
+
 bil_age |> 
-  ggplot(aes(x = age_group, y = net_worth_tran, fill = age_group)) + 
-  geom_boxplot() +
-  geom_text(data = dt, aes(x = age_group, y = pos, label = letter), 
-            hjust = -1.25, vjust = -0.8)
+  plot_ly(x = ~age_group, y =~net_worth_t, color = ~age_group,
+          type = "box", colors = "viridis") |>
+  layout(title = "Net wealth of different age groups",
+         xaxis = list(title = "Age of billionaires"),
+         yaxis = list(title = "Net wealth (transformed)"),
+         annotations = a)
 ```
 
 
-## Other tests (not informative or w/ independence issue)
+## Summary
 
-### prop.test: is the proportion of billionaires reside in US greater than 25%?
+* The wealth of billionaires has increased from 2013 to 2023, with a 95% confidence interval from 2.588 to 4.312 billion dollars.
 
-```{r}
-bil_res_sum <-
-  bil_data |> 
-  filter(year == 2023) |> 
-  drop_na(country_of_residence) |>
-  count(country_of_residence) |>
-  arrange(desc(n)) |> 
-  mutate(total = sum(n)) |> 
-  slice(1:10)
+* There is no significant difference in the net wealth between female and male billionaires in 2023.
 
-prop.test(x = 753, n = 2601) |> broom::tidy()
+* Not all billionaires in four age groups have the same wealth amount. Among the six pairwise comparisons, four of them show a significant difference in wealth.
 
-prop_res_df <-
-  bil_res_sum |> 
-  nest(data = -country_of_residence) |> 
-  mutate(
-    prop_res = map(data, \(df) prop.test(df |> pull(n), df |> pull(total))),
-    tidy_res = map(prop_res, broom::tidy)
-  ) |> 
-  select(-prop_res, -data) |> 
-  unnest(tidy_res) |> 
-  select(country_of_residence, estimate, conf.low, conf.high)
-
-prop_res_df |> 
-  knitr::kable(digits = 3)
-```
-
-
-### Two sample prop test: Compare the proportion of female billionaires in 2013 and 2023
-
-$H_0: p_{female\_2013} = p_{female\_2023}$ vs. $H_1: p_{female\_2013} \neq p_{female\_2023}$
-
-
-```{r female billionaires summary}
-bil_gender_sum <-
-  bil_13_23 |>
-  drop_na(gender) |> 
-  group_by(year) |> 
-  summarize(
-    total = n(),
-    female = sum(gender == "Female"))
-bil_gender_sum|> 
-  knitr::kable()
-```
-
-
-```{r female billionaires prop.test}
-# perform 2-sample prop test for proportion of female billionaires in year 2013 and 2023
-prop.test(c(filter(bil_gender_sum, year == 2013) |> 
-              pull(female), filter(bil_gender_sum, year == 2023) |> pull(female)), 
-          n = c(filter(bil_gender_sum, year == 2013) |> 
-                  pull(total), filter(bil_gender_sum, year == 2023) |> pull(total))) |> 
-  broom::tidy() |> 
-  knitr::kable()
-```
-
-
-### Two sample prop test: Compare proportions of billionaires in health care industry in 2013 and 2023
-
-$H_0: p_{healthcare\_2013} = p_{healthcare\_2023}$ vs. $H_1: p_{healthcare\_2013} \neq p_{healthcare\_2023}$
-
-```{r industry summary}
-bil_indus_sum <-
-  bil_13_23 |> 
-  group_by(year) |> 
-  summarize(
-    total = n(),
-    indus = sum(industries == "Health care"))
-bil_indus_sum|> 
-  knitr::kable()
-```
-
-
-```{r prop.test for the industry in 2013 and 2023}
-prop.test(x = c(filter(bil_indus_sum, year == 2013) |> 
-              pull(indus), filter(bil_indus_sum, year == 2023) |> pull(indus)), 
-          n = c(filter(bil_indus_sum, year == 2013) |> 
-              pull(total), filter(bil_indus_sum, year == 2023) |> pull(total))) |> 
-  broom::tidy() |> 
-  knitr::kable()
-```
 
 
