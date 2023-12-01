@@ -34,6 +34,7 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
@@ -223,6 +224,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -383,6 +387,14 @@ div.tocify {
 
 <div id="header">
 
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">EDA_Longitudinal</h1>
@@ -392,6 +404,10 @@ div.tocify {
 </div>
 
 
+<pre class="r"><code>library(tidyverse)
+library(readxl)
+library(dplyr)
+library(ggplot2)</code></pre>
 <div id="load-data" class="section level2">
 <h2>load data</h2>
 <pre class="r"><code>billionaire_gdp_indus_usa &lt;- read.csv(&quot;../data/billionaire_gdp_indus_usa.csv&quot;)
@@ -417,7 +433,7 @@ ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
        x = &quot;Year&quot;, y = &quot;GDP&quot;,
        color = &quot;Country Code&quot;) +
   scale_x_continuous(breaks = 2010:2022) </code></pre>
-<p><img src="time_data_files/figure-html/5%20country%20gdp-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/5%20country%20gdp-1.png" width="90%" /></p>
 </div>
 <div
 id="for-billionaire_gdp-net_worth-for-different-country-top-5-over-time"
@@ -451,7 +467,7 @@ ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group
   labs(title = &quot;Total Net Worth of billionaire by Top 5 Countries from 2010 to 2023&quot;,
        x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
        color = &quot;Country of Citizenship&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/networth%205%20countries%20overtime-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/networth%205%20countries%20overtime-1.png" width="90%" /></p>
 </div>
 </div>
 <div id="gender" class="section level2">
@@ -471,7 +487,7 @@ ggplot(total_net_worth_by_year_gender, aes(x = year, y = total_net_worth, color 
   labs(title = &quot;Total Net Worth by Gender from 2017 to 2022&quot;,
        x = &quot;Year&quot;, y = &quot;Total Net Worth (in billions)&quot;,
        color = &quot;Gender&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/ave_net_worth%20by%20gender-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/ave_net_worth%20by%20gender-1.png" width="90%" /></p>
 </div>
 <div id="industry-lifecycles-and-billionaire-wealth"
 class="section level2">
@@ -496,7 +512,7 @@ total_gdp_by_year_industry |&gt;
     labs(title = &quot;Total Industry GDP by Year from 2017 to 2022 in USA&quot;,
          x = &quot;Year&quot;, y = &quot;Industry GDP&quot;,
          color = &quot;Industries&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/US%20industry%20gdp%20overtime-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/US%20industry%20gdp%20overtime-1.png" width="90%" /></p>
 </div>
 </div>
 <div
@@ -525,7 +541,7 @@ ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_re
        x = &quot;Year&quot;, y = &quot;Total Net Worth (Billions)&quot;,
        color = &quot;City of Residence&quot;) +
   theme(legend.position = &quot;bottom&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/net_worth%20vs%20cities%20overtime-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/net_worth%20vs%20cities%20overtime-1.png" width="90%" /></p>
 <p>Here are the top 5, and there are indeed 5 more. This is because in
 some years, the total city of net worth is surpassed by others.</p>
 </div>
@@ -542,7 +558,7 @@ ggplot(self_made_trend, aes(x = year, y = count, color = self_made, group = self
   labs(title = &quot;Self-Made Status Count Over Years&quot;,
        x = &quot;Year&quot;, y = &quot;Count&quot;,
        color = &quot;Self-Made Status&quot;)</code></pre>
-<p><img src="time_data_files/figure-html/line-selfmade-overtime-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/line-selfmade-overtime-1.png" width="90%" /></p>
 <div id="section" class="section level6">
 <h6></h6>
 <p>update</p>
@@ -558,7 +574,7 @@ class="section level2">
   ggplot(aes(x = year, y = n, fill = gender)) +
   geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;) +
   scale_x_continuous(breaks = 2010:2023)</code></pre>
-<p><img src="time_data_files/figure-html/barplot-gender-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/barplot-gender-1.png" width="90%" /></p>
 <pre class="r"><code># scale it to 1 to analyze the proportions
 bil_gender_prop &lt;-
   billionaire_gdp|&gt; 
@@ -573,7 +589,7 @@ bil_gender_prop |&gt;
   ggplot(aes(x = year, y = prop, fill = gender))+
   geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
   scale_x_continuous(breaks = 2010:2023)</code></pre>
-<p><img src="time_data_files/figure-html/barplot-gender-scaled-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/barplot-gender-scaled-1.png" width="90%" /></p>
 </div>
 <div
 id="number-of-billionaires-in-different-industries-across-years-not-very-informative"
@@ -587,7 +603,7 @@ very informative?)</h2>
   ggplot(aes(x = year, y = n, fill = industries)) +
   geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
   scale_x_continuous(breaks = 2010:2023)</code></pre>
-<p><img src="time_data_files/figure-html/barplot-all%20industries-1.png" width="672" />
+<p><img src="time_data_files/figure-html/barplot-all%20industries-1.png" width="90%" />
 ## A quick overview: trend of average net worth of all billionaires
 across year</p>
 <pre class="r"><code>billionaire_gdp |&gt; 
@@ -597,7 +613,7 @@ across year</p>
   geom_line() +
   geom_point() +
   scale_x_continuous(breaks = 2010:2023)</code></pre>
-<p><img src="time_data_files/figure-html/ave_net_worth%20overtime-1.png" width="672" />
+<p><img src="time_data_files/figure-html/ave_net_worth%20overtime-1.png" width="90%" />
 <em>takeaways</em> 1. net worth plummeted in 2016 and 2020, and then
 skyrocketed in 2021</p>
 <pre class="r"><code>billionaire_gdp |&gt; 
@@ -607,7 +623,7 @@ skyrocketed in 2021</p>
   ggplot(aes(x = year, y = n, fill = self_made)) +
   geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;) +
   scale_x_continuous(breaks = 2010:2023)</code></pre>
-<p><img src="time_data_files/figure-html/barplot-self_made-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/barplot-self_made-1.png" width="90%" /></p>
 <pre class="r"><code># scale it to 1 to analyze the proportions
 bil_selfmade_prop &lt;-
   billionaire_gdp|&gt; 
@@ -622,7 +638,7 @@ bil_selfmade_prop |&gt;
   ggplot(aes(x = year, y = prop, fill = self_made)) +
   geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
   scale_x_continuous(breaks = 2010:2023)</code></pre>
-<p><img src="time_data_files/figure-html/barplot-self_made-scaled-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/barplot-self_made-scaled-1.png" width="90%" /></p>
 <pre class="r"><code>billionaire_gdp_indus_usa |&gt; 
   drop_na(industry_gdp) |&gt; 
   group_by(year, industries) |&gt; 
@@ -630,7 +646,7 @@ bil_selfmade_prop |&gt;
   ggplot(aes(x = year, y = n, fill = industries)) +
   geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
   scale_x_continuous(breaks = 2017:2022)</code></pre>
-<p><img src="time_data_files/figure-html/barplot-US%20industries-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/barplot-US%20industries-1.png" width="90%" /></p>
 <pre class="r"><code>bil_us_indus_prop &lt;-
   billionaire_gdp_indus_usa |&gt; 
   drop_na(industry_gdp) |&gt; 
@@ -644,7 +660,7 @@ bil_us_indus_prop |&gt;
   ggplot(aes(x = year, y = prop, fill = industries)) +
   geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
   scale_x_continuous(breaks = 2017:2022)</code></pre>
-<p><img src="time_data_files/figure-html/barplot-US%20industreis%20scaled-1.png" width="672" /></p>
+<p><img src="time_data_files/figure-html/barplot-US%20industreis%20scaled-1.png" width="90%" /></p>
 </div>
 
 <hr>
@@ -684,6 +700,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {
