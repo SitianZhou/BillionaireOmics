@@ -524,7 +524,7 @@ bil_2023 |>
          yaxis = list(title = "Net wealth(billion dollars)"))
 ```
 
-There are actually many overlaps in the country with most cizitenship and residence, which leads to the similarity in the two box plots.
+There are actually many overlaps in the country with most citizenship and residence, which leads to the similarity in the two box plots.
 
 ### Industry Distribution
 
