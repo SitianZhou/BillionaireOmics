@@ -14,23 +14,23 @@ navbar:
     - text: "EDA"
       menu: 
       - text: "Categorical Analysis"
-        href: index.html
+        href: categorical_data.html
       - text: "Longitudinal Analysis"
-        href: index.html
+        href: time_data.html
       - text: "Geographic Analysis"
-        href: index.html
+        href: geo.html
     - text: "Statistical Analysis"
-      href: index.html
+      href: hypo_test.html
     - text: "Regression"
-      href: index.html
+      href: reg.html
     - text: "Shiny App"
-      href: index.html
+      href: https://tptrix29.shinyapps.io/p8105-geo-shiny/
     - text: "Report"
-      href: index.html
+      href: report.html
     - icon: fa-envelope fa-lg
       href: mailto:pei.tian@columbia.com
     - icon: fa-github fa-lg
-      href: https://github.com/SitianZhou/P8105_Final_Proj
+      href: https://github.com/SitianZhou/BillionaireOmics
 output:
   html_document:
     includes:
