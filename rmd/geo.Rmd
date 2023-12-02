@@ -1,0 +1,288 @@
+---
+title: "Geographic Analysis"
+author: "Pei Tian"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    code_folding: hide
+
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(message = F, warning = F)
+```
+
+```{r lib-import}
+library(tidyverse)
+library(leaflet)
+library(sf)
+library(rnaturalearth)
+library(plotly)
+
+theme_set(
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(family = "Helvetica")
+  )
+)
+
+```
+
+## Outcome
+This analysis part including the following content: 
+
+- Interactive visualization for top-ranked and GDP billionaires in different countries
+
+- Compare billionaire distribution feature in different regions (such as gender composition, self-made ratio)
+
+- Compare billionaire feature between USA and China
+
+**Tips:** If you want to view these information in a more user-friendly way, please visit our [Shiny App](https://tptrix29.shinyapps.io/p8105-geo-shiny/) for geographic analysis.
+
+```{r data-preprocessing}
+bil_gdp = read_csv("../data/tidy/billionaire_gdp.csv") 
+bil_gdp = bil_gdp |>
+  select(-wealth_status) |>
+  mutate(gender = factor(ifelse(is.na(gender), "Unknown", gender)),
+         year = as.integer(year),
+         age = as.integer(age),
+         country_of_residence = factor(country_of_residence),
+         country_of_citizenship = factor(country_of_citizenship),
+         region_code = factor(region_code),
+         industries = factor(ifelse(is.na(industries), "Unknown", industries)),
+         self_made = factor(ifelse(is.na(self_made), "Unknown", self_made))
+         )
+
+gdp_data = read_csv("../data/raw/gdp_worldbank.csv", skip = 4) |>
+  janitor::clean_names() |>
+  select(country_name, country_code, starts_with("x")) |>
+  pivot_longer(cols = starts_with("x"), names_to = "year", names_prefix = "x", values_to = "value") |>
+  mutate(gdp = value/1e12, 
+         year = as.integer(year),
+         name = country_name, 
+         code = country_code) |>
+  filter(year >= 2010) |>
+  select(name, code, year, gdp)
+
+```
+
+## Interactive Map
+This map interactively demonstrate the top-1 billionaire's information and GDP of each country in 2022. 
+
+*Hover your mouth and click marker to get details!*
+
+```{r geo-data}
+world_polygon = ne_countries(scale = "medium", returnclass = "sf")
+world_point = st_point_on_surface(world_polygon)
+```
+
+```{r geo-view}
+target_year = 2022
+gdp_viz = gdp_data |>
+  filter(year == target_year) |>
+  left_join(world_polygon, by = join_by(code == adm0_a3)) |>
+  st_as_sf()
+
+bil_viz = bil_gdp |>
+  filter(year == target_year) |>
+  group_by(region_code, year) |>
+  arrange(desc(net_worth)) |>  # Arrange in descending order based on 'value'
+  mutate(rnk = row_number()) |>  # Add rank labels
+  filter(rnk <= 1) |>
+  mutate(info = paste(paste0("Top 1 Billionaire: ", full_name), industries, paste0(net_worth, " billion"), sep = ", ")) |>
+  left_join(world_point, by = join_by(region_code == adm0_a3)) |>
+  st_as_sf()
+
+leaflet() |>
+  addProviderTiles("CartoDB.Positron") |>  # You can choose different tile providers
+  addPolygons(data = gdp_viz, 
+              fillColor = ~colorQuantile("YlOrRd", gdp)(gdp), 
+              fillOpacity = 0.3, color = "white", weight = 1,
+              label = ~paste("GDP: ", round(gdp, 3), " trillion"),
+              highlightOptions = highlightOptions(
+                color = "black", weight = 2, bringToFront = TRUE)) |>
+  addMarkers(data = bil_viz,
+             label = ~paste("Region: ", region_code),
+             popup = ~info
+  ) |>
+  setView(lng = 0, lat = 30, zoom = 2)
+```
+
+
+## Global analysis
+This figure shows the region-level billionaire count in 2022. **USA, China, India, Hong Kong and Germany** are the region with top-5 billionaire count globally.
+
+```{r count-view}
+target_year = 2022
+target_age_range = c(1, 100)
+inter_data = bil_gdp |>
+  filter(year == target_year & age >= target_age_range[1] & age <= target_age_range[2])
+
+count_by_region = inter_data |>
+  group_by(region_code) |>
+  summarise(count = n()) |>
+  mutate(region_code = fct_reorder(region_code, count))
+count_view = count_by_region |>
+  filter(count >= 3 & !is.na(region_code)) |>
+  ggplot(aes(x = region_code, y = count, fill = "tomato")) +
+  geom_bar(stat = "identity") +
+  labs(title = "Billionaire count in 2022", x = "Region", y = "Count") +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1), 
+        legend.position = "none")
+ggplotly(count_view)
+```
+
+This figure shows that female billionaires are less than male billionaires in every region. **Peru** and **Chile** are regions with highest female billionaire ratio.
+```{r gender-view}
+count_by_gender = inter_data |>
+  group_by(region_code, gender) |>
+  summarise(gender_count = n(), .groups = "drop_last") |>
+  left_join(count_by_region, by = join_by(region_code == region_code)) |>
+  filter(count >= 3 & !is.na(region_code) ) |>
+  mutate(prct = gender_count / count * 100)
+gender_view = count_by_gender |>
+  ggplot(aes(x = region_code, y = prct, fill = gender)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("tomato", "lightblue", "grey")) +
+  labs(title = "Billionaire gender distribution in 2022", x = "Region", y = "Precent") +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) 
+ggplotly(gender_view)
+```
+
+This figure shows that self-made/inherited billionaires ratio in every region. **Peru** is the region with highest inherited billionaire ratio.
+```{r self-made-view}
+count_by_self_made = inter_data |>
+  group_by(region_code, self_made) |>
+  summarise(self_made_count = n(), .groups = "drop_last") |>
+  left_join(count_by_region, by = join_by(region_code == region_code)) |>
+  filter(count >= 3 & !is.na(region_code) ) |>
+  mutate(prct = self_made_count / count * 100)
+self_made_view = count_by_self_made |>
+  ggplot(aes(x = region_code, y = prct, fill = self_made)) +
+  geom_bar(stat = "identity", alpha = .8) +
+  scale_fill_manual(values = c("orange", "violet", "grey")) +
+  labs(title = "Self-made distribution in 2022", x = "Region", y = "Precent") +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+ggplotly(self_made_view)
+```
+
+This figure shows that the ratio of billionaires from different industry in every region. Each region is with diversified distribution.
+```{r industries-view}
+count_by_industries = inter_data |>
+  group_by(region_code, industries) |>
+  summarise(industries_count = n(), .groups = "drop_last") |>
+  left_join(count_by_region, by = join_by(region_code == region_code)) |>
+  filter(count >= 3 & !is.na(region_code) ) |>
+  mutate(prct = industries_count / count * 100)
+industries_view = count_by_industries |>
+  ggplot(aes(x = region_code, y = prct, fill = industries)) +
+  geom_bar(stat = "identity", alpha = .8) +
+  labs(title = "Industry distribution in 2022", x = "Region", y = "Precent") +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) +
+  viridis::scale_fill_viridis(
+    name = "industries", 
+    discrete = TRUE,
+    option = "H"
+  )
+ggplotly(industries_view)
+```
+
+
+
+## Region-specific analysis
+To get a more informative view of billionaire distribution, we choose to get a closer look to billionaires from USA and China:
+
+This figure shows the GDP of 2 countries from 2010-2023. Both countries are with almost increasing trend in GDP, except 2020 in USA. This valley in 2020 of USA maybe caused by the influence of COVID-19.
+```{r gdp-curve}
+code = c("USA", "CHN")
+region_select_all = bil_gdp |> 
+  filter(region_code %in% code)
+region_select = region_select_all |>
+  filter(year == target_year)
+region_select_all |>
+  select(year, region_gdp, region_code) |>
+  distinct() |>
+  ggplot(aes(x = year, y = region_gdp, color = region_code)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Year", y = "GDP(Billion)", title = "GDP in recent years") 
+```
+
+This figure shows the wealth amount of top-10 billionaires from USA and China. From this bar plot, we can see that billionaire from USA is with much more wealth amount than the one from China on each rank level.
+```{r rnk-view}
+rnk_thres = c(1, 10)
+rnk_bar = region_select |>
+  group_by(region_code) |>
+  arrange(desc(net_worth)) |>  # Arrange in descending order based on 'value'
+  mutate(rnk = row_number()) |>  # Add rank labels
+  filter(rnk <= rnk_thres[2] & rnk >= rnk_thres[1]) |>  # Select top 10 values
+  select(region_code, net_worth, full_name, rnk) |>
+  ggplot(aes(x = rnk, y = net_worth, fill = region_code, label = full_name)) +
+  geom_bar(stat = "identity", position = "dodge", color = "white") +
+  scale_x_continuous(breaks = seq(rnk_thres[1], rnk_thres[2], by = 1)) +
+  labs(x = "Rank", y = "Wealth (billion)", title = "Wealth comparison in 2022")
+ggplotly(rnk_bar)
+```
+
+In order to get a deeper view about the billionaire age distribution, we plot histogram to visualize the billionaires' age distribution. From the figure, we can find that both countries are with nearly normal distribution. In addition, the the billionaires from USA are older than that from China in average level.
+```{r age-hist}
+histo = region_select |>
+  ggplot(aes(x = age, fill = region_code)) +
+  geom_histogram(binwidth = 2) +
+  facet_grid(region_code ~ .) + 
+  labs(title = "Age histogram in 2022")
+  theme(legend.position = "none")
+ggplotly(histo)
+```
+
+
+
+```{r gender-pie, include=F}
+region_select |>
+  group_by(gender, region_code) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = "", y = count, fill = gender)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar("y", start = 0) +
+  facet_grid(. ~ region_code) +
+  scale_fill_manual(values = c("tomato", "lightblue", "grey")) +
+  theme_void() +
+  theme(legend.position = "right") 
+```
+
+```{r industries-pie, include = F}
+region_select |>
+  group_by(industries, region_code) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = "", y = count, fill = industries)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar("y", start = 0) +
+  facet_grid(. ~ region_code) +
+  theme_void() +
+  theme(legend.position = "right") +
+  viridis::scale_fill_viridis(
+    name = "industries", 
+    discrete = TRUE,
+    option = "H"
+  )
+```
+
+```{r self-made-pie, include = F}
+region_select |>
+  group_by(self_made, region_code) |>
+  summarise(count = n()) |>
+  ggplot(aes(x = "", y = count, fill = self_made)) +
+  geom_bar(stat = "identity", width = 1, color = "white", alpha = .8) +
+  coord_polar("y", start = 0) +
+  facet_grid(. ~ region_code) +
+  scale_fill_manual(values = c("orange", "violet", "grey")) +
+  theme_void() +
+  theme(legend.position = "right")
+
+```
+
+
+## Deployment
+These geographic analysis is visualized via Shiny and deployed to [Shiny App](https://tptrix29.shinyapps.io/p8105-geo-shiny/). 
+
+
