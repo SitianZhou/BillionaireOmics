@@ -57,7 +57,7 @@ $H_1: \mu_{2023} - \mu_{2013} \neq 0$
 
 </center>
 
-```{r}
+```{r paired t-test}
 bil_name_13 <-
   bil_data |> 
   filter(year == 2013) |> 
@@ -204,10 +204,10 @@ $Y_{transformed} = \frac{Y^{\lambda}-1}{\lambda}$
 
 </center>
 
-The transformed data is used for the following analysis.
+The transformed data is used for the subsequent analysis.
 
 
-```{r anova diagnostics post-tran}
+```{r diagnostics after transformation}
 # distribution of residuals
 model_t = lm(net_worth_t ~ age_group, data = bil_age)
 
@@ -218,7 +218,7 @@ model_t[[2]] |>
           marker = list(color = "rgba(68, 1, 84, 0.6)", 
           line = list(color = "rgb(68, 1, 84)", width = 2)), nbinsx = 30) |> 
   layout(title = "Distribution of residuals after transformation",
-         xaxis = list(title = "Residuals"),
+         xaxis = list(title = "Residuals (transformed)"),
          yaxis = list(title = "Count"))
 
 # boxplot
@@ -247,7 +247,7 @@ $H_1:$ at least one $\mu$ differs
 summary(model_t) |> broom::glance() |> knitr::kable(digits = 3)
 ```
 
-The result table shows a p-value of 0, which is sufficiently small to reject the null. Thus, we conclude that at least one age group has a mean wealth differing from the rest age groups. 
+The result table shows a p-value of 0, which is sufficiently small to reject the null. Thus, we conclude that at least one age group has a transformed average wealth differing from the rest age groups. 
 
 
 ### Post-hoc analysis
@@ -272,20 +272,22 @@ letter <- multcompLetters4(res, TukeyHSD(res))
 letter_df <- as.data.frame.list(letter[[1]])
 dt <- bil_age |> 
   group_by(age_group) |> 
-  summarize(pos = max(net_worth_t) + 0.08) |>  
+  summarize(pos = quantile(net_worth_t)[4] + 0.06) |>  
   mutate(letter = letter_df |> pull(Letters))
 
 a <- list(
   x = dt$age_group,
   y = dt$pos,
   text = dt$letter,
-  showarrow = FALSE
+  showarrow = FALSE,
+  xanchor = 'left',
+  font = list(size = 16)
 )
 
 bil_age |> 
   plot_ly(x = ~age_group, y =~net_worth_t, color = ~age_group,
           type = "box", colors = "viridis") |>
-  layout(title = "Net wealth of different age groups",
+  layout(title = "Net wealth of different age groups after transformation",
          xaxis = list(title = "Age of billionaires"),
          yaxis = list(title = "Net wealth (transformed)"),
          annotations = a)
