@@ -11,7 +11,7 @@
 
 <meta name="author" content="Sitian Zhou, Pei Tian" />
 
-<meta name="date" content="2023-11-30" />
+<meta name="date" content="2023-12-01" />
 
 <title>Data cleaning</title>
 
@@ -35,6 +35,7 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
@@ -224,6 +225,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -384,11 +388,19 @@ div.tocify {
 
 <div id="header">
 
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">Data cleaning</h1>
 <h4 class="author">Sitian Zhou, Pei Tian</h4>
-<h4 class="date">2023-11-30</h4>
+<h4 class="date">2023-12-01</h4>
 
 </div>
 
@@ -403,8 +415,15 @@ library(janitor)
 library(fuzzyjoin)</code></pre>
 <div id="country-code" class="section level2">
 <h2>Country code</h2>
-<p>Changed some country names so they match the country name in the
-billionaire dataset.</p>
+<p>The country code dataset contains country names along with their
+corresponding standard two-letter, three-letter, and numeric codes. The
+dataset can be accessed <a
+href="https://www.kaggle.com/datasets/juanumusic/countries-iso-codes">here</a>.</p>
+<p><strong>Key steps in cleaning this dataset</strong></p>
+<ul>
+<li>Renaming some countries</li>
+<li>Variable selection</li>
+</ul>
 <pre class="r"><code>country_code &lt;-
   read_csv(&quot;../data/raw/country_code.csv&quot;) |&gt; 
   clean_names() |&gt; 
@@ -423,10 +442,16 @@ billionaire dataset.</p>
   select(country_name, alpha_3_code)</code></pre>
 <div id="billionaires-2010-2023" class="section level3">
 <h3>Billionaires 2010-2023</h3>
+<p>The raw dataset contains information on global billionaires from 1997
+to 2023. It offers a glimpse into the distribution of wealth, industries
+of operation, and demographic profiles of billionaires on a global
+scale. The dataset is available <a
+href="https://www.kaggle.com/datasets/guillemservera/forbes-billionaires-1997-2023?select=all_billionaires_1997_2023.csv">here</a>.</p>
+<p><strong>Key steps in cleaning this dataset</strong></p>
 <ul>
 <li>Filtering for data from 2010 to 2023</li>
 <li>Converting <code>net_worth</code> to numerical value</li>
-<li>Variables selection</li>
+<li>Variable selection</li>
 <li>Merging with <code>country_code</code> dataset for further
 analysis</li>
 </ul>
@@ -459,12 +484,20 @@ bil_2010_2023_clean &lt;-
 </div>
 <div id="billionaires-2023-with-gdp-data" class="section level3">
 <h3>Billionaires 2023 with GDP data</h3>
+<p>The billionaires 2023 dataset includes statistics on global
+billionaires, such as information about their wealth, industries, and
+personal details. This dataset also contains more detailed country
+information of which each billionaire resides, which is useful for the
+following analysis. The dataset is available <a
+href="https://www.kaggle.com/datasets/nelgiriyewithana/billionaires-statistics-dataset">here</a>.</p>
+<p><strong>Key steps in cleaning this dataset</strong></p>
 <ul>
-<li>changed the unit of <code>final_worth</code> to billion; result
-column as <code>net_worth</code></li>
-<li>cleaned <code>gdp_country</code>; changed the unit to trillion</li>
-<li>recoded <code>gender</code></li>
-<li>selected/renamed variables</li>
+<li>Cleaning and changing the unit of <code>final_worth</code> to
+billion</li>
+<li>Cleaning and changing the unit of <code>gdp_country</code> to
+trillion</li>
+<li>Recoding <code>gender</code> variable</li>
+<li>Variable selection</li>
 </ul>
 <pre class="r"><code>bil_gdp_2023 &lt;-
   read_csv(&quot;../data/raw/billionaires_2023.csv&quot;)
@@ -491,9 +524,14 @@ bil_gdp_2023_clean &lt;-
 <h2>Region-level GDP</h2>
 <div id="basic-cleaning" class="section level3">
 <h3>Basic cleaning</h3>
+<p>The GDP dataset encompasses GDP information spanning 262 distinct
+countries or regions from 1960 to 2022. The dataset can be downloaded <a
+href="https://www.kaggle.com/datasets/willianoliveiragibin/world-gdp-by-country-region-and-income-group?select=gdp_data.csv">here</a>.</p>
+<p><strong>Key steps in cleaning this dataset</strong></p>
 <ul>
-<li>Filtering for data starts from 2013</li>
-<li>Changing the unit of gdp to trillion</li>
+<li>Filtering for data starts from 2010</li>
+<li>Changing the unit of GDP to trillion</li>
+<li>Variable renaming and selection</li>
 </ul>
 <pre class="r"><code>country_gdp &lt;-
   read_csv(&quot;../data/raw/country_gdp.csv&quot;)
@@ -508,26 +546,14 @@ country_gdp_clean &lt;-
 </div>
 <div id="supplementary-dataset" class="section level3">
 <h3>Supplementary dataset</h3>
-<p>Given the issue that <code>Hong Kong</code>, <code>Macau</code> and
-<code>Taiwan</code> are regions with missing GDP data in raw dataset. We
-use some supplementary dataset to remedy it.</p>
-<div id="hong-kong-macau" class="section level4">
-<h4>Hong Kong &amp; Macau</h4>
-<pre class="r"><code># world_gdp = read_csv(&quot;../data/raw/gdp_worldbank.csv&quot;, skip = 4) |&gt;
-#   janitor::clean_names()
-# sar_gdp = world_gdp |&gt;
-#   filter(country_name == &quot;Macao SAR, China&quot; | country_name == &quot;Hong Kong SAR, China&quot;) |&gt;
-#   select(country_name, country_code, starts_with(&quot;x&quot;)) |&gt;
-#   pivot_longer(cols = starts_with(&quot;x&quot;), names_to = &quot;year&quot;, names_prefix = &quot;x&quot;, values_to = &quot;value&quot;) |&gt;
-#   mutate(gdp = value/1e12, 
-#          year = as.numeric(year),
-#          name = country_name, 
-#          code = country_code) |&gt;
-#   filter(year &gt;= 2010) |&gt;
-#   select(name, code, year, gdp)</code></pre>
-</div>
+<p>Given the issue that the region <code>Taiwan</code> is missing GDP
+data in raw dataset, we used a supplementary dataset to remedy it.</p>
 <div id="taiwan" class="section level4">
 <h4>Taiwan</h4>
+<p>The Taiwan GDP data can be accessed <a
+href="https://countryeconomy.com/gdp/taiwan">here</a>. This table
+contains Taiwan GDP data from 1960 to 2022.</p>
+<p><strong>Key steps in cleaning this dataset</strong></p>
 <ul>
 <li>Scapping GDP data from specific website</li>
 <li>Extracting and filtering GDP data</li>
@@ -563,7 +589,9 @@ tw_gdp = fetch_tw_gdp() |&gt;
 </div>
 <div id="merge-gdp-data" class="section level3">
 <h3>Merge GDP data</h3>
-<p>Combine GDP data in Hong Kong, Macau, Taiwan.</p>
+<ul>
+<li>Combining Taiwan GDP data with the main GDP dataset</li>
+</ul>
 <pre class="r"><code>country_gdp_clean = bind_rows(country_gdp_clean, tw_gdp)</code></pre>
 </div>
 </div>
@@ -571,9 +599,13 @@ tw_gdp = fetch_tw_gdp() |&gt;
 <h2>Industry-level GDP for US</h2>
 <div id="basic-cleaning-1" class="section level3">
 <h3>Basic cleaning</h3>
+<p>This dataset contains GDP data for each industry in US from 2017 to
+2022. The dataset can be downloaded <a
+href="https://www.bea.gov/data/gdp/gdp-industry">here</a>.</p>
+<p><strong>Key steps in cleaning this dataset</strong></p>
 <ul>
 <li>Renaming variable names</li>
-<li>Tidying data</li>
+<li>Tidying the data</li>
 </ul>
 <pre class="r"><code>indus_gdp &lt;-
   read_excel(&quot;../data/raw/usa_industry_gdp.xlsx&quot;, sheet = 18, skip = 4)
@@ -600,8 +632,9 @@ indus_gdp_clean &lt;-
 <div id="merge-industry-level-gdp-billionaire" class="section level3">
 <h3>Merge industry-level GDP &amp; billionaire</h3>
 <ul>
-<li>Create two summary tables with industry names</li>
-<li>Use regex to match the two dataset</li>
+<li>Creating two summary tables with industry names</li>
+<li>Extracting keywords for each industry</li>
+<li>Using regex to perform inexact matches for industries</li>
 </ul>
 <pre class="r"><code># extract key words to merge two datasets by industries variable
 #
@@ -639,7 +672,11 @@ reg_match &lt;-
 </div>
 <div id="merge-gdp-billionaire" class="section level3">
 <h3>Merge GDP &amp; billionaire</h3>
-<p>Join dataset for billionaires 2010-2023 country GDP info</p>
+<ul>
+<li>Joining the dataset for billionaires from 2010 to 2023 with the
+country GDP dataset</li>
+<li>Variable renaming and selection</li>
+</ul>
 <pre class="r"><code>bil_gdp_2010_2023 &lt;-
   left_join(bil_2010_2023_clean, country_gdp_clean, 
             by = join_by(alpha_3_code == code, year == year), multiple = &quot;all&quot;) |&gt;
@@ -649,12 +686,11 @@ reg_match &lt;-
 </div>
 <div id="usa-industry-dataset" class="section level2">
 <h2>USA industry dataset</h2>
-<p>Merging 3 datasets:</p>
 <ul>
-<li><p>Billionaire (filter for US, years b/t 2017 and 2022)</p></li>
-<li><p>Region-level GDP (filter for US, years b/t 2017 and
-2022)</p></li>
-<li><p>Industry-level GDP</p></li>
+<li>Filtering the billionaires dataset for only billionaires reside in
+US from year 2017 to 2022</li>
+<li>Merging the filtered dataset with industry-level GDP dataset</li>
+<li>Variable selection</li>
 </ul>
 <pre class="r"><code>bil_gdp_indus_usa &lt;-
   bil_gdp_2010_2023 |&gt; 
@@ -662,6 +698,9 @@ reg_match &lt;-
   left_join(reg_match, c(&quot;industries&quot; = &quot;industries.y&quot;)) |&gt; 
   left_join(indus_gdp_clean, c(&quot;industries.x&quot; = &quot;industries&quot;, &quot;year&quot; = &quot;year&quot;)) |&gt; 
   select(-industries.x, -region_code)</code></pre>
+<ul>
+<li>Save the cleaned datasets</li>
+</ul>
 <pre class="r"><code>### save useful files &amp; add some description
 write_csv(bil_gdp_2010_2023, &quot;../data/tidy/billionaire_gdp.csv&quot;)
 write_csv(bil_gdp_indus_usa, &quot;../data/tidy/billionaire_gdp_indus_usa.csv&quot;)
@@ -671,58 +710,82 @@ write_csv(bil_gdp_2023_clean, &quot;../data/tidy/billionaire_2023.csv&quot;)</co
 <div id="description-for-tidy-data" class="section level2">
 <h2>Description for tidy data</h2>
 <p>Describe dataset saved for downstream analysis.</p>
-<p><em>billionaire_gdp.csv</em></p>
-<p><code>year</code>:the year in which the data was collected</p>
-<p><code>net_worth</code>: net worth of the billionaire (in billions of
-dollars)</p>
+<p><strong>billionaire_gdp.csv</strong></p>
+<p>This dataset covers global billionaires from 2010 to 2023, detailing
+their wealth, personal information, and country-specific GDP.</p>
+<p><code>year</code>: The year in which the data was collected</p>
+<p><code>net_worth</code>: The net worth of the billionaire (in billions
+of dollars)</p>
 <p><code>full_name</code>, <code>age</code>, and <code>gender</code>:
-the name, age, and gender of the billionaire, respectively</p>
+The name, age, and gender of the billionaire, respectively</p>
 <p><code>country_of_citizenship</code>,
 <code>country_of_residence</code>, and <code>city_of_residence</code>:
-residence details spanning country, city, and citizenship of the
+The residence details spanning country, city, and citizenship of the
 billionaire</p>
-<p><code>self_made</code>: indicates if the billionaire’s wealth is
-self-made or inherited (True/False)</p>
-<p><code>wealth_status</code>: current status of the billionaire’s
+<p><code>self_made</code>: Whether or not the billionaire’s wealth is
+self-made or inherited</p>
+<p><code>wealth_status</code>: Current status of the billionaire’s
 wealth, whether it’s rising, stable, or declining</p>
-<p><code>industries</code>: specific industries within the broader
-category.</p>
-<p><code>region_gdp</code>: the real GDP (in trillions of dollars) for
-each country or region the billionaire resides. It only contains GDP
-data from 2010 to 2022.</p>
-<p><code>region_code</code>: the three-letter code of the corresponding
+<p><code>industries</code>: The industries associated with the
+billionaire’s business interests</p>
+<p><code>region_gdp</code>: The real GDP (in trillions of dollars) for
+each country or region the billionaire resides</p>
+<p><code>region_code</code>: The three-letter code of the corresponding
 country or region the billionaire resides</p>
-<p><em>billionaire_gdp_indus_usa.csv</em></p>
-<p>This dataset combines information of billionaires resides in United
-States from 2017 to 2022, with the annual GDP and the GDP for various
-industries in United States.</p>
-<p><code>industry_gdp</code>: annual GDP (in trillions of dollars) for
-the industry</p>
-<p><em>gdp.csv</em></p>
-<p>This dataset includes information of GDP data of each region</p>
-<p><code>name</code>: region name (country or SAR(special administration
-area)) <code>code</code>: region code <code>year</code>: year
-<code>gdp</code>: GDP value (billion as unit)</p>
-<p><em>billionaire_2023.csv</em></p>
-<p><code>year</code>:the year in which the data was collected</p>
-<p><code>net_worth</code>: net worth of the billionaire (in billions of
+<p><strong>billionaire_2023.csv</strong></p>
+<p>This dataset contains information for global billionaires in 2023,
+including their wealth, personal details, and country-specific economic
+status.</p>
+<p><code>year</code>: The year in which the data was collected</p>
+<p><code>net_worth</code>: The net worth of the billionaire (in billions
 dollars)</p>
 <p><code>full_name</code>, <code>age</code>, and <code>gender</code>:
-the name, age, and gender of the billionaire, respectively</p>
+The name, age, and gender of the billionaire, respectively</p>
 <p><code>country_of_citizenship</code>,
 <code>country_of_residence</code>, and <code>city_of_residence</code>:
-residence details spanning country, city, and citizenship of the
+The residence details spanning country, city, and citizenship of the
 billionaire</p>
-<p><code>self_made</code>: Indicates whether the billionaire is
-self-made (True/False).</p>
-<p><code>cpi_country</code>: Consumer Price Index (CPI) for the
-billionaire’s country</p>
-<p><code>cpi_change_country</code>: CPI change for the billionaire’s
+<p><code>self_made</code>: Whether or not the billionaire is
+self-made</p>
+<p><code>cpi_country</code> and <code>cpi_change_country</code>:
+Consumer Price Index (CPI) and its change for the billionaire’s
 country</p>
-<p><code>gdp_country</code>: Gross Domestic Product (GDP) for the
-billionaire’s country</p>
-<p><code>life_expectancy_country</code>: Life expectancy in the
-billionaire’s country.</p>
+<p><code>gdp_country</code>: The real GDP (in trillions dollars) for
+each country the billionaire resides</p>
+<p><code>life_expectancy_country</code>: Life expectancy in the country
+the billionaire reside</p>
+<p><strong>billionaire_gdp_indus_usa.csv</strong></p>
+<p>This dataset combines information on billionaires residing in the
+United States from 2017 to 2022, with the annual GDP and the GDP for
+various industries in the United States.</p>
+<p><code>year</code>: The year in which the data was collected</p>
+<p><code>net_worth</code>: The net worth of the billionaire (in billions
+dollars)</p>
+<p><code>full_name</code>, <code>age</code>, and <code>gender</code>:
+The name, age, and gender of the billionaire, respectively</p>
+<p><code>country_of_citizenship</code>,
+<code>country_of_residence</code>, and <code>city_of_residence</code>:
+The residence details spanning country, city, and citizenship of the
+billionaire</p>
+<p><code>self_made</code>: Whether or not the billionaire’s wealth is
+self-made or inherited</p>
+<p><code>wealth_status</code>: Current status of the billionaire’s
+wealth</p>
+<p><code>industries</code>: The industries associated with the
+billionaire’s business interests</p>
+<p><code>region_gdp</code>: The real GDP (in trillions dollars) for each
+country or region the billionaire resides</p>
+<p><code>region_code</code>: The three-letter code of the corresponding
+country or region the billionaire resides</p>
+<p><code>industry_gdp</code>: The annual GDP (in trillions dollars) for
+the industry</p>
+<p><strong>gdp.csv</strong></p>
+<p>This dataset includes information of GDP data of each region.</p>
+<p><code>name</code>: region name (country or SAR(special administration
+area))</p>
+<p><code>code</code>: region code</p>
+<p><code>year</code>: year</p>
+<p><code>gdp</code>: GDP value (trillion as unit)</p>
 </div>
 
 <hr>
@@ -762,6 +825,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {

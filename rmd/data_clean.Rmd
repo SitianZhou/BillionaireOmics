@@ -21,7 +21,12 @@ library(fuzzyjoin)
 
 ## Country code
 
-Changed some country names so they match the country name in the billionaire dataset.
+The country code dataset contains country names along with their corresponding standard two-letter, three-letter, and numeric codes. The dataset can be accessed [here](https://www.kaggle.com/datasets/juanumusic/countries-iso-codes). 
+
+**Key steps in cleaning this dataset**
+
+* Renaming some countries
+* Variable selection
 
 ```{r country-code}
 country_code <-
@@ -46,9 +51,13 @@ country_code <-
 
 ### Billionaires 2010-2023
 
+The raw dataset contains information on global billionaires from 1997 to 2023. It offers a glimpse into the distribution of wealth, industries of operation, and demographic profiles of billionaires on a global scale. The dataset is available [here](https://www.kaggle.com/datasets/guillemservera/forbes-billionaires-1997-2023?select=all_billionaires_1997_2023.csv).
+
+**Key steps in cleaning this dataset**
+
 * Filtering for data from 2010 to 2023
 * Converting `net_worth` to numerical value
-* Variables selection
+* Variable selection
 * Merging with `country_code` dataset for further analysis
 
 ```{r recent-ten-years-billionaires}
@@ -83,10 +92,14 @@ bil_2010_2023_clean <-
 
 ### Billionaires 2023 with GDP data
 
-* changed the unit of `final_worth` to billion; result column as `net_worth`
-* cleaned `gdp_country`; changed the unit to trillion
-* recoded `gender`
-* selected/renamed variables
+The billionaires 2023 dataset includes statistics on global billionaires, such as information about their wealth, industries, and personal details. This dataset also contains more detailed country information of which each billionaire resides, which is useful for the following analysis. The dataset is available [here](https://www.kaggle.com/datasets/nelgiriyewithana/billionaires-statistics-dataset).
+
+**Key steps in cleaning this dataset**
+
+* Cleaning and changing the unit of `final_worth` to billion
+* Cleaning and changing the unit of `gdp_country` to trillion
+* Recoding `gender` variable
+* Variable selection
 
 ```{r}
 bil_gdp_2023 <-
@@ -116,8 +129,13 @@ bil_gdp_2023_clean <-
 
 ### Basic cleaning
 
-* Filtering for data starts from 2013
-* Changing the unit of gdp to trillion
+The GDP dataset encompasses GDP information spanning 262 distinct countries or regions from 1960 to 2022. The dataset can be downloaded [here](https://www.kaggle.com/datasets/willianoliveiragibin/world-gdp-by-country-region-and-income-group?select=gdp_data.csv).
+
+**Key steps in cleaning this dataset**
+
+* Filtering for data starts from 2010
+* Changing the unit of GDP to trillion
+* Variable renaming and selection
 
 ```{r country-gdp-data}
 country_gdp <-
@@ -135,25 +153,14 @@ country_gdp_clean <-
 
 ### Supplementary dataset
 
-Given the issue that `Hong Kong`, `Macau` and `Taiwan` are regions with missing GDP data in raw dataset. We use some supplementary dataset to remedy it.
-
-#### Hong Kong & Macau
-```{r sar-gdp-data}
-# world_gdp = read_csv("../data/raw/gdp_worldbank.csv", skip = 4) |>
-#   janitor::clean_names()
-# sar_gdp = world_gdp |>
-#   filter(country_name == "Macao SAR, China" | country_name == "Hong Kong SAR, China") |>
-#   select(country_name, country_code, starts_with("x")) |>
-#   pivot_longer(cols = starts_with("x"), names_to = "year", names_prefix = "x", values_to = "value") |>
-#   mutate(gdp = value/1e12, 
-#          year = as.numeric(year),
-#          name = country_name, 
-#          code = country_code) |>
-#   filter(year >= 2010) |>
-#   select(name, code, year, gdp)
-```
+Given the issue that the region `Taiwan` is missing GDP data in raw dataset, we used a supplementary dataset to remedy it.
 
 #### Taiwan
+
+The Taiwan GDP data can be accessed [here](https://countryeconomy.com/gdp/taiwan). This table contains Taiwan GDP data from 1960 to 2022.
+
+**Key steps in cleaning this dataset**
+
 * Scapping GDP data from specific website
 * Extracting and filtering GDP data
 ```{r tw-gdp-data}
@@ -187,7 +194,7 @@ tw_gdp = fetch_tw_gdp() |>
 ```
 
 ### Merge GDP data
-Combine GDP data in Hong Kong, Macau, Taiwan.
+* Combining Taiwan GDP data with the main GDP dataset
 ```{r merge-region-gdp}
 country_gdp_clean = bind_rows(country_gdp_clean, tw_gdp)
 ```
@@ -196,8 +203,13 @@ country_gdp_clean = bind_rows(country_gdp_clean, tw_gdp)
 ## Industry-level GDP for US
 
 ### Basic cleaning
+
+This dataset contains GDP data for each industry in US from 2017 to 2022. The dataset can be downloaded [here](https://www.bea.gov/data/gdp/gdp-industry).
+
+**Key steps in cleaning this dataset**
+
 * Renaming variable names
-* Tidying data
+* Tidying the data
 
 ```{r import-industry-data}
 indus_gdp <-
@@ -226,8 +238,9 @@ indus_gdp_clean <-
 
 ### Merge industry-level GDP & billionaire
 
-* Create two summary tables with industry names
-* Use regex to match the two dataset
+* Creating two summary tables with industry names
+* Extracting keywords for each industry
+* Using regex to perform inexact matches for industries
 
 ```{r reg-match-industry}
 # extract key words to merge two datasets by industries variable
@@ -266,7 +279,9 @@ reg_match <-
 ```
 
 ### Merge GDP & billionaire
-Join dataset for billionaires 2010-2023 country GDP info
+
+* Joining the dataset for billionaires from 2010 to 2023 with the country GDP dataset
+* Variable renaming and selection
 
 ```{r merge-2}
 bil_gdp_2010_2023 <-
@@ -278,13 +293,9 @@ bil_gdp_2010_2023 <-
 
 ## USA industry dataset
 
-Merging 3 datasets:
-
-- Billionaire (filter for US, years b/t 2017 and 2022)
-
-- Region-level GDP (filter for US, years b/t 2017 and 2022)
-
-- Industry-level GDP
+* Filtering the billionaires dataset for only billionaires reside in US from year 2017 to 2022
+* Merging the filtered dataset with industry-level GDP dataset
+* Variable selection
 
 ```{r prepare-USA-industry-dataset}
 bil_gdp_indus_usa <-
@@ -295,6 +306,9 @@ bil_gdp_indus_usa <-
   select(-industries.x, -region_code)
 
 ```
+
+
+* Save the cleaned datasets
 
 ```{r save-data}
 ### save useful files & add some description
@@ -308,60 +322,83 @@ write_csv(bil_gdp_2023_clean, "../data/tidy/billionaire_2023.csv")
 Describe dataset saved for downstream analysis.
 
 
-*billionaire_gdp.csv*
+**billionaire_gdp.csv**
+
+This dataset covers global billionaires from 2010 to 2023, detailing their wealth, personal information, and country-specific GDP.
+
+`year`: The year in which the data was collected
+
+`net_worth`: The net worth of the billionaire (in billions of dollars)
+
+`full_name`, `age`, and `gender`: The name, age, and gender of the billionaire, respectively
+
+`country_of_citizenship`, `country_of_residence`, and `city_of_residence`: The residence details spanning country, city, and citizenship of the billionaire
+
+`self_made`: Whether or not the billionaire's wealth is self-made or inherited
+
+`wealth_status`: Current status of the billionaire's wealth, whether it's rising, stable, or declining
+
+`industries`: The industries associated with the billionaire's business interests
+
+`region_gdp`: The real GDP (in trillions of dollars) for each country or region the billionaire resides
+
+`region_code`: The three-letter code of the corresponding country or region the billionaire resides
 
 
-`year`:the year in which the data was collected
+**billionaire_2023.csv**
 
-`net_worth`: net worth of the billionaire (in billions of dollars)
+This dataset contains information for global billionaires in 2023, including their wealth, personal details, and country-specific economic status.
 
-`full_name`, `age`, and `gender`: the name, age, and gender of the billionaire, respectively
+`year`: The year in which the data was collected
 
-`country_of_citizenship`, `country_of_residence`, and `city_of_residence`: residence details spanning country, city, and citizenship of the billionaire
+`net_worth`: The net worth of the billionaire (in billions dollars)
 
-`self_made`: indicates if the billionaire's wealth is self-made or inherited (True/False)
+`full_name`, `age`, and `gender`: The name, age, and gender of the billionaire, respectively
 
-`wealth_status`: current status of the billionaire's wealth, whether it's rising, stable, or declining
+`country_of_citizenship`, `country_of_residence`, and `city_of_residence`: The residence details spanning country, city, and citizenship of the billionaire
 
-`industries`: specific industries within the broader category.
+`self_made`: Whether or not the billionaire is self-made
 
-`region_gdp`: the real GDP (in trillions of dollars) for each country or region the billionaire resides. It only contains GDP data from 2010 to 2022.
+`cpi_country` and `cpi_change_country`: Consumer Price Index (CPI) and its change for the billionaire's country
 
-`region_code`: the three-letter code of the corresponding country or region the billionaire resides
+`gdp_country`: The real GDP (in trillions dollars) for each country the billionaire resides
+
+`life_expectancy_country`: Life expectancy in the country the billionaire reside
 
 
-*billionaire_gdp_indus_usa.csv*
+**billionaire_gdp_indus_usa.csv**
 
-This dataset combines information of billionaires resides in United States from 2017 to 2022, with the annual GDP and the GDP for various industries in United States.
+This dataset combines information on billionaires residing in the United States from 2017 to 2022, with the annual GDP and the GDP for various industries in the United States.
 
-`industry_gdp`: annual GDP (in trillions of dollars) for the industry
+`year`: The year in which the data was collected
 
-*gdp.csv*
+`net_worth`: The net worth of the billionaire (in billions dollars)
 
-This dataset includes information of GDP data of each region
+`full_name`, `age`, and `gender`: The name, age, and gender of the billionaire, respectively
+
+`country_of_citizenship`, `country_of_residence`, and `city_of_residence`: The residence details spanning country, city, and citizenship of the billionaire
+
+`self_made`: Whether or not the billionaire's wealth is self-made or inherited
+
+`wealth_status`: Current status of the billionaire's wealth
+
+`industries`: The industries associated with the billionaire's business interests
+
+`region_gdp`: The real GDP (in trillions dollars) for each country or region the billionaire resides
+
+`region_code`: The three-letter code of the corresponding country or region the billionaire resides
+
+`industry_gdp`: The annual GDP (in trillions dollars) for the industry
+
+**gdp.csv**
+
+This dataset includes information of GDP data of each region.
 
 `name`: region name (country or SAR(special administration area))
+
 `code`: region code
+
 `year`: year
-`gdp`: GDP value (billion as unit)
 
-*billionaire_2023.csv*
-
-`year`:the year in which the data was collected
-
-`net_worth`: net worth of the billionaire (in billions of dollars)
-
-`full_name`, `age`, and `gender`: the name, age, and gender of the billionaire, respectively
-
-`country_of_citizenship`, `country_of_residence`, and `city_of_residence`: residence details spanning country, city, and citizenship of the billionaire
-
-`self_made`: Indicates whether the billionaire is self-made (True/False).
-
-`cpi_country`: Consumer Price Index (CPI) for the billionaire's country
-
-`cpi_change_country`: CPI change for the billionaire's country
-
-`gdp_country`: Gross Domestic Product (GDP) for the billionaire's country
-
-`life_expectancy_country`: Life expectancy in the billionaire's country.
+`gdp`: GDP value (trillion as unit)
 
