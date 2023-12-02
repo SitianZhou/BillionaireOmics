@@ -1,7 +1,7 @@
 ---
 title: "EDA_Longitudinal"
 author: "Shuchen Dong, Sitian Zhou, Mengxiao Luan"
-date: "r Sys.Date()`"
+date: "`r Sys.Date()`"
 output: 
   html_document:
     toc: true
@@ -14,6 +14,7 @@ library(tidyverse)
 library(readxl)
 library(dplyr)
 library(ggplot2)
+library(plotly)
 ```
 
 ```{r setup, include=FALSE}
@@ -41,19 +42,20 @@ theme_set(
   theme(legend.position = "right"))
 ```
 
-
-## load data
-```{r import data}
+```{r data}
+# import data
 billionaire_gdp_indus_usa <- read.csv("../data/billionaire_gdp_indus_usa.csv")
 billionaire_gdp <- read.csv("../data/billionaire_gdp.csv")
 gdp <- read.csv("../data/gdp.csv")
 ```
 
 
-## GDP-Temporal Wealth Patterns:
-Examine the rise and fall of billionaire wealth across different economic cycles, including booms, busts, and recoveries.
 
-### 5 different country GDP overtime.
+## Economic trends
+It explores the dynamics of economies, industries, and cities in terms of GDP and wealth concentration.
+
+### Country economy
+GDP Change from 2010 to 2022 (Countries: USA, CHN, RUS, JPN, DEU):
 ```{r 5 country gdp}
 countries <- c("USA", "CHN", "RUS", "JPN", "DEU")
 
@@ -61,17 +63,157 @@ gdp_selected <-
   gdp[gdp$code %in% countries & gdp$year >= 2010 & gdp$year <= 2022, ]
 
 # draw GDP plot
-ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
-  geom_line() +
+gdp_con =
+  ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
   theme_minimal() +
-  labs(title = "GDP Change from 2010 to 2022",
-       x = "Year", y = "GDP",
-       color = "Country Code") +
-  scale_x_continuous(breaks = 2010:2022) 
+  geom_line(size = 1.2) +
+  labs(title = "GDP change from 2010 to 2022", x = "Year", y = "GDP", color = "Country Code") +
+  scale_x_continuous(breaks = 2010:2022)+
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+ggplotly(gdp_con)
 
 ```
 
-### for billionaire_gdp, net_worth for different country top 5 over time
+Summary: The graph demonstrates the varying economic trajectories of these five countries over a 12-year period, with China showing the most remarkable growth rate, the USA maintaining a strong and steadily increasing GDP, while Japan shows relatively little change, indicating different stages of economic development and growth rates.
+
+
+### Industry
+
+Number of billionaires in different industries by year (2010 to 2023):
+```{r barplot-all industries}
+bil_industry = 
+  billionaire_gdp |> 
+  mutate(industries = replace(industries, industries == "Billionaire", NA))|>
+  drop_na(industries) |> 
+  group_by(year, industries) |> 
+  summarize(n = n()) |> 
+  ggplot(aes(x = year, y = n, fill = industries))+
+  theme_minimal()+
+  geom_bar(position="stack", stat="identity")+
+  labs(title = "GDP change from 2010 to 2023", x = "Year", y = "GDP", color = "Country Code")+
+  scale_x_continuous(breaks = 2010:2023)+
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+ggplotly(bil_industry)
+```
+
+
+Number of billionaires in different industries by year in the USA (2017 to 2022):
+```{r barplot-US industries}
+indus_usa = 
+  billionaire_gdp_indus_usa |> 
+  drop_na(industry_gdp) |> 
+  group_by(year, industries) |> 
+  summarize(n = n()) |> 
+  ggplot(aes(x = year, y = n, fill = industries)) +
+  theme_minimal() +
+  geom_bar(position="stack", stat="identity") +
+  labs(title = "GDP change in the USA from 2017 to 2022", x = "Year", y = "GDP", color = "Country Code") +
+  scale_x_continuous(breaks = 2017:2022)+
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+ggplotly(indus_usa)
+
+```
+
+
+Total industry GDP by year in the USA (2017 to 2022):
+```{r US industry gdp overtime}
+data_filtered <- billionaire_gdp_indus_usa %>%
+  filter(year >= 2017 & year <= 2022) %>% 
+  na.omit()
+
+
+total_gdp_by_year_industry <- data_filtered %>%
+  group_by(year, industries) %>%
+  summarise(total_gdp_by_year_industry = sum(industry_gdp, na.rm = TRUE))
+
+gdp_industry_plot <- total_gdp_by_year_industry |> 
+  ggplot(aes(x = year, y = total_gdp_by_year_industry, group = industries, color = industries)) +
+    geom_line(size = 1.2) +
+    theme_minimal() +
+    labs(title = "Total industry GDP by year from 2017 to 2022 in USA", x = "Year", y = "Industry GDP", color = "Industries")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(gdp_industry_plot)
+
+```
+ 
+Summary: It shows that from 2017 to 2022, the Construction & Engineering and Finance & Investment sectors in the USA experienced the most significant growth. In contrast, the Media and Entertainment industry saw the least growth. It has been observed that due to the impact of the COVID-19 pandemic, billionaires in all industries in the USA and around the world faced an overall slump in 2020. Despite such a setback, these indicators generally tend to rise over time, indicating that the GDP of each industry is growing comprehensively.
+
+
+### City
+Top 5 Cities' Net Worth Trend by Year (2010 to 2023):
+find different city of residence billionaire net worth change over time
+```{r net_worth vs cities overtime}
+data_filtered <- billionaire_gdp %>%
+  filter(
+    year >= 2010 & year <= 2023, 
+    country_of_citizenship == "United States")%>%
+  na.omit()
+
+net_worth_by_city_year <- data_filtered %>%
+  group_by(year, city_of_residence) %>%
+  summarise(total_net_worth = sum(net_worth, na.rm = TRUE)) %>%
+  ungroup()
+
+# top5
+top_cities_by_year <- net_worth_by_city_year %>%
+  group_by(year) %>%
+  slice_max(order_by = total_net_worth, n = 5) %>%
+  ungroup()
+
+tnw_residence = 
+  ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_residence, color = city_of_residence)) +
+  geom_line(size = 1.2) +
+  theme_minimal() +
+  labs(title = "Top 5 cities' net worth trend by year (2010-2023)",
+       x = "Year", y = "Total Net Worth (Billions)",
+       color = "City of Residence") +
+  theme(legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(tnw_residence)
+
+```
+
+Note: Here are the top 5, and there are indeed 5 more. This is because in some years, the total city of net worth is surpassed by others.
+
+Summary: The chart shows rising billionaire net worth in five cities from 2010 to 2023, with New York's significant growth standing out. Dallas and Medina also grew notably post-2015, while Austin and Bentonville had modest increases. A slight dip in 2020 suggests the impact of the COVID-19 pandemic. There's a data gap for Bentonville in 2020 and a title discrepancy with ten cities listed instead of five, indicating wealth concentration and potential urban-rural disparities.
+
+
+
+## Wealth Distribution
+This category focuses on the distribution of wealth among different groups, genders, and the rise of self-made billionaires.
+
+### Global
+
+A quick overview: trend of total net worth of all billionaires (2010 to 2023)
+```{r networth all overtime}
+bil_all = 
+  billionaire_gdp |> 
+  group_by(year) |> 
+  summarize(total_net_worth = sum(net_worth)) |> 
+  ggplot(aes(x = year, y = total_net_worth)) +
+  geom_line(size = 1.2) +
+  theme_minimal() +
+  labs(title = "Total net worth of billionaire from 2010 to 2023",
+       x = "Year", y = "Total Net Worth (Billions)",
+       color = "Country of Citizenship")+
+  geom_point() +
+  scale_x_continuous(breaks = 2010:2023)+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(bil_all)
+
+```
+
+Summary: Total net worth of all billionaires plummeted in 2016 and 2020, and then skyrocketed in 2021.
+
+### Country
+
+Total Net Worth of Billionaires (2010 to 2023, Top 5 Countries):
 ```{r networth 5 countries overtime}
 data_filtered <- billionaire_gdp %>%
   filter(year >= 2010 & year <= 2023)
@@ -94,123 +236,24 @@ total_net_worth_by_year_country <- top_countries_data %>%
   summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
 
 # plot
-ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group = country_of_citizenship, color = country_of_citizenship)) +
-  geom_line() +
+tnw_citizen =
+  ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group = country_of_citizenship, color = country_of_citizenship)) +
+  geom_line(size = 1.2) +
   theme_minimal() +
-  labs(title = "Total Net Worth of billionaire by Top 5 Countries from 2010 to 2023",
+  labs(title = "Total net worth of billionaire by top 5 countries from 2010 to 2023",
        x = "Year", y = "Total Net Worth (Billions)",
-       color = "Country of Citizenship")
+       color = "Country of Citizenship")+
+  theme(plot.title = element_text(hjust = 0.5))
 
+ggplotly(tnw_citizen)
 ```
 
-## Gender
+Summary: Shows the combined net worth of billionaires in the top 5 countries.
+Insight: Provides a perspective on how billionaire wealth is distributed among leading economic nations, possibly reflecting on the economic health and wealth creation capabilities of these countries.
 
-```{r ave_net_worth by gender}
+### Gender
 
-billionaires_filtered <- billionaire_gdp %>%
-  filter(year >= 2010 & year <= 2022) %>%  na.omit()
-
-total_net_worth_by_year_gender <- billionaires_filtered %>%
-  group_by(year, gender) %>%
-  summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
-
-
-
-ggplot(total_net_worth_by_year_gender, aes(x = year, y = total_net_worth, color = gender)) +
-  geom_line() +
-  theme_minimal() +
-  labs(title = "Total Net Worth by Gender from 2017 to 2022",
-       x = "Year", y = "Total Net Worth (in billions)",
-       color = "Gender")
-
-```
-
-## Industry-Lifecycles and Billionaire Wealth 
-Explore how technological disruptions in various sectors impact the net worth and ranking of billionaires over time.
-
-### industry gdp change over time
-```{r US industry gdp overtime}
-data_filtered <- billionaire_gdp_indus_usa %>%
-  filter(year >= 2017 & year <= 2022) %>% 
-  drop_na(industry_gdp)
-
-
-total_gdp_by_year_industry <- data_filtered %>%
-  group_by(year, industries) %>%
-  summarise(total_gdp_by_year_industry = sum(industry_gdp, na.rm = TRUE))
-
-total_gdp_by_year_industry |> 
-  ggplot(aes(x = year, y = total_gdp_by_year_industry, group = industries, color = industries)) +
-    geom_line() +
-    theme_minimal() +
-    labs(title = "Total Industry GDP by Year from 2017 to 2022 in USA",
-         x = "Year", y = "Industry GDP",
-         color = "Industries")
-
-```
-
-
-## find different city of residence billionaire net worth change over time
-```{r net_worth vs cities overtime}
-data_filtered <- billionaire_gdp %>%
-  filter(year >= 2010 & year <= 2023, country_of_citizenship == "United States")
-
-net_worth_by_city_year <- data_filtered %>%
-  group_by(year, city_of_residence) %>%
-  summarise(total_net_worth = sum(net_worth, na.rm = TRUE)) %>%
-  ungroup()
-
-# top5
-top_cities_by_year <- net_worth_by_city_year %>%
-  group_by(year) %>%
-  slice_max(order_by = total_net_worth, n = 5) %>%
-  ungroup()
-
-ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_residence, color = city_of_residence)) +
-  geom_line() +
-  theme_minimal() +
-  labs(title = "Top 5 Cities' Net Worth Trend by Year (2010-2023)",
-       x = "Year", y = "Total Net Worth (Billions)",
-       color = "City of Residence") +
-  theme(legend.position = "bottom")
-```
-
-Here are the top 5, and there are indeed 5 more. This is because in some years, the total city of net worth is surpassed by others.
-
-
-## count self_made over time 
-```{r line-selfmade-overtime}
-
-self_made_trend <- billionaire_gdp %>%
-  group_by(year, self_made) %>%
-  summarise(count = n(), .groups = 'drop')
-
-
-ggplot(self_made_trend, aes(x = year, y = count, color = self_made, group = self_made)) +
-  geom_line() +
-  theme_minimal() +
-  labs(title = "Self-Made Status Count Over Years",
-       x = "Year", y = "Count",
-       color = "Self-Made Status")
-
-```
-
-######
-update
-
-## number of billionaires in different gender groups across years
-
-```{r barplot-gender}
-billionaire_gdp |> 
-  drop_na(gender) |> 
-  group_by(year, gender) |> 
-  summarize(n = n()) |> 
-  ggplot(aes(x = year, y = n, fill = gender)) +
-  geom_bar(position="dodge", stat="identity") +
-  scale_x_continuous(breaks = 2010:2023)
-```
-
-
+Percentage of Billionaires by Gender (2010-2022):
 ```{r barplot-gender-scaled}
 # scale it to 1 to analyze the proportions
 bil_gender_prop <-
@@ -222,51 +265,44 @@ bil_gender_prop <-
   mutate(total = sum(n),
          prop = n/ total)
 
-bil_gender_prop |> 
-  ggplot(aes(x = year, y = prop, fill = gender))+
+bil_gender = 
+  bil_gender_prop |> 
+  ggplot(aes(title = "Proportion of billionaires by gender from 2010 to 2022", x = year, y = prop, fill = gender))+
   geom_bar(position="stack", stat="identity") +
   scale_x_continuous(breaks = 2010:2023)
+
+ggplotly(bil_gender)
   
 ```
+Comments: The first chart, a bar plot, illustrates the proportion of male and female billionaires from 2010 to 2023, indicating a consistent predominance of males in each year, with females representing a very small fraction of the total. This disparity in representation may reflect long-standing gender imbalances in wealth accumulation and opportunities for economic advancement.
 
-## number of billionaires in different industries across years (not very informative?)
-```{r barplot-all industries}
-billionaire_gdp |> 
-  drop_na(industries) |> 
-  group_by(year, industries) |> 
-  summarize(n = n()) |> 
-  ggplot(aes(x = year, y = n, fill = industries)) +
-  geom_bar(position="stack", stat="identity") +
-  scale_x_continuous(breaks = 2010:2023)
+Total Net Worth by Gender (2010 to 2022):
+```{r ave_net_worth by gender}
+
+billionaires_filtered <- billionaire_gdp %>%
+  filter(year >= 2010 & year <= 2022) %>%  na.omit()
+
+total_net_worth_by_year_gender <- billionaires_filtered %>%
+  group_by(year, gender) %>%
+  summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
+
+
+tnw_gender = 
+  ggplot(total_net_worth_by_year_gender, aes(x = year, y = total_net_worth, color = gender)) +
+  geom_line(size = 1.2) +
+  theme_minimal() +
+  labs(title = "Total net worth by gender from 2017 to 2022",
+       x = "Year", y = "Total Net Worth (in billions)",
+       color = "Gender")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(tnw_gender)
 ```
-## A quick overview: trend of average net worth of all billionaires across year
+Comments: The second chart, a line graph, shows the total net worth by gender from 2010 to 2022. The net worth of male billionaires is significantly higher than that of females throughout the period, with a particularly steep increase for males after 2015. The consistent gap and the sharp rise in male net worth could be due to a combination of factors, including the compounding effect of existing wealth, gender disparities in key industries, and potentially more males being active in high-growth sectors such as technology and finance.
 
-```{r ave_net_worth overtime}
-billionaire_gdp |> 
-  group_by(year) |> 
-  summarize(ave_net_worth = mean(net_worth)) |> 
-  ggplot(aes(x = year, y = ave_net_worth)) +
-  geom_line() +
-  geom_point() +
-  scale_x_continuous(breaks = 2010:2023)
-```
-*takeaways*
-1. net worth plummeted in 2016 and 2020, and then skyrocketed in 2021
+Summary: Both charts underscore a persistent gender gap in billionaire wealth, suggesting systemic barriers to entry and growth for women in the highest echelons of wealth. The trends could also reflect broader societal and economic structures that historically favor male dominance in business and wealth creation.
 
-
-
-
-```{r barplot-self_made}
-billionaire_gdp |> 
-  drop_na(self_made) |> 
-  group_by(year, self_made) |> 
-  summarize(n = n()) |> 
-  ggplot(aes(x = year, y = n, fill = self_made)) +
-  geom_bar(position="dodge", stat="identity") +
-  scale_x_continuous(breaks = 2010:2023)
-```
-
-
+### Self-Made Status Count Over Years:
 ```{r barplot-self_made-scaled}
 # scale it to 1 to analyze the proportions
 bil_selfmade_prop <-
@@ -278,43 +314,23 @@ bil_selfmade_prop <-
   mutate(total = sum(n),
          prop = n/ total)
 
-bil_selfmade_prop |> 
+bil_selfmade = 
+  bil_selfmade_prop |> 
   ggplot(aes(x = year, y = prop, fill = self_made)) +
   geom_bar(position="stack", stat="identity") +
   scale_x_continuous(breaks = 2010:2023)
+
+ggplotly(bil_selfmade)
 ```
 
+Summary: Counts the number of self-made billionaires over time.
+Insight: Reflects the trends in entrepreneurial success and self-made wealth, which could be indicative of the broader economic opportunities and the state of the entrepreneurial ecosystem.
+Each of these plots provides valuable insights into specific aspects of economic trends and wealth distribution. Together, they paint a comprehensive picture of how wealth is created, distributed, and evolves over time across different countries, industries, genders, and cities.
 
+## Summary
 
-```{r barplot-US industries}
-billionaire_gdp_indus_usa |> 
-  drop_na(industry_gdp) |> 
-  group_by(year, industries) |> 
-  summarize(n = n()) |> 
-  ggplot(aes(x = year, y = n, fill = industries)) +
-  geom_bar(position="stack", stat="identity") +
-  scale_x_continuous(breaks = 2017:2022)
-```
-
-```{r barplot-US industreis scaled}
-bil_us_indus_prop <-
-  billionaire_gdp_indus_usa |> 
-  drop_na(industry_gdp) |> 
-  group_by(year, industries) |> 
-  summarize(n = n())|> 
-  group_by(year) |> 
-  mutate(total = sum(n),
-         prop = n / total)
-
-bil_us_indus_prop |> 
-  ggplot(aes(x = year, y = prop, fill = industries)) +
-  geom_bar(position="stack", stat="identity") +
-  scale_x_continuous(breaks = 2017:2022)
-```
-
-
-
-
+GDP-Temporal Wealth Patterns:
+Examine the rise and fall of billionaire wealth across different economic cycles, including booms, busts, and recoveries.
 
 
 
