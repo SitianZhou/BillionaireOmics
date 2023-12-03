@@ -64,11 +64,11 @@ We conduct some exploratory analysis from two main aspects:
 
 * Billionaire Wealth Distribution  
 
-  - *Global Net Worth Trends:* Observation of the global net worth changes of billionaires from 2010 to 2023, highlighting significant fluctuations due to global economic conditions.
+  - *Global Net Worth Trends:* Observation of the global net worth changes of billionaires, highlighting significant fluctuations due to global economic conditions.
 
-  - *Country Wealth Comparison:* Analysis of the combined net worth of billionaires in the top five countries from 2010 to 2023, reflecting the economic health and wealth generation in these nations.
+  - *Region Wealth Comparison:* Analysis of the combined net worth of billionaires in the top five countries, reflecting the economic health and wealth generation in these nations.
 
-  - *Gender Wealth Gap:* Examination of the distribution and total net worth of billionaires by gender from 2010 to 2022, underscoring the persistent gender gap in billionaire wealth.
+  - *Gender Wealth Gap:* Examination of the distribution and total net worth of billionaires by gender from 2010 to 2023, underscoring the persistent gender gap in billionaire wealth.
   
   - *Self-Made Billionaires:* Tracking the rise of self-made billionaires over the years, indicating the evolving landscape of entrepreneurial success and self-made wealth.
   
@@ -155,7 +155,7 @@ total_gdp_by_year_industry <- data_filtered %>%
   summarise(total_gdp_by_year_industry = sum(industry_gdp, na.rm = TRUE))
 
 gdp_industry_plot <- total_gdp_by_year_industry |> 
-  ggplot(aes(x = year, y = total_gdp_by_year_industry, group = industries, color = industries)) +
+  ggplot(aes(x = year, y = total_gdp_by_year_industry, color = industries)) +
     geom_line(size = 1.2) +
     theme_minimal() +
     labs(title = "Total industry GDP by year from 2017 to 2022 in USA", 
@@ -166,7 +166,7 @@ ggplotly(gdp_industry_plot)
 
 ```
  
-Summary: It shows that from 2017 to 2022, the Construction & Engineering and Finance & Investment sectors in the USA experienced the most significant growth. In contrast, the Media and Entertainment industry saw the least growth. It has been observed that due to the impact of the COVID-19 pandemic, billionaires in all industries in the USA and around the world faced an overall slump in 2020. Despite such a setback, these indicators generally tend to rise over time, indicating that the GDP of each industry is growing comprehensively.
+Summary: It shows that from 2017 to 2022, the Finance & Investment sectors in the USA experienced the most significant growth. In contrast, the Metals and Mining industry saw the least growth. It has been observed that due to the impact of the COVID-19 pandemic, billionaires in all industries in the USA and around the world faced an overall slump in 2020. Despite such a setback, these indicators generally tend to rise over time, indicating that the GDP of each industry is growing comprehensively.
 
 
 ### City Wealth Analysis
@@ -191,7 +191,7 @@ top_cities_by_year <- net_worth_by_city_year %>%
   ungroup()
 
 tnw_residence = 
-  ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_residence, color = city_of_residence)) +
+  ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, , color = city_of_residence)) +
   geom_line(size = 1.2) +
   labs(title = "Top 5 cities' net worth trend by year (2010-2023)",
        x = "Year", y = "Total net worth (billions)",
@@ -232,9 +232,10 @@ ggplotly(bil_all)
 
 ```
 
-Summary: Total net worth of all billionaires plummeted in 2016 and 2020, and then skyrocketed in 2021.
+Summary: The line graph portrays the trajectory of a billionaire's net worth from 2010 to 2023, with a general upward trend punctuated by notable declines in 2016 and 2020, likely due to market downturns and the economic impact of the COVID-19 pandemic, respectively. Following the 2020 dip, there was a dramatic rebound, culminating in a peak in 2021, indicating a robust recovery that might be attributed to a post-pandemic economic boom, strategic business decisions, or a favorable investment climate.
 
-### Country Wealth Comparison
+
+### Region Wealth Comparison
 Total Net Worth of Billionaires (2010 to 2023, Top 5 Countries):
 ```{r networth 5 countries overtime}
 data_filtered <- billionaire_gdp %>%
@@ -242,40 +243,39 @@ data_filtered <- billionaire_gdp %>%
 
 # group by country net worth over time 
 total_net_worth_by_country <- data_filtered %>%
-  group_by(country_of_citizenship) %>%
+  group_by(region_code) %>%
   summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
 
 # net worth top 5 countries
 top_countries <- total_net_worth_by_country %>%
   top_n(5, total_net_worth) %>%
-  pull(country_of_citizenship)
+  pull(region_code)
 
 top_countries_data <- data_filtered %>%
-  filter(country_of_citizenship %in% top_countries)
+  filter(region_code %in% top_countries)
 
 total_net_worth_by_year_country <- top_countries_data %>%
-  group_by(year, country_of_citizenship) %>%
+  group_by(year, region_code) %>%
   summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
 
 # plot
 tnw_citizen =
-  ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group = country_of_citizenship, color = country_of_citizenship)) +
+  ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, color = region_code)) +
   geom_line(size = 1.2) +
   theme_minimal() +
   labs(title = "Total net worth of billionaires by top 5 regions from 2010 to 2023",
        x = "Year", y = "Total net worth (billions)",
-       color = "Country (or SAR) \n of citizenship")+
+       color = "Region code")+
   scale_x_continuous(breaks = 2010:2023)+
   theme(plot.title = element_text(hjust = 0.5))
 
 ggplotly(tnw_citizen)
 ```
 
-Summary: Shows the combined net worth of billionaires in the top 5 countries.
-Insight: Provides a perspective on how billionaire wealth is distributed among leading economic nations, possibly reflecting on the economic health and wealth creation capabilities of these countries.
+Summary: The graph comparing the net worth of billionaires from 2010 to 2023 in the top five regions shows the USA leading with a significant surge post-2015, indicative of robust economic growth and wealth generation. China's trend suggests rapid wealth creation with some instability. Germany displays steady progress, reflecting a stable economy. India's consistent rise aligns with its economic development, while Hong Kong's initial growth is followed by a decline post-2019, likely due to socio-political and economic challenges in the region. This distribution of billionaire wealth highlights the varying economic dynamics and the impact of regional and global factors on wealth accumulation.
 
 ### Gender Wealth Gap
-Percentage of Billionaires by Gender (2010-2022):
+Percentage of Billionaires by Gender (2010-2023):
 ```{r barplot-gender-scaled}
 # scale it to 1 to analyze the proportions
 bil_gender_prop <-
@@ -323,7 +323,7 @@ tnw_gender =
 
 ggplotly(tnw_gender)
 ```
-Comments: The second chart, a line graph, shows the total net worth by gender from 2010 to 2022. The net worth of male billionaires is significantly higher than that of females throughout the period, with a particularly steep increase for males after 2015. The consistent gap and the sharp rise in male net worth could be due to a combination of factors, including the compounding effect of existing wealth, gender disparities in key industries, and potentially more males being active in high-growth sectors such as technology and finance.
+Comments: The second chart, a line graph, shows the total net worth by gender from 2010 to 2023. The net worth of male billionaires is significantly higher than that of females throughout the period, with a particularly steep increase for males after 2015. The consistent gap and the sharp rise in male net worth could be due to a combination of factors, including the compounding effect of existing wealth, gender disparities in key industries, and potentially more males being active in high-growth sectors such as technology and finance.
 
 Summary: Both charts underscore a persistent gender gap in billionaire wealth, suggesting systemic barriers to entry and growth for women in the highest echelons of wealth. The trends could also reflect broader societal and economic structures that historically favor male dominance in business and wealth creation.
 
