@@ -49,6 +49,29 @@ billionaire_gdp <- read.csv("../data/billionaire_gdp.csv")
 gdp <- read.csv("../data/gdp.csv")
 ```
 
+**Global Billionaires' Wealth Trends Analysis**
+
+We conduct some exploratory analysis from two main aspects:
+
+* **Global Economic Dynamics of Billionaires**
+  - *GDP Trends (2010-2023):* Analysis of changes in GDPs of countries home to global billionaires, highlighting growth rates and economic development stages.
+  
+* **Wealth Evolution in Billionaires' Industries**
+  - *Sectoral Wealth Growth:* Examination of the wealth growth within industries dominated by billionaires, noting the rise of new economic powerhouses.
+  
+* **Net Worth Trends in Billionaires' Cities**
+  - *City Wealth Analysis:* Tracking the net worth trends in cities with the highest concentration of billionaires, identifying urban patterns of wealth accumulation.
+  
+* **Wealth Distribution Among Global Billionaires**
+  - *Sectoral, National, and Gender Disparities:* Insights into the distribution of billionaire wealth across sectors, countries, and genders, revealing global disparities and growth patterns.
+  
+* **Economic Growth and Wealth Accumulation of Billionaires**
+  - *Shifts and Disparities:* Discussing the shifts in industry dominance and urban wealth, alongside the persistent gender gap in billionaires' wealth accumulation.
+  
+* **The Changing Landscape of Global Billionaire Wealth**
+  - *A Nuanced Understanding:* Providing a detailed view of the dynamic nature of wealth distribution among global billionaires and the economic factors influencing it.
+  
+In this analysis, we delve into the intricate dynamics of global economies, industries, and cities from 2010 to 2023, focusing on GDP trends and wealth distribution. Through a series of Longitudinal visualizations, we explore the changes in national GDPs, the evolution of industry wealth, the trends in city net worth, and the distribution of billionaire wealth across different sectors, countries, and genders. Our findings reveal significant shifts in economic growth rates, industry dominance, urban wealth concentration, and the enduring disparities in wealth accumulation, offering a nuanced understanding of the ever-changing landscape of global wealth and economics.
 
 
 ## Economic trends
@@ -302,7 +325,8 @@ Comments: The second chart, a line graph, shows the total net worth by gender fr
 
 Summary: Both charts underscore a persistent gender gap in billionaire wealth, suggesting systemic barriers to entry and growth for women in the highest echelons of wealth. The trends could also reflect broader societal and economic structures that historically favor male dominance in business and wealth creation.
 
-### Self-Made Status Count Over Years:
+### Self-Made Status
+Self-Made Status Count Over Years (2010:2023):
 ```{r barplot-self_made-scaled}
 # scale it to 1 to analyze the proportions
 bil_selfmade_prop <-
@@ -318,19 +342,16 @@ bil_selfmade =
   bil_selfmade_prop |> 
   ggplot(aes(x = year, y = prop, fill = self_made)) +
   geom_bar(position="stack", stat="identity") +
+  labs(title = "Propotion of self-made status count from 2010 to 2023",
+       x = "Year", y = "Self-Made Status prop",
+       color = "self_made")+
+  theme(plot.title = element_text(hjust = 0.5))+
   scale_x_continuous(breaks = 2010:2023)
 
 ggplotly(bil_selfmade)
 ```
 
-Summary: Counts the number of self-made billionaires over time.
-Insight: Reflects the trends in entrepreneurial success and self-made wealth, which could be indicative of the broader economic opportunities and the state of the entrepreneurial ecosystem.
-Each of these plots provides valuable insights into specific aspects of economic trends and wealth distribution. Together, they paint a comprehensive picture of how wealth is created, distributed, and evolves over time across different countries, industries, genders, and cities.
-
-## Summary
-
-GDP-Temporal Wealth Patterns:
-Examine the rise and fall of billionaire wealth across different economic cycles, including booms, busts, and recoveries.
+Summary: The bar chart depicting the proportion of self-made billionaires from 2010 to 2023 demonstrates a consistent majority of individuals who have amassed their wealth independently, without inheritance or existing family wealth. This consistent trend highlights the persistent entrepreneurial opportunities and the effectiveness of modern economies in fostering self-made success stories, potentially driven by technological innovation, global market access, and the availability of venture capital. It reflects a global environment where skill, innovation, and strategic business practices can lead to significant wealth creation.
 
 
 
