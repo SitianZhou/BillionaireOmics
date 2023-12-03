@@ -1,5 +1,5 @@
 ---
-title: "EDA_Longitudinal"
+title: "Longitudinal EDA"
 author: "Shuchen Dong, Sitian Zhou, Mengxiao Luan"
 date: "`r Sys.Date()`"
 output: 
@@ -9,7 +9,7 @@ output:
     code_folding: "hide"
 ---
 
-```{r lib-import, message = FALSE}
+```{r lib-import, include=FALSE}
 library(tidyverse)
 library(readxl)
 library(dplyr)
@@ -36,7 +36,7 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 
 theme_set(
-  theme_bw() +
+  theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5),
         text = element_text(family = "Helvetica")) + 
   theme(legend.position = "right"))
@@ -91,7 +91,7 @@ gdp_con =
   ggplot(data = gdp_selected, aes(x = year, y = gdp, color = code)) +
   theme_minimal() +
   geom_line(size = 1.2) +
-  labs(title = "GDP change from 2010 to 2022", x = "Year", y = "GDP", color = "Country Code") +
+  labs(title = "GDP change from 2010 to 2022", x = "Year", y = "GDP", color = "Region Code") +
   scale_x_continuous(breaks = 2010:2022)+
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -114,9 +114,10 @@ bil_industry =
   ggplot(aes(x = year, y = n, fill = industries))+
   theme_minimal()+
   geom_bar(position="stack", stat="identity")+
-  labs(title = "GDP change from 2010 to 2023", x = "Year", y = "GDP", color = "Country Code")+
+  labs(title = "Industry-level GDP change from 2010 to 2023", 
+       x = "Year", y = "GDP", color = "Industries")+
   scale_x_continuous(breaks = 2010:2023)+
-  theme(plot.title = element_text(hjust = 0.5)) 
+  theme(plot.title = element_text(hjust = 0.6)) 
 
 ggplotly(bil_industry)
 ```
@@ -132,9 +133,10 @@ indus_usa =
   ggplot(aes(x = year, y = n, fill = industries)) +
   theme_minimal() +
   geom_bar(position="stack", stat="identity") +
-  labs(title = "GDP change in the USA from 2017 to 2022", x = "Year", y = "GDP", color = "Country Code") +
+  labs(title = "Industry-level GDP change in the USA from 2017 to 2022", 
+       x = "Year", y = "GDP", color = "Industries") +
   scale_x_continuous(breaks = 2017:2022)+
-  theme(plot.title = element_text(hjust = 0.5)) 
+  theme(plot.title = element_text(hjust = 0.6)) 
 
 ggplotly(indus_usa)
 
@@ -156,7 +158,8 @@ gdp_industry_plot <- total_gdp_by_year_industry |>
   ggplot(aes(x = year, y = total_gdp_by_year_industry, group = industries, color = industries)) +
     geom_line(size = 1.2) +
     theme_minimal() +
-    labs(title = "Total industry GDP by year from 2017 to 2022 in USA", x = "Year", y = "Industry GDP", color = "Industries")+
+    labs(title = "Total industry GDP by year from 2017 to 2022 in USA", 
+         x = "Year", y = "Industry GDP", color = "Industries")+
   theme(plot.title = element_text(hjust = 0.5))
 
 ggplotly(gdp_industry_plot)
@@ -190,10 +193,10 @@ top_cities_by_year <- net_worth_by_city_year %>%
 tnw_residence = 
   ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, group = city_of_residence, color = city_of_residence)) +
   geom_line(size = 1.2) +
-  theme_minimal() +
   labs(title = "Top 5 cities' net worth trend by year (2010-2023)",
-       x = "Year", y = "Total Net Worth (Billions)",
-       color = "City of Residence") +
+       x = "Year", y = "Total net worth (billions)",
+       color = "City of residence") +
+  scale_x_continuous(breaks = 2010:2023)+
   theme(legend.position = "right") +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -217,15 +220,13 @@ bil_all =
   billionaire_gdp |> 
   group_by(year) |> 
   summarize(total_net_worth = sum(net_worth)) |> 
-  ggplot(aes(x = year, y = total_net_worth)) +
+  ggplot(aes(x = year, y = total_net_worth, color = "#440154")) +
   geom_line(size = 1.2) +
-  theme_minimal() +
   labs(title = "Total net worth of billionaire from 2010 to 2023",
-       x = "Year", y = "Total Net Worth (Billions)",
-       color = "Country of Citizenship")+
-  geom_point() +
+       x = "Year", y = "Total net worth (billions)")+
   scale_x_continuous(breaks = 2010:2023)+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
 
 ggplotly(bil_all)
 
@@ -261,9 +262,10 @@ tnw_citizen =
   ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, group = country_of_citizenship, color = country_of_citizenship)) +
   geom_line(size = 1.2) +
   theme_minimal() +
-  labs(title = "Total net worth of billionaire by top 5 countries from 2010 to 2023",
-       x = "Year", y = "Total Net Worth (Billions)",
-       color = "Country of Citizenship")+
+  labs(title = "Total net worth of billionaires by top 5 regions from 2010 to 2023",
+       x = "Year", y = "Total net worth (billions)",
+       color = "Country (or SAR) \n of citizenship")+
+  scale_x_continuous(breaks = 2010:2023)+
   theme(plot.title = element_text(hjust = 0.5))
 
 ggplotly(tnw_citizen)
@@ -289,9 +291,8 @@ bil_gender =
   bil_gender_prop |> 
   ggplot(aes(x = year, y = prop, fill = gender))+
   geom_bar(position="stack", stat="identity") +
-  labs(title = "Proportion of billionaires by gender from 2010 to 2022",
-       x = "Year", y = "Proportion",
-       color = "gender")+
+  labs(title = "Proportion of billionaires by gender from 2010 to 2023",
+       x = "Year", y = "Proportion", color = "Gender")+
   scale_x_continuous(breaks = 2010:2023)+
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -300,11 +301,11 @@ ggplotly(bil_gender)
 ```
 Comments: The first chart, a bar plot, illustrates the proportion of male and female billionaires from 2010 to 2023, indicating a consistent predominance of males in each year, with females representing a very small fraction of the total. This disparity in representation may reflect long-standing gender imbalances in wealth accumulation and opportunities for economic advancement.
 
-Total Net Worth by Gender (2010 to 2022):
+Total Net Worth by Gender (2010 to 2023):
 ```{r ave_net_worth by gender}
 
 billionaires_filtered <- billionaire_gdp %>%
-  filter(year >= 2010 & year <= 2022) %>%  na.omit()
+  filter(year >= 2010 & year <= 2023) %>%  na.omit()
 
 total_net_worth_by_year_gender <- billionaires_filtered %>%
   group_by(year, gender) %>%
@@ -315,9 +316,9 @@ tnw_gender =
   ggplot(total_net_worth_by_year_gender, aes(x = year, y = total_net_worth, color = gender)) +
   geom_line(size = 1.2) +
   theme_minimal() +
-  labs(title = "Total net worth by gender from 2017 to 2022",
-       x = "Year", y = "Total Net Worth (in billions)",
-       color = "Gender")+
+  labs(title = "Total net worth by gender from 2010 to 2023",
+       x = "Year", y = "Total net worth (billions)", color = "Gender")+
+  scale_x_continuous(breaks = 2010:2023)+
   theme(plot.title = element_text(hjust = 0.5))
 
 ggplotly(tnw_gender)
@@ -327,7 +328,7 @@ Comments: The second chart, a line graph, shows the total net worth by gender fr
 Summary: Both charts underscore a persistent gender gap in billionaire wealth, suggesting systemic barriers to entry and growth for women in the highest echelons of wealth. The trends could also reflect broader societal and economic structures that historically favor male dominance in business and wealth creation.
 
 ### Self-Made Billionaires
-Self-Made Status Count Over Years (2010:2023):
+Self-Made Status Count Over Years (2010 to 2023):
 ```{r barplot-self_made-scaled}
 # scale it to 1 to analyze the proportions
 bil_selfmade_prop <-
@@ -343,9 +344,8 @@ bil_selfmade =
   bil_selfmade_prop |> 
   ggplot(aes(x = year, y = prop, fill = self_made)) +
   geom_bar(position="stack", stat="identity") +
-  labs(title = "Propotion of self-made status count from 2010 to 2023",
-       x = "Year", y = "Self-Made Status prop",
-       color = "self_made")+
+  labs(title = "Proportion of self-made status count from 2010 to 2023",
+       x = "Year", y = "Proportion", color = "Self-made")+
   theme(plot.title = element_text(hjust = 0.5))+
   scale_x_continuous(breaks = 2010:2023)
 
