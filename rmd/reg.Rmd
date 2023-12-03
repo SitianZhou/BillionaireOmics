@@ -39,7 +39,7 @@ Take `net_worth` as the response variable, `age, gender, gdp_country and life_ex
 * life_expectancy_country: Life expectancy in the country they reside in.
 
 ```{r lrmodel}
-lrmodel <- lm(net_worth ~ age + gender + gdp_country+life_expectancy_country, data = billionaires23)
+lrmodel <- lm(log(net_worth) ~ age + gender + gdp_country+life_expectancy_country, data = billionaires23)
 summary(lrmodel)
 ```
 
