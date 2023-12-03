@@ -55,7 +55,7 @@ We conduct some exploratory analysis from two main aspects:
 
 * Billionaire Economic Trends:
 
-  - *GDP Trends:* Analysis of changes in GDPs of countries home to global billionaires, highlighting growth rates and economic development stages.
+  - *GDP Trends:* Analysis of changes in GDPs of 5 countries home to global billionaires, highlighting growth rates and economic development stages.
 
   - *Sectoral Wealth Growth:* Examination of the wealth growth within industries dominated by billionaires, noting the rise of new economic powerhouses.
 
@@ -66,13 +66,13 @@ We conduct some exploratory analysis from two main aspects:
 
   - *Global Net Worth Trends:* Observation of the global net worth changes of billionaires, highlighting significant fluctuations due to global economic conditions.
 
-  - *Region Wealth Comparison:* Analysis of the combined net worth of billionaires in the top five countries, reflecting the economic health and wealth generation in these nations.
+  - *Region Wealth Comparison:* Analysis of the combined net worth of billionaires in the top five regions, reflecting the economic health and wealth generation in these nations.
 
   - *Gender Wealth Gap:* Examination of the distribution and total net worth of billionaires by gender from 2010 to 2023, underscoring the persistent gender gap in billionaire wealth.
   
   - *Self-Made Billionaires:* Tracking the rise of self-made billionaires over the years, indicating the evolving landscape of entrepreneurial success and self-made wealth.
   
-In this analysis, we delve into the intricate dynamics of global economies, industries, and cities from 2010 to 2023, focusing on GDP trends and wealth distribution. Through a series of Longitudinal visualizations, we explore the changes in national GDPs, the evolution of industry wealth, the trends in city net worth, and the distribution of billionaire wealth across different sectors, countries, and genders. Our findings reveal significant shifts in economic growth rates, industry dominance, urban wealth concentration, and the enduring disparities in wealth accumulation, offering a nuanced understanding of the ever-changing landscape of global wealth and economics.
+In this analysis, we delve into the intricate dynamics of global economies, industries, and cities from 2010 to 2023, focusing on GDP trends and wealth distribution. Through a series of Longitudinal visualizations, we explore the changes in national GDPs, the evolution of industry wealth, the trends in city net worth, and the distribution of billionaire wealth across different sectors, countries, regions and genders. Our findings reveal significant shifts in economic growth rates, industry dominance, urban wealth concentration, and the enduring disparities in wealth accumulation, offering a nuanced understanding of the ever-changing landscape of global wealth and economics.
 
 
 ## Billionaire Economic trends
@@ -236,31 +236,31 @@ Summary: The line graph portrays the trajectory of a billionaire's net worth fro
 
 
 ### Region Wealth Comparison
-Total Net Worth of Billionaires (2010 to 2023, Top 5 Countries):
-```{r networth 5 countries overtime}
+Total Net Worth of Billionaires (2010 to 2023, Top 5 Regions):
+```{r networth 5 regions overtime}
 data_filtered <- billionaire_gdp %>%
   filter(year >= 2010 & year <= 2023)
 
-# group by country net worth over time 
-total_net_worth_by_country <- data_filtered %>%
+# group by region_code net worth over time 
+total_net_worth_by_region <- data_filtered %>%
   group_by(region_code) %>%
   summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
 
-# net worth top 5 countries
-top_countries <- total_net_worth_by_country %>%
+# net worth top 5 regions
+top_regions <- total_net_worth_by_region %>%
   top_n(5, total_net_worth) %>%
   pull(region_code)
 
-top_countries_data <- data_filtered %>%
-  filter(region_code %in% top_countries)
+top_regions_data <- data_filtered %>%
+  filter(region_code %in% top_regions)
 
-total_net_worth_by_year_country <- top_countries_data %>%
+total_net_worth_by_year_region <- top_regions_data %>%
   group_by(year, region_code) %>%
   summarise(total_net_worth = sum(net_worth, na.rm = TRUE))
 
 # plot
 tnw_citizen =
-  ggplot(total_net_worth_by_year_country, aes(x = year, y = total_net_worth, color = region_code)) +
+  ggplot(total_net_worth_by_year_region, aes(x = year, y = total_net_worth, color = region_code)) +
   geom_line(size = 1.2) +
   theme_minimal() +
   labs(title = "Total net worth of billionaires by top 5 regions from 2010 to 2023",
