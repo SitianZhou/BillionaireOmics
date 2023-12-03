@@ -53,31 +53,32 @@ gdp <- read.csv("../data/gdp.csv")
 
 We conduct some exploratory analysis from two main aspects:
 
-* **Global Economic Dynamics of Billionaires**
-  - *GDP Trends (2010-2023):* Analysis of changes in GDPs of countries home to global billionaires, highlighting growth rates and economic development stages.
-  
-* **Wealth Evolution in Billionaires' Industries**
+* Billionaire Economic Trends:
+
+  - *GDP Trends:* Analysis of changes in GDPs of countries home to global billionaires, highlighting growth rates and economic development stages.
+
   - *Sectoral Wealth Growth:* Examination of the wealth growth within industries dominated by billionaires, noting the rise of new economic powerhouses.
-  
-* **Net Worth Trends in Billionaires' Cities**
+
   - *City Wealth Analysis:* Tracking the net worth trends in cities with the highest concentration of billionaires, identifying urban patterns of wealth accumulation.
+
+
+* Billionaire Wealth Distribution  
+
+  - *Global Net Worth Trends:* Observation of the global net worth changes of billionaires from 2010 to 2023, highlighting significant fluctuations due to global economic conditions.
+
+  - *Country Wealth Comparison:* Analysis of the combined net worth of billionaires in the top five countries from 2010 to 2023, reflecting the economic health and wealth generation in these nations.
+
+  - *Gender Wealth Gap:* Examination of the distribution and total net worth of billionaires by gender from 2010 to 2022, underscoring the persistent gender gap in billionaire wealth.
   
-* **Wealth Distribution Among Global Billionaires**
-  - *Sectoral, National, and Gender Disparities:* Insights into the distribution of billionaire wealth across sectors, countries, and genders, revealing global disparities and growth patterns.
-  
-* **Economic Growth and Wealth Accumulation of Billionaires**
-  - *Shifts and Disparities:* Discussing the shifts in industry dominance and urban wealth, alongside the persistent gender gap in billionaires' wealth accumulation.
-  
-* **The Changing Landscape of Global Billionaire Wealth**
-  - *A Nuanced Understanding:* Providing a detailed view of the dynamic nature of wealth distribution among global billionaires and the economic factors influencing it.
+  - *Self-Made Billionaires:* Tracking the rise of self-made billionaires over the years, indicating the evolving landscape of entrepreneurial success and self-made wealth.
   
 In this analysis, we delve into the intricate dynamics of global economies, industries, and cities from 2010 to 2023, focusing on GDP trends and wealth distribution. Through a series of Longitudinal visualizations, we explore the changes in national GDPs, the evolution of industry wealth, the trends in city net worth, and the distribution of billionaire wealth across different sectors, countries, and genders. Our findings reveal significant shifts in economic growth rates, industry dominance, urban wealth concentration, and the enduring disparities in wealth accumulation, offering a nuanced understanding of the ever-changing landscape of global wealth and economics.
 
 
-## Economic trends
+## Billionaire Economic trends
 It explores the dynamics of economies, industries, and cities in terms of GDP and wealth concentration.
 
-### Country economy
+### GDP Trends
 GDP Change from 2010 to 2022 (Countries: USA, CHN, RUS, JPN, DEU):
 ```{r 5 country gdp}
 countries <- c("USA", "CHN", "RUS", "JPN", "DEU")
@@ -101,8 +102,7 @@ ggplotly(gdp_con)
 Summary: The graph demonstrates the varying economic trajectories of these five countries over a 12-year period, with China showing the most remarkable growth rate, the USA maintaining a strong and steadily increasing GDP, while Japan shows relatively little change, indicating different stages of economic development and growth rates.
 
 
-### Industry
-
+### Sectoral Wealth Growth
 Number of billionaires in different industries by year (2010 to 2023):
 ```{r barplot-all industries}
 bil_industry = 
@@ -166,7 +166,7 @@ ggplotly(gdp_industry_plot)
 Summary: It shows that from 2017 to 2022, the Construction & Engineering and Finance & Investment sectors in the USA experienced the most significant growth. In contrast, the Media and Entertainment industry saw the least growth. It has been observed that due to the impact of the COVID-19 pandemic, billionaires in all industries in the USA and around the world faced an overall slump in 2020. Despite such a setback, these indicators generally tend to rise over time, indicating that the GDP of each industry is growing comprehensively.
 
 
-### City
+### City Wealth Analysis
 Top 5 Cities' Net Worth Trend by Year (2010 to 2023):
 find different city of residence billionaire net worth change over time
 ```{r net_worth vs cities overtime}
@@ -207,11 +207,10 @@ Summary: The chart shows rising billionaire net worth in five cities from 2010 t
 
 
 
-## Wealth Distribution
+## Billionaire Wealth Distribution
 This category focuses on the distribution of wealth among different groups, genders, and the rise of self-made billionaires.
 
-### Global
-
+### Global Net Worth Trends
 A quick overview: trend of total net worth of all billionaires (2010 to 2023)
 ```{r networth all overtime}
 bil_all = 
@@ -234,8 +233,7 @@ ggplotly(bil_all)
 
 Summary: Total net worth of all billionaires plummeted in 2016 and 2020, and then skyrocketed in 2021.
 
-### Country
-
+### Country Wealth Comparison
 Total Net Worth of Billionaires (2010 to 2023, Top 5 Countries):
 ```{r networth 5 countries overtime}
 data_filtered <- billionaire_gdp %>%
@@ -274,8 +272,7 @@ ggplotly(tnw_citizen)
 Summary: Shows the combined net worth of billionaires in the top 5 countries.
 Insight: Provides a perspective on how billionaire wealth is distributed among leading economic nations, possibly reflecting on the economic health and wealth creation capabilities of these countries.
 
-### Gender
-
+### Gender Wealth Gap
 Percentage of Billionaires by Gender (2010-2022):
 ```{r barplot-gender-scaled}
 # scale it to 1 to analyze the proportions
@@ -290,9 +287,13 @@ bil_gender_prop <-
 
 bil_gender = 
   bil_gender_prop |> 
-  ggplot(aes(title = "Proportion of billionaires by gender from 2010 to 2022", x = year, y = prop, fill = gender))+
+  ggplot(aes(x = year, y = prop, fill = gender))+
   geom_bar(position="stack", stat="identity") +
-  scale_x_continuous(breaks = 2010:2023)
+  labs(title = "Proportion of billionaires by gender from 2010 to 2022",
+       x = "Year", y = "Proportion",
+       color = "gender")+
+  scale_x_continuous(breaks = 2010:2023)+
+  theme(plot.title = element_text(hjust = 0.5))
 
 ggplotly(bil_gender)
   
@@ -325,7 +326,7 @@ Comments: The second chart, a line graph, shows the total net worth by gender fr
 
 Summary: Both charts underscore a persistent gender gap in billionaire wealth, suggesting systemic barriers to entry and growth for women in the highest echelons of wealth. The trends could also reflect broader societal and economic structures that historically favor male dominance in business and wealth creation.
 
-### Self-Made Status
+### Self-Made Billionaires
 Self-Made Status Count Over Years (2010:2023):
 ```{r barplot-self_made-scaled}
 # scale it to 1 to analyze the proportions
