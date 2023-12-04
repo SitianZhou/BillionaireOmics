@@ -47,7 +47,7 @@ bil_13_23 <-
 
 ## Paired t-test: analyze the wealth variation among billionaires between 2013 and 2023
 
-We focused on billionaires who appeared on both the 2013 and 2023 lists, aiming to assess changes in their net wealth over the span of ten years.
+We focused on billionaires who appeared on both the 2013 and 2023 lists, aiming to assess changes in their net worth over the span of ten years.
 
 <center>
 
@@ -84,7 +84,7 @@ t.test(bil_diff_13_23 |> pull(`2023`), bil_diff_13_23 |> pull(`2013`), paired = 
   knitr::kable(digits = 3)
 ```
 
-With the result shown above, the p-value is 0, which is sufficiently small to reject the null. We conclude that there is a difference in the net wealth of billionaires on the list in both 2013 and 2023. Furthermore, the 95% confidence interval suggests a discernible increase in billionaires' wealth over the past decade, estimated to range between 2.588 and 4.312 billion dollars.
+With the result shown above, the p-value is 0, which is sufficiently small to reject the null. We conclude that there is a difference in the net worth of billionaires on the list in both 2013 and 2023. Furthermore, the 95% confidence interval suggests a discernible increase in billionaires' wealth over the past decade, estimated to range between 2.588 and 4.312 billion dollars.
 
 
 ## T-test: compare the wealth distribution between gender groups among billionaires in 2023
@@ -170,15 +170,18 @@ model_ori[[2]] |>
           line = list(color = "rgb(68, 1, 84)", width = 2)), nbinsx = 50) |> 
   layout(title = "Distribution of residuals",
          xaxis = list(title = "Residuals"),
-         yaxis = list(title = "Count"))
+         yaxis = list(title = "Count"),
+         font = list(family = "Helvetica"))
+
 
 # boxplot
 bil_age |> 
   plot_ly(x = ~age_group, y =~net_worth, color = ~age_group,
           type = "box", colors = "viridis") |>
-  layout(title = "Net wealth of different age groups",
+  layout(title = "Net worth of different age groups",
          xaxis = list(title = "Age of billionaires"),
-         yaxis = list(title = "Net wealth (billion dollars)"))
+         yaxis = list(title = "Net worth (billion dollars)"),
+         font = list(family = "Helvetica"))
 
 ```
 
@@ -219,15 +222,17 @@ model_t[[2]] |>
           line = list(color = "rgb(68, 1, 84)", width = 2)), nbinsx = 30) |> 
   layout(title = "Distribution of residuals after transformation",
          xaxis = list(title = "Residuals (transformed)"),
-         yaxis = list(title = "Count"))
+         yaxis = list(title = "Count"),
+         font = list(family = "Helvetica"))
 
 # boxplot
 bil_age |> 
   plot_ly(x = ~age_group, y =~net_worth_t, color = ~age_group,
           type = "box", colors = "viridis") |>
-  layout(title = "Net wealth of different age groups after transformation",
+  layout(title = "Net worth of different age groups after transformation",
          xaxis = list(title = "Age of billionaires"),
-         yaxis = list(title = "Net wealth (transformed)"))
+         yaxis = list(title = "Net worth (transformed)"),
+         font = list(family = "Helvetica"))
 
 ```
 
@@ -237,7 +242,7 @@ After transforming the data, we re-created the two diagnostic plots. We can tell
 
 <center>
 
-$H_0: \mu_{55\space and \space below} = \mu_{55-65} = \mu_{65-75} = \mu_{over \space 75}$
+$H_0: \mu_{55\space and \space below} = \mu_{55\sim65} = \mu_{65\sim75} = \mu_{over \space 75}$
 
 $H_1:$ at least one $\mu$ differs
 
@@ -287,10 +292,11 @@ a <- list(
 bil_age |> 
   plot_ly(x = ~age_group, y =~net_worth_t, color = ~age_group,
           type = "box", colors = "viridis") |>
-  layout(title = "Net wealth of different age groups after transformation",
+  layout(title = "Net worth of different age groups after transformation",
          xaxis = list(title = "Age of billionaires"),
-         yaxis = list(title = "Net wealth (transformed)"),
-         annotations = a)
+         yaxis = list(title = "Net worth (transformed)"),
+         annotations = a,
+         font = list(family = "Helvetica"))
 ```
 
 
@@ -298,7 +304,7 @@ bil_age |>
 
 * The wealth of billionaires has increased from 2013 to 2023, with a 95% confidence interval from 2.588 to 4.312 billion dollars.
 
-* There is no significant difference in the net wealth between female and male billionaires in 2023.
+* There is no significant difference in the net worth between female and male billionaires in 2023.
 
 * Not all billionaires in four age groups have the same wealth amount. Among the six pairwise comparisons, four of them show a significant difference in wealth.
 
