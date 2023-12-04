@@ -178,13 +178,13 @@ find different city of residence billionaire net worth change over time
 data_filtered <- billionaire_gdp %>%
   filter(
     year >= 2010 & year <= 2023, 
-    country_of_citizenship == "United States")%>%
-  na.omit()
+    country_of_citizenship == "United States")
 
 net_worth_by_city_year <- data_filtered %>%
   group_by(year, city_of_residence) %>%
   summarise(total_net_worth = sum(net_worth, na.rm = TRUE)) %>%
-  ungroup()
+  ungroup() |> 
+  drop_na(city_of_residence)
 
 # top5 total_net_worth
 top_cities_by_year <- net_worth_by_city_year %>%
@@ -193,7 +193,7 @@ top_cities_by_year <- net_worth_by_city_year %>%
   ungroup()
 
 tnw_residence = 
-  ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, , color = city_of_residence)) +
+  ggplot(top_cities_by_year, aes(x = year, y = total_net_worth, color = city_of_residence)) +
   geom_line(size = 1.2) +
   labs(title = "Top 5 cities' net worth trend by year (2010-2023)",
        x = "Year", y = "Total net worth (billions)",
@@ -207,7 +207,7 @@ ggplotly(tnw_residence)
 
 ```
 
-Note: Here are the top 5, and there are indeed 5 more. This is because in some years, the total city of net worth is surpassed by others. And the sorting criterion is specified as total net worth.
+Note: Here are the top 5, and there are indeed 5 more. This is because in some years, the total city of net worth is surpassed by others. And the sorting criterion is specified as total net worth. Besides, the 2023 decline is due to incomplete data.
 
 Summary: The chart shows rising billionaire net worth in five cities from 2010 to 2023, with New York's significant growth standing out. Dallas and Medina also grew notably post-2015, while Austin and Bentonville had modest increases. A slight dip in 2020 suggests the impact of the COVID-19 pandemic. There's a data gap for Bentonville in 2020 and a title discrepancy with ten cities listed instead of five, indicating wealth concentration and potential urban-rural disparities.
 
