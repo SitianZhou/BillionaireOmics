@@ -416,14 +416,12 @@ regression model.</p>
 </div>
 <div id="data-explanation-and-factors-selection" class="section level3">
 <h3>Data explanation and factors selection</h3>
-<p>The data on billionaires in 2023 contains 13 columns:
-<code>name</code> of the billionaires, amount of <code>net worth</code>,
-<code>age</code>, <code>gender</code>, <code>nationality</code>,
-<code>country</code> and <code>city</code> of current residence,
-<code>industry</code>, whether or not they started from nothing, CPI and
-GDP of the country, average age of the population of the country,
-etc.</p>
-<p>Here, <code>net_worth</code> is regarded as the response variable,
+<p>The 2023 dataset on billionaires comprises billionaire demographics:
+their name, age, gender, nationality, details of their residence, their
+industry, and country-specific information: the country’s CPI and GDP,
+the life expectancy of the country’s population, and other related
+details such as a marker for self-made status, etc. Here,
+<code>net_worth</code> is regarded as the response variable,
 <code>age</code>, <code>gender</code>, <code>gdp_country</code>,
 <code>life_expectancy_country</code>and <code>self_made</code> are
 predictors. The reason for choosing these five variables as predictors
@@ -746,9 +744,9 @@ levels of fitted values. The spread of residuals in this plot does not
 appear to be uniform, suggesting the presence of heteroscedasticity,
 which violates this assumption.</p></li>
 </ul>
-<p>The analysis of residuals density plot, Q-Q plot and residuals
-vs. fitted values suggests that the linear regression model built before
-may not a good and correct fit for the data.</p>
+<p>The analysis of the residual density plot, Q-Q plot, and residuals
+vs. fitted values suggests that the linear regression model previously
+built may not be a good fit for the data.</p>
 </div>
 <div id="summary" class="section level3">
 <h3>Summary</h3>

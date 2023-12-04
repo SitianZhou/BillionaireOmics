@@ -56,9 +56,8 @@ The topic of billionaires often sparks curiosity about the factors contributing 
 
 ### Data explanation and factors selection
 
-The data on billionaires in 2023 contains 13 columns: `name` of the billionaires, amount of `net worth`, `age`, `gender`, `nationality`, `country` and `city` of current residence, `industry`, whether or not they started from nothing, CPI and GDP of the country, average age of the population of the country, etc. 
-
-Here, `net_worth` is regarded as the response variable, `age`, `gender`, `gdp_country`, `life_expectancy_country`and `self_made` are predictors. The reason for choosing these five variables as predictors is that in the available data, these five variables are themselves numerical data or categorical data that can be transformed into indicator variables. Some of the numerical data, such as the country's CPI and GDP, have a correlation between them and their simultaneous use would lead to the problem of multicollinearity, so only one of them is chosen. Some of the categorical data, such as the country where the millionaire is located and the industry from which the millionaire comes from, have too many categories by themselves, and even if we can transform them into indicator variables for the regression, this would make our model too complicated, which is not conducive to the presentation and interpretation of the results. presentation and interpretation of the results. Meanwhile, for those factors not included in the existing model, we have explored them more in other parts of this website.
+The 2023 dataset on billionaires comprises billionaire demographics: their name, age, gender, nationality, details of their residence, their industry, and country-specific information: the country's CPI and GDP, the life expectancy of the country's population, and other related details such as a marker for self-made status, etc. Here, `net_worth` is regarded as the response variable, `age`, `gender`, `gdp_country`,
+`life_expectancy_country`and `self_made` are predictors. The reason for choosing these five variables as predictors is that in the available data, these five variables are themselves numerical data or categorical data that can be transformed into indicator variables. Some of the numerical data, such as the country's CPI and GDP, have a correlation between them and their simultaneous use would lead to the problem of multicollinearity, so only one of them is chosen. Some of the categorical data, such as the country where the millionaire is located and the industry from which the millionaire comes from, have too many categories by themselves, and even if we can transform them into indicator variables for the regression, this would make our model too complicated, which is not conducive to the presentation and interpretation of the results. presentation and interpretation of the results. Meanwhile, for those factors not included in the existing model, we have explored them more in other parts of this website.
 
 ### Model establishment
 
@@ -151,7 +150,7 @@ The plot of residuals versus fitted values reflects several problems:
     
 * Homoscedasticity check: The homoscedasticity assumption of linear regression  means the residuals should have constant variance across all levels of fitted values. The spread of residuals in this plot does not appear to be uniform, suggesting the presence of heteroscedasticity, which violates this assumption.
 
-The analysis of residuals density plot, Q-Q plot and residuals vs. fitted values suggests that the linear regression model built before may not a good and correct fit for the data.
+The analysis of the residual density plot, Q-Q plot, and residuals vs. fitted values suggests that the linear regression model previously built may not be a good fit for the data.
     
 ### Summary
 
