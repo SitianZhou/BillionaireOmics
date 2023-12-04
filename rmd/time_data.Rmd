@@ -142,7 +142,7 @@ ggplotly(indus_gdp)
 
 ```
 
-The USA-specific chart also displays an increase in the number of billionaires, particularly in Technology and Finance & Investments, while those engaged in health care has increased significantly after 2020 due to the global epidemic.
+The USA-specific chart also displays an increase in the number of billionaires, particularly in Technology and Finance & Investments, while those engaged in health care increased significantly after 2020 due to the global epidemic.
 
 
 ```{r US industry gdp overtime}
