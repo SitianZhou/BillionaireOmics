@@ -38,6 +38,8 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
 <link rel="shortcut icon" href="./static/favicon.ico">
@@ -414,27 +416,31 @@ regression model.</p>
 </div>
 <div id="data-explanation-and-factors-selection" class="section level3">
 <h3>Data explanation and factors selection</h3>
-<p>The data on millionaires in 2023 contains 13 columns: name of the
-millionaire, amount of net worth, age, gender, nationality, country and
-city of current residence, industry, whether or not they started from
-nothing, cpi and gdp of the country, average age of the population of
-the country,etc. <br></p>
-<p>Here, we will take net_worth as the response variable, age, gender,
-self_made, gdp_country and life_expectancy_country as predictors. The
-reason for choosing these five variables as predictors is that in the
-available data, these five variables are themselves numerical data or
-categorical data that can be transformed into indicator variables. Some
-of the numerical data, such as the country’s CPI and GDP, have a
-correlation between them and their simultaneous use would lead to the
-problem of multicollinearity, so only one of them is chosen. Some of the
-categorical data, such as the country where the millionaire is located
-and the industry from which the millionaire comes from, have too many
-categories by themselves, and even if we can transform them into
-indicator variables for the regression, this would make our model too
-complicated, which is not conducive to the presentation and
-interpretation of the results. presentation and interpretation of the
-results. Meanwhile, for those factors not included in the existing
-model, we have explored them more in other parts of this website.</p>
+<p>The data on billionaires in 2023 contains 13 columns:
+<code>name</code> of the billionaires, amount of <code>net worth</code>,
+<code>age</code>, <code>gender</code>, <code>nationality</code>,
+<code>country</code> and <code>city</code> of current residence,
+<code>industry</code>, whether or not they started from nothing, CPI and
+GDP of the country, average age of the population of the country,
+etc.</p>
+<p>Here, <code>net_worth</code> is regarded as the response variable,
+<code>age</code>, <code>gender</code>, <code>gdp_country</code>,
+<code>life_expectancy_country</code>and <code>self_made</code> are
+predictors. The reason for choosing these five variables as predictors
+is that in the available data, these five variables are themselves
+numerical data or categorical data that can be transformed into
+indicator variables. Some of the numerical data, such as the country’s
+CPI and GDP, have a correlation between them and their simultaneous use
+would lead to the problem of multicollinearity, so only one of them is
+chosen. Some of the categorical data, such as the country where the
+millionaire is located and the industry from which the millionaire comes
+from, have too many categories by themselves, and even if we can
+transform them into indicator variables for the regression, this would
+make our model too complicated, which is not conducive to the
+presentation and interpretation of the results. presentation and
+interpretation of the results. Meanwhile, for those factors not included
+in the existing model, we have explored them more in other parts of this
+website.</p>
 </div>
 <div id="model-establishment" class="section level3">
 <h3>Model establishment</h3>
@@ -445,21 +451,23 @@ the formula for the multiple linear regression model will be:</p>
 \text{gdp_country} + \beta_4 \times \text{life_expectancy_country}
 +\beta_5 \times \text{self_made} + \varepsilon\]</span></p>
 <ul>
-<li>net_worth: Net worth of the individual in billions.</li>
-<li>age: Age of the billionaire.</li>
-<li>gender: Gender of the billionaire.</li>
-<li>gdp_country: Gross Domestic Product in trillions of the country they
-reside in.</li>
-<li>life_expectancy_country: Life expectancy in the country they reside
-in.</li>
-<li>self_made: Whether or not they started from nothing.</li>
+<li><code>net_worth</code>: Net worth of the individual in
+billions.</li>
+<li><code>age</code>: Age of the billionaire.</li>
+<li><code>gender</code>: Gender of the billionaire.</li>
+<li><code>gdp_country</code>: Gross Domestic Product in trillions of the
+country they reside in.</li>
+<li><code>life_expectancy_country</code>: Life expectancy in the country
+they reside in.</li>
+<li><code>self_made</code>: Whether or not they started from
+nothing.</li>
 </ul>
 </div>
 <div id="model-results" class="section level3">
 <h3>Model results</h3>
 <p>According to the multiple linear regression outcome, among the five
-predictors used, only age and gdp_country are significant at the 0.05
-significance level.</p>
+predictors used, only <code>age</code> and <code>gdp_country</code> are
+significant at the 0.05 significance level.</p>
 <ul>
 <li><p>The coefficient for age is 0.0485, which suggests that with each
 additional year of age, a billionaire’s net worth increases by
@@ -472,31 +480,136 @@ in net worth by 0.0565 billion, giving other factors fixed.</p></li>
 billionaires23 = read_csv(&quot;../data/billionaire_2023.csv&quot;)
 # do the regression
 lrmodel = lm(net_worth ~ age + gender + gdp_country + life_expectancy_country + self_made, data = billionaires23)
-summary(lrmodel)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = net_worth ~ age + gender + gdp_country + life_expectancy_country + 
-##     self_made, data = billionaires23)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-##  -5.837  -3.143  -2.157  -0.386 205.327 
-## 
-## Coefficients:
-##                         Estimate Std. Error t value Pr(&gt;|t|)   
-## (Intercept)             -3.54151    4.55537  -0.777  0.43698   
-## age                      0.04851    0.01591   3.048  0.00233 **
-## genderMale               0.25949    0.68701   0.378  0.70568   
-## gdp_country              0.05653    0.02248   2.514  0.01200 * 
-## life_expectancy_country  0.06317    0.05564   1.135  0.25640   
-## self_madeTRUE           -0.97021    0.49898  -1.944  0.05196 . 
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 10.18 on 2403 degrees of freedom
-##   (231 observations deleted due to missingness)
-## Multiple R-squared:  0.007776,   Adjusted R-squared:  0.005711 
-## F-statistic: 3.766 on 5 and 2403 DF,  p-value: 0.002121</code></pre>
+
+lrmodel |&gt; 
+  broom::tidy() |&gt; 
+  knitr::kable(digits = 4) |&gt;
+  kableExtra::kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+statistic
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+-3.5415
+</td>
+<td style="text-align:right;">
+4.5554
+</td>
+<td style="text-align:right;">
+-0.7774
+</td>
+<td style="text-align:right;">
+0.4370
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+age
+</td>
+<td style="text-align:right;">
+0.0485
+</td>
+<td style="text-align:right;">
+0.0159
+</td>
+<td style="text-align:right;">
+3.0484
+</td>
+<td style="text-align:right;">
+0.0023
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genderMale
+</td>
+<td style="text-align:right;">
+0.2595
+</td>
+<td style="text-align:right;">
+0.6870
+</td>
+<td style="text-align:right;">
+0.3777
+</td>
+<td style="text-align:right;">
+0.7057
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gdp_country
+</td>
+<td style="text-align:right;">
+0.0565
+</td>
+<td style="text-align:right;">
+0.0225
+</td>
+<td style="text-align:right;">
+2.5141
+</td>
+<td style="text-align:right;">
+0.0120
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+life_expectancy_country
+</td>
+<td style="text-align:right;">
+0.0632
+</td>
+<td style="text-align:right;">
+0.0556
+</td>
+<td style="text-align:right;">
+1.1352
+</td>
+<td style="text-align:right;">
+0.2564
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+self_madeTRUE
+</td>
+<td style="text-align:right;">
+-0.9702
+</td>
+<td style="text-align:right;">
+0.4990
+</td>
+<td style="text-align:right;">
+-1.9444
+</td>
+<td style="text-align:right;">
+0.0520
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="discussion-and-limitation" class="section level3">
 <h3>Discussion and limitation</h3>
@@ -511,40 +624,69 @@ captured in this model.</p></li>
 we checked for multicollinearity among the indicators by calculating
 their VIF (Variance Inflation Factor) values. All the indicators have
 VIF values near 1, indicating no significant correlation between any
-given indicator and the others and there is no multicollinearity issue
-in the model. In detail,“age”, “gender”, “gdp_country”,
-“life_expectancy_country”,“self_made” have VIF values 1.011, 1.141,
-1.076, 1.010, 1.208 respectively.</p></li>
+given indicator and the others. There is no multicollinearity issue in
+the model. In detail,<code>age</code>, <code>gender</code>,
+<code>gdp_country</code>, <code>life_expectancy_country</code>and
+<code>self_made</code>have VIF values 1.011, 1.141, 1.076, 1.010, 1.208
+respectively.</p></li>
 </ul>
 <pre class="r"><code>vif_table &lt;- vif(lrmodel)
-vif_table &lt;- data.frame(VIF = vif_table)</code></pre>
-<table>
+vif_showing = data.frame(
+  term = c(&quot;age&quot;, &quot;gender&quot;, &quot;gdp_country&quot;, &quot;life_expectancy_country&quot;, &quot;self_made&quot;),
+  VIF_value = c(1.011, 1.141, 1.076, 1.010, 1.208) )
+vif_showing |&gt; knitr::kable() |&gt;
+  kableExtra::kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th>Predicotrs</th>
-<th>Vif value</th>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:right;">
+VIF_value
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td>age</td>
-<td>1.011</td>
+<tr>
+<td style="text-align:left;">
+age
+</td>
+<td style="text-align:right;">
+1.011
+</td>
 </tr>
-<tr class="even">
-<td>gender</td>
-<td>1.141</td>
+<tr>
+<td style="text-align:left;">
+gender
+</td>
+<td style="text-align:right;">
+1.141
+</td>
 </tr>
-<tr class="odd">
-<td>gdp_country</td>
-<td>1.076</td>
+<tr>
+<td style="text-align:left;">
+gdp_country
+</td>
+<td style="text-align:right;">
+1.076
+</td>
 </tr>
-<tr class="even">
-<td>life_expectancy_country</td>
-<td>1.010</td>
+<tr>
+<td style="text-align:left;">
+life_expectancy_country
+</td>
+<td style="text-align:right;">
+1.010
+</td>
 </tr>
-<tr class="odd">
-<td>self_made</td>
-<td>1.208</td>
+<tr>
+<td style="text-align:left;">
+self_made
+</td>
+<td style="text-align:right;">
+1.208
+</td>
 </tr>
 </tbody>
 </table>
@@ -562,7 +704,7 @@ residuals &lt;- resid(lrmodel)
 
 # Q-Q Plot
 ggplot(data.frame(Residuals = residuals), aes(sample = Residuals)) +
-  stat_qq_line(colour = &quot;red&quot;) +
+  stat_qq_line(colour = &quot;blue&quot;) +
   stat_qq_point() +
   labs(title = &quot;Q-Q plot of residuals&quot;, x = &quot;Theoretical quantiles&quot;, y = &quot;Sample quantiles&quot;)</code></pre>
 <p><img src="reg_files/figure-html/unnamed-chunk-1-1.png" width="90%" /></p>
@@ -600,7 +742,7 @@ which violates this assumption.</p></li>
 <pre class="r"><code># Residual Plot
 ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitted, y = Residuals)) +
   geom_point() +
-  geom_hline(yintercept = 0, color = &quot;red&quot;) +
+  geom_hline(yintercept = 0, color = &quot;blue&quot;) +
   labs(x = &quot;Fitted values&quot;, y = &quot;Residuals&quot;, title = &quot;Residual vs. fitted values&quot;)</code></pre>
 <p><img src="reg_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
 </div>
@@ -608,8 +750,10 @@ ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitt
 <h3>Summary</h3>
 <ul>
 <li><p>In this regression session of our entire work, we attempt to use
-the multiple linear regression to fit the data, the model has the form
-lm(net_worth ~ age + gender + gdp_country + life_expectancy_country).
+the multiple linear regression to fit the data. The response variable is
+<code>net_worth</code>, and the predictors include <code>age</code>,
+<code>gender</code>, <code>gdp_country</code>,
+<code>life_expectancy_country</code>and <code>self_made</code>.
 According to the model results, while age and the GDP of a billionaire’s
 country appear to have a significant association with their net worth,
 the overall model explains very little of the variation in net
