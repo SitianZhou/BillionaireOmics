@@ -226,7 +226,7 @@ ggplotly(bil_all)
 
 ```
 
-**The line graph portrays the trajectory of a billionaire's net worth from 2010 to 2023, with a general upward trend punctuated by notable declines in 2016 and 2020, likely due to market downturns and the economic impact of the COVID-19 pandemic, respectively. Following the 2020 dip, there was a dramatic rebound, culminating in a peak in 2021.**
+**The line graph shows the changes in a billionaire's net worth from 2010 to 2023, generally increasing but with significant drops in 2016 and 2020. These drops were probably caused by market problems and the financial effects of the COVID-19 pandemic. After the decrease in 2020, there was a sharp increase, reaching the highest point in 2021.**
 
 
 ### Region Wealth Comparison
@@ -266,7 +266,7 @@ tnw_citizen =
 ggplotly(tnw_citizen)
 ```
 
-**The graph comparing the net worth of billionaires from 2010 to 2023 in the top five regions shows the USA leading with a significant surge post-2015. China's trend suggests rapid wealth creation with some instability. Germany displays steady progress. India's consistent rise aligns with its economic development, while Hong Kong's initial growth is followed by a decline post-2019. This distribution of billionaire wealth highlights the varying economic dynamics and the impact of regional and global factors on wealth accumulation.**
+**The chart comparing billionaires' net worth from 2010 to 2023 in five key regions shows the USA's significant growth, particularly after 2015. China demonstrates rapid, albeit fluctuating, wealth accumulation. Germany exhibits consistent growth, while India's rise mirrors its economic development. Hong Kong, however, saw growth followed by a decline after 2019. This data reflects diverse economic trends and the influence of regional and global factors on wealth.**
 
 ### Gender Wealth Gap
 ```{r barplot-gender-scaled overtime}
