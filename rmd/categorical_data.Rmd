@@ -95,11 +95,11 @@ bil_2023 |>
 
 #### Distribution of Wealth
 
-**-right-skewed wealth data**
+* **right-skewed wealth data**
 
-**-age increases in each wealth group**
+* **age increases in each wealth group**
 
-**-more males than females in each wealth group**
+* **more males than females in each wealth group**
 
 First depict the overall wealth distribution of the billionaires.
 
@@ -130,7 +130,16 @@ It can be seen from the plots that the wealth distribution in 2023 is right-skew
 Further transformation may be required for detailed tests and regression model fitting. Try a relatively simple transformation to better visualize the distribution shown above.
 
 ```{r transformation}
-MASS::boxcox(lm(net_worth ~ 1, data = bil_2023))
+boxcox_result = 
+  MASS::boxcox(lm(net_worth ~ 1, data = bil_2023), plotit = FALSE) |>
+  as.data.frame()
+boxcox_plot = 
+  ggplot(boxcox_result, aes(x = x, y = y)) +
+  geom_line() +
+  labs(title = "Box-Cox Plot for Lambda Selection",
+       x = "log(Lambda)",
+       y = "Box-Cox Transformation of Response Variable")
+ggplotly(boxcox_plot)
 
 wealth_distribution_3 =
   bil_2023 |>
@@ -190,14 +199,16 @@ billionairs_wealth |>
           type = "bar", colors = "viridis") |>
   layout(title = "Number of billionaires in different wealth groups",
          xaxis = list(title = "Net wealth(billion dollars)"),
-         yaxis = list(title = "Number of billionaires"))
+         yaxis = list(title = "Number of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## age
 billionairs_wealth |>
   plot_ly(y = ~age, color = ~net_worth, type = "box", colors = "viridis") |>
   layout(title = "Age distribution of different wealth groups",
          xaxis = list(title = "Net wealth(billion dollars)"),
-         yaxis = list(title = "Age of billionaires"))
+         yaxis = list(title = "Age of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## gender
 wealth_gender_distribution =
@@ -217,9 +228,9 @@ The number of people decreaeses while the average age increases in each group as
 
 #### Distribution of Approach
 
-**-more self-made billionaires**
+* **more self-made billionaires**
 
-**-no significant difference in wealth**
+* **no significant difference in wealth**
 
 Use the approach(self-made or not) as the factor to view the distribution.
 
@@ -241,7 +252,8 @@ bil_2023 |>
           type = "bar", colors = "viridis") |>
   layout(title = "Number of billionaires: self-made or not",
          xaxis = list(title = "Approach: self-made or not"),
-         yaxis = list(title = "Number of billionaires"))
+         yaxis = list(title = "Number of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## net worth
 bil_2023 |>
@@ -249,16 +261,17 @@ bil_2023 |>
           type = "box", colors = "viridis") |>
   layout(title = "Net wealth of self-made or not billionaires",
          xaxis = list(title = "Approach: self-made or not"),
-         yaxis = list(title = "Net wealth(billion dollars)"))
+         yaxis = list(title = "Net wealth(billion dollars)"),
+         font = list(family = "Helvetica"))
 ```
 
 The proportion of self-made billionaires is way larger, yet there is no significant difference in the wealth distribution plot of the two groups.
 
 #### Distribution of Status
 
-**-most decreased**
+* **most decreased**
 
-**-larger wealth in increased group**
+* **larger wealth in increased group**
 
 Similarly, explore the underlying distribution of entrepreneur and inherited billionaires.
 
@@ -280,7 +293,8 @@ bil_2023 |>
           type = "bar", colors = "viridis") |>
   layout(title = "Number of billionaires with different wealth status",
          xaxis = list(title = "Wealth status"),
-         yaxis = list(title = "Number of billionaires"))
+         yaxis = list(title = "Number of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## net worth
 bil_2023 |>
@@ -288,7 +302,8 @@ bil_2023 |>
           type = "box", colors = "viridis") |>
   layout(title = "Net wealth of billionaires with different wealth status",
          xaxis = list(title = "Wealth status"),
-         yaxis = list(title = "Net wealth(billion dollars)"))
+         yaxis = list(title = "Net wealth(billion dollars)"),
+         font = list(family = "Helvetica"))
 ```
 
 The outliers in decreased and increased groups may indicate that billionaires with large amount of wealth tend to fluctuate in respect of net wealth.
@@ -297,9 +312,9 @@ The outliers in decreased and increased groups may indicate that billionaires wi
 
 #### Distribution of Age
 
-**-relatively symmetric age data**
+* **relatively symmetric age data**
 
-**-wealth increases in each age group**
+* **wealth increases in each age group**
 
 Similar to the processing of wealth information, divide the population into four age groups to investigate the number and wealth distribution in details.
 
@@ -356,14 +371,16 @@ billionairs_age |>
           type = "bar", colors = "viridis") |>
   layout(title = "Number of billionaires in different age groups",
          xaxis = list(title = "Age"),
-         yaxis = list(title = "Number of billionaires"))
+         yaxis = list(title = "Number of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## net worth
 billionairs_age |>
   plot_ly(y = ~net_worth, color = ~age, type = "box", colors = "viridis") |>
   layout(title = "Net wealth of different age groups",
          xaxis = list(title = "Age"),
-         yaxis = list(title = "Net wealth(billion dollars)"))
+         yaxis = list(title = "Net wealth(billion dollars)"),
+         font = list(family = "Helvetica"))
 
 age_distribution_3 =  
   billionairs_age |>
@@ -380,9 +397,9 @@ The overall age distribution is much more symmetric, resulting in a relatively e
 
 #### Distribution of Gender
 
-**-more male billionaires than female**
+* **more male billionaires than female**
 
-**-similar wealth in gender groups**
+* **similar wealth in gender groups**
 
 Compare the proportion and average wealth possession of billionaires with different genders.
 
@@ -404,14 +421,16 @@ bil_2023 |>
           type = "bar", colors = "viridis") |>
   layout(title = "Number of billionaires of different genders",
          xaxis = list(title = "Gender"),
-         yaxis = list(title = "Number of billionaires"))
+         yaxis = list(title = "Number of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## net worth
 bil_2023 |>
   plot_ly(y = ~net_worth, color = ~gender, type = "box", colors = "viridis") |>
   layout(title = "Net wealth of different gender groups",
          xaxis = list(title = "Gender"),
-         yaxis = list(title = "Net wealth(billion dollars)"))
+         yaxis = list(title = "Net wealth(billion dollars)"),
+         font = list(family = "Helvetica"))
 
 gender_distribution =   
   bil_2023 |>
@@ -445,9 +464,9 @@ The panels separated by gender exhibit similar distribution patterns to the comb
 
 #### Distribution of Country
 
-**-overlaps in counrty of citizenship and residence**
+* **overlaps in counrty of citizenship and residence**
 
-**-potential difference in wealth in billionaires of each country**
+* **potential difference in wealth in billionaires of each country**
 
 The countries of citizenship and residence are quite scattered in distribution. Filter the top 10 countries with most billionaires to see the net wealth distribution in each country.
 
@@ -471,7 +490,8 @@ bil_2023 |>
           type = "bar", colors = "viridis") |>
   layout(title = "Number of billionaires with different citizenship",
          xaxis = list(title = "Country of citizenship"),
-         yaxis = list(title = "Number of billionaires"))
+         yaxis = list(title = "Number of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## net worth of top 10
 citizenship = 
@@ -488,7 +508,8 @@ bil_2023 |>
           color = ~country_of_citizenship, type = "box", colors = "viridis") |>
   layout(title = "Net wealth of billionaires with different citizenship",
          xaxis = list(title = "Country of citizenship(top 10)"),
-         yaxis = list(title = "Net wealth(billion dollars)"))
+         yaxis = list(title = "Net wealth(billion dollars)"),
+         font = list(family = "Helvetica"))
 ```
 
 ```{r residence}
@@ -511,7 +532,8 @@ bil_2023 |>
           type = "bar", colors = "viridis") |>
   layout(title = "Number of billionaires with different residence",
          xaxis = list(title = "Country of residence"),
-         yaxis = list(title = "Number of billionaires"))
+         yaxis = list(title = "Number of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## net worth in top 10
 residence = 
@@ -528,16 +550,17 @@ bil_2023 |>
           color = ~country_of_residence, type = "box", colors = "viridis") |>
   layout(title = "Net wealth of billionaires with different residence",
          xaxis = list(title = "Country of residence(top 10)"),
-         yaxis = list(title = "Net wealth(billion dollars)"))
+         yaxis = list(title = "Net wealth(billion dollars)"),
+         font = list(family = "Helvetica"))
 ```
 
 There are actually many overlaps in the country with most citizenship and residence, which leads to the similarity in the two box plots.
 
 ### Industry Distribution
 
-**-different number of billionaires in each industry**
+* **different number of billionaires in each industry**
 
-**-potential difference in wealth distribution**
+* **potential difference in wealth distribution**
 
 To better understand the relationship between the development of industries and the arise of billionaires, describe and visualize the distribution of billionaires in different industry fields.
 
@@ -559,7 +582,8 @@ bil_2023 |>
           type = "bar", colors = "viridis") |>
   layout(title = "Number of billionaires in different industries",
          xaxis = list(title = "Industry field"),
-         yaxis = list(title = "Number of billionaires"))
+         yaxis = list(title = "Number of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## net worth
 bil_2023 |>
@@ -567,7 +591,8 @@ bil_2023 |>
           type = "box", colors = "viridis") |>
   layout(title = "Net wealth of billionaires in different industries",
          xaxis = list(title = "Industry field"),
-         yaxis = list(title = "Net wealth(billion dollars)"))
+         yaxis = list(title = "Net wealth(billion dollars)"),
+         font = list(family = "Helvetica"))
 
 bil_2023 |>
   mutate(industries = fct_reorder(industries, net_worth)) |>
@@ -582,9 +607,9 @@ The wealth distributions in different industries look close to each other due to
 
 ## Compare data collected in 2013 and 2023
 
-**-increased number and wealth over time**
+* **increased number and wealth over time**
 
-**-more male billionaires than female**
+* **more male billionaires than female**
 
 We can compare some basic distribution between different years as well. Filter the data collected in year 2013 and 2023 to show the change over a decade.
 
@@ -630,7 +655,8 @@ bil_2013_2023 |>
           type = "box", colors = "viridis") |>
   layout(title = "Overall wealth distribution: 2013 versus 2023",
          xaxis = list(title = "Year of data collection"),
-         yaxis = list(title = "Net wealth(billion dollars)"))
+         yaxis = list(title = "Net wealth(billion dollars)"),
+         font = list(family = "Helvetica"))
 
 year_gender_distribution_2 =
   bil_2013_2023 |>
@@ -648,7 +674,7 @@ The total number of billionaires have increased over time, with a larger amount 
 
 ## Switch to GDP data
 
-**-combined with GDP distribution**
+* **combined with GDP distribution**
 
 The GDP of different industries may be more relevant to the arise and distribution of billionaires rather than the field type itself. The combination of these data is depicted as below, which only focuses on industry GDP in the US due to the restriction of available data.
 
@@ -668,7 +694,8 @@ bil_gdp |>
           type = "bar", colors = "viridis") |>
   layout(title = "Number of billionaires in different industries in USA, 2023",
          xaxis = list(title = "Industry field"),
-         yaxis = list(title = "Number of billionaires"))
+         yaxis = list(title = "Number of billionaires"),
+         font = list(family = "Helvetica"))
 
 ## net worth
 bil_gdp |>
@@ -682,7 +709,8 @@ bil_gdp |>
           type = "scatter", colors = "viridis") |>
   layout(title = "Net wealth versus industry GDP in USA, 2023",
          xaxis = list(title = "Industry GDP(trillion dollars)"),
-         yaxis = list(title = "Net wealth of billionaires(billion dollars)"))
+         yaxis = list(title = "Net wealth of billionaires(billion dollars)"),
+         font = list(family = "Helvetica"))
 ```
 
 It can be seen from the plot that the number and net wealth of billionaires are quite different in different industries, with largest number and wealth falling in Finance & Investments and Technology, respectively.
