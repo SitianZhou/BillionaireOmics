@@ -1,8 +1,6 @@
 ---
 title: "Proposal"
 date: "`r format(Sys.time(), '%Y-%m-%d')`"
-output:
-  html_document: default
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
