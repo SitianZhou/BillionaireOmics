@@ -1,18 +1,39 @@
 ---
 title: "Regression"
 author: "Yuzhe Hu"
-date: "r Sys.Date()"
-output: html_document
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: "hide"
 ---
-The linear regression analysis here is based on data from year 2023.
-```{r library, message=FALSE}
+
+
+
+```{r setup,include=FALSE,message=FALSE}
 #Import libraries
 library(readr)
 library(tidyverse)
 library(ggplot2)
-library(reshape2)
 library(car)
 library(carData)
+library(kableExtra)
+library(MASS)
+library(plotly)
+library(dplyr)
+library(qqplotr)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 6, 
+  fig.height = 4,
+	dpi = 800,
+  out.width = "90%"
+)
+
+
 options(
   ggplot2.continuous.colour = "viridis",
   ggplot2.continuous.fill = "viridis"
@@ -21,39 +42,121 @@ options(
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 
-theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+knitr::opts_chunk$set(message = F, warning = F)
+
+theme_set(
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(family = "Helvetica")
+  )
+)
+
 ```
 
-```{r data-import}
-# Read the data
-billionaires23 <- read_csv("./data/billionaire_2023.csv")
-```
+### Introduction
 
-Take `net_worth` as the response variable, `age, gender, gdp_country and life_expectancy_country` as predictors.
-```$$\text{net_worth} = \beta_0 + \beta_1 \times \text{age}+ \beta_2 \times \text{gender} + \beta_3 \times \text{gdp_country} + \beta_4 \times \text{life_expectancy_country} + \varepsilon$$
+The topic of billionaires often sparks curiosity about the factors contributing to their wealth. To explore this, we adapt data from a specific year 2023 and attempt to fit the data through a multiple linear regression model.
+
+### Data explanation and factors selection
+
+The data on millionaires in 2023 contains 13 columns: name of the millionaire, amount of net worth, age, gender, nationality, country and city of current residence, industry, whether or not they started from nothing, cpi and gdp of the country, average age of the population of the country,etc. <br>
+
+Here, we will take net_worth as the response variable, age, gender, self_made, gdp_country and  life_expectancy_country as predictors. The reason for choosing these five variables as predictors is that in the available data, these five variables are themselves numerical data or categorical data that can be transformed into indicator variables. Some of the numerical data, such as the country's CPI and GDP, have a correlation between them and their simultaneous use would lead to the problem of multicollinearity, so only one of them is chosen. Some of the categorical data, such as the country where the millionaire is located and the industry from which the millionaire comes from, have too many categories by themselves, and even if we can transform them into indicator variables for the regression, this would make our model too complicated, which is not conducive to the presentation and interpretation of the results. presentation and interpretation of the results. Meanwhile, for those factors not included in the existing model, we have explored them more in other parts of this website.
+
+### Model establishment
+
+Based on the analysis in the data explanation and factors selection, the formula for the multiple linear regression model will be:
+
+$$\text{net_worth} = \beta_0 + \beta_1 \times \text{age}+ \beta_2 \times \text{gender} + \beta_3 \times \text{gdp_country} + \beta_4 \times \text{life_expectancy_country} +\beta_5 \times \text{self_made} + \varepsilon$$
 
 * net_worth: Net worth of the individual in billions.
 * age: Age of the billionaire.
 * gender: Gender of the billionaire.
-* gdp_country: Gross Domestic Product of the country they reside in.
+* gdp_country: Gross Domestic Product in trillions of the country they reside in.
 * life_expectancy_country: Life expectancy in the country they reside in.
+* self_made: Whether or not they started from nothing.
 
-```{r lrmodel}
-lrmodel <- lm(log(net_worth) ~ age + gender + gdp_country+life_expectancy_country, data = billionaires23)
+### Model results
+
+According to the multiple linear regression outcome, among the five predictors used, only age and gdp_country are significant at the 0.05 significance level.
+
+* The coefficient for age is 0.0485, which suggests that with each additional year of age, a billionaire's net worth increases by approximately 0.0485 billion, holding other factors constant.
+
+* The coefficient for country's gdp is 0.0565 which indicates that a unit increase in the GDP of the country is associated with an increase in net worth by 0.0565 billion, giving other factors fixed.
+
+
+```{r model, message=FALSE}
+# read the data
+billionaires23 = read_csv("../data/billionaire_2023.csv")
+# do the regression
+lrmodel = lm(net_worth ~ age + gender + gdp_country + life_expectancy_country + self_made, data = billionaires23)
 summary(lrmodel)
 ```
 
-```{r}
-lrmodel |> 
-  broom::tidy() |> 
-  knitr::kable(digits = 3)
-```
+### Discussion and limitation
 
-Check multicollinearity
+* The adjusted R-squared value is 0.0057, indicating that only 0.6% of the variance in the net worth of billionaires can be explained by the variables in the model. This suggests that the factors we selected, have limited predictive power for a billionaire's net worth, there might be other factors that influence a billionaire's net worth that are not captured in this model.
+
+* Multicollinearity check: Due to the low adjusted R-squared value, we checked for multicollinearity among the indicators by calculating their VIF (Variance Inflation Factor) values. All the indicators have VIF values near 1, indicating no significant correlation between any given indicator and the others and there is no multicollinearity issue in the model. In detail,"age", "gender", "gdp_country", "life_expectancy_country","self_made" have VIF values 1.011, 1.141, 1.076, 1.010, 1.208 respectively.
+
 ```{r vif}
-vif(lrmodel) |> 
-  knitr::kable() 
+vif_table <- vif(lrmodel)
+vif_table <- data.frame(VIF = vif_table)
 ```
 
 
+Predicotrs              | Vif value
+----------------------- | ----------------------
+          age           | 1.011
+gender                  | 1.141
+gdp_country             | 1.076
+life_expectancy_country | 1.010
+self_made               | 1.208
+
+
+* For multiple linear regression models, one assumption is that the error term follows a normal distribution with zero mean and equal variance. According to the following Q-Q plot and density plot of the residuals, the residuals have a shape that is somewhat normal but are heavily right-skewed. This is a violation of one of the assumptions of linear regression, suggesting that the linear model may not be the best fit for this data.
+
+```{r}
+# Calculate residuals
+residuals <- resid(lrmodel)
+
+# Q-Q Plot
+ggplot(data.frame(Residuals = residuals), aes(sample = Residuals)) +
+  stat_qq_line(colour = "red") +
+  stat_qq_point() +
+  labs(title = "Q-Q plot of residuals", x = "Theoretical quantiles", y = "Sample quantiles")
+```
+
+
+```{r}
+# Density Plot of Residuals
+ggplot(data.frame(Residuals = residuals), aes(x = Residuals)) +
+  geom_density(fill = "blue", alpha = 0.5) +
+  labs(x = "Residuals", y = "Density", title = "Density plot of residuals")
+```
+
+*   In the following part, we give the plot of residuals versus fitted values and find some problems when using the multiple linear regression model to fit the data.
+
+    * Ideally, the residuals should be randomly dispersed around the horizontal line (y = 0). In this plot, while there seems to be some level of randomness, there is a noticeable pattern where the residuals are not evenly distributed across the range of fitted values. This suggests that the model may not be capturing all the relevant patterns in the data.
+
+    * Residuals clustering: The clustering of residuals around certain ranges of fitted values indicates potential issues with the model. It might be missing some key predictive information or nonlinear relationships.
+    
+    * Outliers: There seem to be several points that stand out from the general scatter of the residuals. These outliers can have a significant impact on the regression model, potentially skewing the results.
+    
+    * Homoscedasticity check: The homoscedasticity assumption of linear regression  means the residuals should have constant variance across all levels of fitted values. The spread of residuals in this plot does not appear to be uniform, suggesting the presence of heteroscedasticity, which violates this assumption.
+    
+```{r}
+# Residual Plot
+ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitted, y = Residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = "red") +
+  labs(x = "Fitted values", y = "Residuals", title = "Residual vs. fitted values")
+```
+
+### Summary
+
+* In this regression session of our entire work, we attempt to use the multiple linear regression to fit the data, the model has the form lm(net_worth ~ age + gender + gdp_country + life_expectancy_country). According to the model results, while age and the GDP of a billionaire's country appear to have a significant association with their net worth, the overall model explains very little of the variation in net worth,i.e.,with a low adjusted R-squared value 0.0057, indicating that there are likely many other factors at play. At the same time, the analysis of residuals through residuals density plot, Q-Q plot and residuals vs. fitted values, the residuals do not have a zero mean and equal variance with several outliers, which violates the assumption of linear regression.
+
+* In summary, the multiple linear regression model, as configured in our analysis, is not a good way to fit the data and predict the net worth of billionaires. This inadequacy could be attributed to the simplicity of our linear model, suggesting that there are numerous avenues for refinement and enhancement. Additionally, it may be the case that the net worth does not have a linear relationship with the predictors used in our model. Exploring alternative modeling methods that better capture the underlying relationships in the data is a topic for future research.
 
