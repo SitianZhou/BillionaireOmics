@@ -614,12 +614,12 @@ self_madeTRUE
 <div id="discussion-and-limitation" class="section level3">
 <h3>Discussion and limitation</h3>
 <ul>
-<li><p>The adjusted R-squared value is 0.0057, indicating that only 0.6%
-of the variance in the net worth of billionaires can be explained by the
-variables in the model. This suggests that the factors we selected, have
-limited predictive power for a billionaire’s net worth, there might be
-other factors that influence a billionaire’s net worth that are not
-captured in this model.</p></li>
+<li><p>The effectiveness of the model’s fit: Adjusted R-squared value is
+0.0057, indicating that only 0.6% of the variance in the net worth of
+billionaires can be explained by the variables in the model. This
+suggests that the factors we selected, have limited predictive power for
+a billionaire’s net worth, there might be other factors that influence a
+billionaire’s net worth that are not captured in this model.</p></li>
 <li><p>Multicollinearity check: Due to the low adjusted R-squared value,
 we checked for multicollinearity among the indicators by calculating
 their VIF (Variance Inflation Factor) values. All the indicators have
@@ -627,8 +627,8 @@ VIF values near 1, indicating no significant correlation between any
 given indicator and the others. There is no multicollinearity issue in
 the model. In detail,<code>age</code>, <code>gender</code>,
 <code>gdp_country</code>, <code>life_expectancy_country</code>and
-<code>self_made</code>have VIF values 1.011, 1.141, 1.076, 1.010, 1.208
-respectively.</p></li>
+<code>self_made</code>have VIF values 1.011, 1.141, 1.076, 1.010 and
+1.208 respectively.</p></li>
 </ul>
 <pre class="r"><code>vif_table &lt;- vif(lrmodel)
 vif_showing = data.frame(
@@ -690,15 +690,11 @@ self_made
 </tr>
 </tbody>
 </table>
-<ul>
-<li>For multiple linear regression models, one assumption is that the
+<p>For multiple linear regression models, one assumption is that the
 error term follows a normal distribution with zero mean and equal
-variance. According to the following Q-Q plot and density plot of the
-residuals, the residuals have a shape that is somewhat normal but are
-heavily right-skewed. This is a violation of one of the assumptions of
-linear regression, suggesting that the linear model may not be the best
-fit for this data.</li>
-</ul>
+variance. In the following part, three different graphs related to the
+residuals are created in order to validate whether the model satisfies
+this assumption.</p>
 <pre class="r"><code># Calculate residuals
 residuals &lt;- resid(lrmodel)
 
@@ -708,15 +704,27 @@ ggplot(data.frame(Residuals = residuals), aes(sample = Residuals)) +
   stat_qq_point() +
   labs(title = &quot;Q-Q plot of residuals&quot;, x = &quot;Theoretical quantiles&quot;, y = &quot;Sample quantiles&quot;)</code></pre>
 <p><img src="reg_files/figure-html/unnamed-chunk-1-1.png" width="90%" /></p>
+<ul>
+<li>The Q-Q plot of the residuals shows that the residual quantiles do
+not coincide with the theoretical quantiles in the right tail.</li>
+</ul>
 <pre class="r"><code># Density Plot of Residuals
 ggplot(data.frame(Residuals = residuals), aes(x = Residuals)) +
   geom_density(fill = &quot;blue&quot;, alpha = 0.5) +
   labs(x = &quot;Residuals&quot;, y = &quot;Density&quot;, title = &quot;Density plot of residuals&quot;)</code></pre>
 <p><img src="reg_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
 <ul>
-<li><p>In the following part, we give the plot of residuals versus
-fitted values and find some problems when using the multiple linear
-regression model to fit the data.</p>
+<li>From the density plot of residuals, the residuals have a shape that
+is somewhat normal but heavily right-skewed.</li>
+</ul>
+<pre class="r"><code># Residual Plot
+ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitted, y = Residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = &quot;blue&quot;) +
+  labs(x = &quot;Fitted values&quot;, y = &quot;Residuals&quot;, title = &quot;Residual vs. fitted values&quot;)</code></pre>
+<p><img src="reg_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
+<p>The plot of residuals versus fitted values reflects several
+problems:</p>
 <ul>
 <li><p>Ideally, the residuals should be randomly dispersed around the
 horizontal line (y = 0). In this plot, while there seems to be some
@@ -737,14 +745,10 @@ regression means the residuals should have constant variance across all
 levels of fitted values. The spread of residuals in this plot does not
 appear to be uniform, suggesting the presence of heteroscedasticity,
 which violates this assumption.</p></li>
-</ul></li>
 </ul>
-<pre class="r"><code># Residual Plot
-ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitted, y = Residuals)) +
-  geom_point() +
-  geom_hline(yintercept = 0, color = &quot;blue&quot;) +
-  labs(x = &quot;Fitted values&quot;, y = &quot;Residuals&quot;, title = &quot;Residual vs. fitted values&quot;)</code></pre>
-<p><img src="reg_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
+<p>The analysis of residuals density plot, Q-Q plot and residuals
+vs. fitted values suggests that the linear regression model built before
+may not a good and correct fit for the data.</p>
 </div>
 <div id="summary" class="section level3">
 <h3>Summary</h3>

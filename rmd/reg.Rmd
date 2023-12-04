@@ -96,9 +96,9 @@ lrmodel |>
 
 ### Discussion and limitation
 
-* The adjusted R-squared value is 0.0057, indicating that only 0.6% of the variance in the net worth of billionaires can be explained by the variables in the model. This suggests that the factors we selected, have limited predictive power for a billionaire's net worth, there might be other factors that influence a billionaire's net worth that are not captured in this model.
+* The effectiveness of the model's fit: Adjusted R-squared value is 0.0057, indicating that only 0.6% of the variance in the net worth of billionaires can be explained by the variables in the model. This suggests that the factors we selected, have limited predictive power for a billionaire's net worth, there might be other factors that influence a billionaire's net worth that are not captured in this model.
 
-* Multicollinearity check: Due to the low adjusted R-squared value, we checked for multicollinearity among the indicators by calculating their VIF (Variance Inflation Factor) values. All the indicators have VIF values near 1, indicating no significant correlation between any given indicator and the others. There is no multicollinearity issue in the model. In detail,`age`, `gender`, `gdp_country`, `life_expectancy_country`and `self_made`have VIF values 1.011, 1.141, 1.076, 1.010, 1.208 respectively.
+* Multicollinearity check: Due to the low adjusted R-squared value, we checked for multicollinearity among the indicators by calculating their VIF (Variance Inflation Factor) values. All the indicators have VIF values near 1, indicating no significant correlation between any given indicator and the others. There is no multicollinearity issue in the model. In detail,`age`, `gender`, `gdp_country`, `life_expectancy_country`and `self_made`have VIF values 1.011, 1.141, 1.076, 1.010 and 1.208 respectively.
 
 ```{r vif}
 vif_table <- vif(lrmodel)
@@ -109,7 +109,7 @@ vif_showing |> knitr::kable() |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-* For multiple linear regression models, one assumption is that the error term follows a normal distribution with zero mean and equal variance. According to the following Q-Q plot and density plot of the residuals, the residuals have a shape that is somewhat normal but are heavily right-skewed. This is a violation of one of the assumptions of linear regression, suggesting that the linear model may not be the best fit for this data.
+For multiple linear regression models, one assumption is that the error term follows a normal distribution with zero mean and equal variance. In the following part, three different graphs related to the residuals are created in order to validate whether the model satisfies this assumption.
 
 ```{r}
 # Calculate residuals
@@ -122,6 +122,7 @@ ggplot(data.frame(Residuals = residuals), aes(sample = Residuals)) +
   labs(title = "Q-Q plot of residuals", x = "Theoretical quantiles", y = "Sample quantiles")
 ```
 
+* The Q-Q plot of the residuals shows that the residual quantiles do not coincide with the theoretical quantiles in the right tail.
 
 ```{r}
 # Density Plot of Residuals
@@ -130,16 +131,8 @@ ggplot(data.frame(Residuals = residuals), aes(x = Residuals)) +
   labs(x = "Residuals", y = "Density", title = "Density plot of residuals")
 ```
 
-*   In the following part, we give the plot of residuals versus fitted values and find some problems when using the multiple linear regression model to fit the data.
+* From the density plot of residuals, the residuals have a shape that is somewhat normal but heavily right-skewed.
 
-    * Ideally, the residuals should be randomly dispersed around the horizontal line (y = 0). In this plot, while there seems to be some level of randomness, there is a noticeable pattern where the residuals are not evenly distributed across the range of fitted values. This suggests that the model may not be capturing all the relevant patterns in the data.
-
-    * Residuals clustering: The clustering of residuals around certain ranges of fitted values indicates potential issues with the model. It might be missing some key predictive information or nonlinear relationships.
-    
-    * Outliers: There seem to be several points that stand out from the general scatter of the residuals. These outliers can have a significant impact on the regression model, potentially skewing the results.
-    
-    * Homoscedasticity check: The homoscedasticity assumption of linear regression  means the residuals should have constant variance across all levels of fitted values. The spread of residuals in this plot does not appear to be uniform, suggesting the presence of heteroscedasticity, which violates this assumption.
-    
 ```{r}
 # Residual Plot
 ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitted, y = Residuals)) +
@@ -148,6 +141,18 @@ ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitt
   labs(x = "Fitted values", y = "Residuals", title = "Residual vs. fitted values")
 ```
 
+The plot of residuals versus fitted values reflects several problems: 
+
+* Ideally, the residuals should be randomly dispersed around the horizontal line (y = 0). In this plot, while there seems to be some level of randomness, there is a noticeable pattern where the residuals are not evenly distributed across the range of fitted values. This suggests that the model may not be capturing all the relevant patterns in the data.
+
+* Residuals clustering: The clustering of residuals around certain ranges of fitted values indicates potential issues with the model. It might be missing some key predictive information or nonlinear relationships.
+    
+* Outliers: There seem to be several points that stand out from the general scatter of the residuals. These outliers can have a significant impact on the regression model, potentially skewing the results.
+    
+* Homoscedasticity check: The homoscedasticity assumption of linear regression  means the residuals should have constant variance across all levels of fitted values. The spread of residuals in this plot does not appear to be uniform, suggesting the presence of heteroscedasticity, which violates this assumption.
+
+The analysis of residuals density plot, Q-Q plot and residuals vs. fitted values suggests that the linear regression model built before may not a good and correct fit for the data.
+    
 ### Summary
 
 * In this regression session of our entire work, we attempt to use the multiple linear regression to fit the data. The response variable is `net_worth`, and the predictors include `age`, `gender`, `gdp_country`, `life_expectancy_country`and `self_made`. According to the model results, while age and the GDP of a billionaire's country appear to have a significant association with their net worth, the overall model explains very little of the variation in net worth,i.e.,with a low adjusted R-squared value 0.0057, indicating that there are likely many other factors at play. At the same time, the analysis of residuals through residuals density plot, Q-Q plot and residuals vs. fitted values, the residuals do not have a zero mean and equal variance with several outliers, which violates the assumption of linear regression.
