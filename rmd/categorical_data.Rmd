@@ -37,7 +37,6 @@ library(janitor)
 library(forcats)
 library(plotly)
 library(ggpubr)
-library(latex2exp)
 ```
 
 ```{r setup}
@@ -137,10 +136,10 @@ boxcox_result =
 boxcox_plot = 
   ggplot(boxcox_result, aes(x = x, y = y)) +
   geom_line() +
-  labs(title = "Box-cox plot for lambda selection",
-       x = TeX("$\\lambda$"),
+  labs(title = "Box-cox plot for transformation parameter selection",
+       x = plotly::TeX("$\\lambda$"),
        y = "Box-cox transformation of response variable")
-ggplotly(boxcox_plot) |> config(mathjax = 'cdn')
+ggplotly(boxcox_plot) |> config(mathjax = "cdn")
 
 wealth_distribution_3 =
   bil_2023 |>
