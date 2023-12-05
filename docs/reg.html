@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Yuzhe Hu" />
+
+<meta name="date" content="2023-12-04" />
+
+<title>Regression</title>
+
+<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+<link rel="shortcut icon" href="./static/favicon.ico">
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Billionaire Landscope</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="index.html">Datasets</a>
+</li>
+<li>
+  <a href="index.html">Proposal</a>
+</li>
+<li>
+  <a href="index.html">Data Cleaning</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    EDA
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="index.html">Categorical Analysis</a>
+    </li>
+    <li>
+      <a href="index.html">Longitudinal Analysis</a>
+    </li>
+    <li>
+      <a href="index.html">Geographic Analysis</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="index.html">Statistical Analysis</a>
+</li>
+<li>
+  <a href="index.html">Regression</a>
+</li>
+<li>
+  <a href="index.html">Shiny App</a>
+</li>
+<li>
+  <a href="index.html">Report</a>
+</li>
+<li>
+  <a href="mailto:pei.tian@columbia.com">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/SitianZhou/P8105_Final_Proj">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Regression</h1>
+<h4 class="author">Yuzhe Hu</h4>
+<h4 class="date">2023-12-04</h4>
+
+</div>
+
+
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
+<p>The topic of billionaires often sparks curiosity about the factors
+contributing to their wealth. To explore this, we adapt data from a
+specific year 2023 and attempt to fit the data through a multiple linear
+regression model.</p>
+</div>
+<div id="data-explanation-and-factors-selection" class="section level3">
+<h3>Data explanation and factors selection</h3>
+<p>The 2023 dataset on billionaires comprises billionaire demographics:
+their name, age, gender, nationality, details of their residence, their
+industry, and country-specific information: the country’s CPI and GDP,
+the life expectancy of the country’s population, and other related
+details such as a marker for self-made status, etc. Here,
+<code>net_worth</code> is regarded as the response variable,
+<code>age</code>, <code>gender</code>, <code>gdp_country</code>,
+<code>life_expectancy_country</code>and <code>self_made</code> are
+predictors. The reason for choosing these five variables as predictors
+is that in the available data, these five variables are themselves
+numerical data or categorical data that can be transformed into
+indicator variables. Some of the numerical data, such as the country’s
+CPI and GDP, have a correlation between them and their simultaneous use
+would lead to the problem of multicollinearity, so only one of them is
+chosen. Some of the categorical data, such as the country where the
+millionaire is located and the industry from which the millionaire comes
+from, have too many categories by themselves, and even if we can
+transform them into indicator variables for the regression, this would
+make our model too complicated, which is not conducive to the
+presentation and interpretation of the results. presentation and
+interpretation of the results. Meanwhile, for those factors not included
+in the existing model, we have explored them more in other parts of this
+website.</p>
+</div>
+<div id="model-establishment" class="section level3">
+<h3>Model establishment</h3>
+<p>Based on the analysis in the data explanation and factors selection,
+the formula for the multiple linear regression model will be:</p>
+<p><span class="math display">\[\text{net_worth} = \beta_0 + \beta_1
+\times \text{age}+ \beta_2 \times \text{gender} + \beta_3 \times
+\text{gdp_country} + \beta_4 \times \text{life_expectancy_country}
++\beta_5 \times \text{self_made} + \varepsilon\]</span></p>
+<ul>
+<li><code>net_worth</code>: Net worth of the individual in
+billions.</li>
+<li><code>age</code>: Age of the billionaire.</li>
+<li><code>gender</code>: Gender of the billionaire.</li>
+<li><code>gdp_country</code>: Gross Domestic Product in trillions of the
+country they reside in.</li>
+<li><code>life_expectancy_country</code>: Life expectancy in the country
+they reside in.</li>
+<li><code>self_made</code>: Whether or not they started from
+nothing.</li>
+</ul>
+</div>
+<div id="model-results" class="section level3">
+<h3>Model results</h3>
+<p>According to the multiple linear regression outcome, among the five
+predictors used, only <code>age</code> and <code>gdp_country</code> are
+significant at the 0.05 significance level.</p>
+<ul>
+<li><p>The coefficient for age is 0.0485, which suggests that with each
+additional year of age, a billionaire’s net worth increases by
+approximately 0.0485 billion, holding other factors constant.</p></li>
+<li><p>The coefficient for country’s gdp is 0.0565 which indicates that
+a unit increase in the GDP of the country is associated with an increase
+in net worth by 0.0565 billion, giving other factors fixed.</p></li>
+</ul>
+<pre class="r"><code># read the data
+billionaires23 = read_csv(&quot;../data/billionaire_2023.csv&quot;)
+# do the regression
+lrmodel = lm(net_worth ~ age + gender + gdp_country + life_expectancy_country + self_made, data = billionaires23)
+
+lrmodel |&gt; 
+  broom::tidy() |&gt; 
+  knitr::kable(digits = 4) |&gt;
+  kableExtra::kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+statistic
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+-3.5415
+</td>
+<td style="text-align:right;">
+4.5554
+</td>
+<td style="text-align:right;">
+-0.7774
+</td>
+<td style="text-align:right;">
+0.4370
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+age
+</td>
+<td style="text-align:right;">
+0.0485
+</td>
+<td style="text-align:right;">
+0.0159
+</td>
+<td style="text-align:right;">
+3.0484
+</td>
+<td style="text-align:right;">
+0.0023
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genderMale
+</td>
+<td style="text-align:right;">
+0.2595
+</td>
+<td style="text-align:right;">
+0.6870
+</td>
+<td style="text-align:right;">
+0.3777
+</td>
+<td style="text-align:right;">
+0.7057
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gdp_country
+</td>
+<td style="text-align:right;">
+0.0565
+</td>
+<td style="text-align:right;">
+0.0225
+</td>
+<td style="text-align:right;">
+2.5141
+</td>
+<td style="text-align:right;">
+0.0120
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+life_expectancy_country
+</td>
+<td style="text-align:right;">
+0.0632
+</td>
+<td style="text-align:right;">
+0.0556
+</td>
+<td style="text-align:right;">
+1.1352
+</td>
+<td style="text-align:right;">
+0.2564
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+self_madeTRUE
+</td>
+<td style="text-align:right;">
+-0.9702
+</td>
+<td style="text-align:right;">
+0.4990
+</td>
+<td style="text-align:right;">
+-1.9444
+</td>
+<td style="text-align:right;">
+0.0520
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="discussion-and-limitation" class="section level3">
+<h3>Discussion and limitation</h3>
+<ul>
+<li><p>The effectiveness of the model’s fit: Adjusted R-squared value is
+0.0057, indicating that only 0.6% of the variance in the net worth of
+billionaires can be explained by the variables in the model. This
+suggests that the factors we selected, have limited predictive power for
+a billionaire’s net worth, there might be other factors that influence a
+billionaire’s net worth that are not captured in this model.</p></li>
+<li><p>Multicollinearity check: Due to the low adjusted R-squared value,
+we checked for multicollinearity among the indicators by calculating
+their VIF (Variance Inflation Factor) values. All the indicators have
+VIF values near 1, indicating no significant correlation between any
+given indicator and the others. There is no multicollinearity issue in
+the model. In detail,<code>age</code>, <code>gender</code>,
+<code>gdp_country</code>, <code>life_expectancy_country</code>and
+<code>self_made</code>have VIF values 1.011, 1.141, 1.076, 1.010 and
+1.208 respectively.</p></li>
+</ul>
+<pre class="r"><code>vif_table &lt;- vif(lrmodel)
+vif_showing = data.frame(
+  term = c(&quot;age&quot;, &quot;gender&quot;, &quot;gdp_country&quot;, &quot;life_expectancy_country&quot;, &quot;self_made&quot;),
+  VIF_value = c(1.011, 1.141, 1.076, 1.010, 1.208) )
+vif_showing |&gt; knitr::kable() |&gt;
+  kableExtra::kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:right;">
+VIF_value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+age
+</td>
+<td style="text-align:right;">
+1.011
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gender
+</td>
+<td style="text-align:right;">
+1.141
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gdp_country
+</td>
+<td style="text-align:right;">
+1.076
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+life_expectancy_country
+</td>
+<td style="text-align:right;">
+1.010
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+self_made
+</td>
+<td style="text-align:right;">
+1.208
+</td>
+</tr>
+</tbody>
+</table>
+<p>For multiple linear regression models, one assumption is that the
+error term follows a normal distribution with zero mean and equal
+variance. In the following part, three different graphs related to the
+residuals are created in order to validate whether the model satisfies
+this assumption.</p>
+<pre class="r"><code># Calculate residuals
+residuals &lt;- resid(lrmodel)
+
+# Q-Q Plot
+ggplot(data.frame(Residuals = residuals), aes(sample = Residuals)) +
+  stat_qq_line(colour = &quot;blue&quot;) +
+  stat_qq_point() +
+  labs(title = &quot;Q-Q plot of residuals&quot;, x = &quot;Theoretical quantiles&quot;, y = &quot;Sample quantiles&quot;)</code></pre>
+<p><img src="reg_files/figure-html/qq-plot-1.png" width="90%" /></p>
+<ul>
+<li>The Q-Q plot of the residuals shows that the residual quantiles do
+not coincide with the theoretical quantiles in the right tail.</li>
+</ul>
+<pre class="r"><code># Density Plot of Residuals
+ggplot(data.frame(Residuals = residuals), aes(x = Residuals)) +
+  geom_density(fill = &quot;blue&quot;, alpha = 0.5) +
+  labs(x = &quot;Residuals&quot;, y = &quot;Density&quot;, title = &quot;Density plot of residuals&quot;)</code></pre>
+<p><img src="reg_files/figure-html/residual-density-1.png" width="90%" /></p>
+<ul>
+<li>From the density plot of residuals, the residuals have a shape that
+is somewhat normal but heavily right-skewed.</li>
+</ul>
+<pre class="r"><code># Residual Plot
+ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitted, y = Residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = &quot;blue&quot;) +
+  labs(x = &quot;Fitted values&quot;, y = &quot;Residuals&quot;, title = &quot;Residual vs. fitted values&quot;)</code></pre>
+<p><img src="reg_files/figure-html/residual-fitted-1.png" width="90%" /></p>
+<p>The plot of residuals versus fitted values reflects several
+problems:</p>
+<ul>
+<li><p>Ideally, the residuals should be randomly dispersed around the
+horizontal line (y = 0). In this plot, while there seems to be some
+level of randomness, there is a noticeable pattern where the residuals
+are not evenly distributed across the range of fitted values. This
+suggests that the model may not be capturing all the relevant patterns
+in the data.</p></li>
+<li><p>Residuals clustering: The clustering of residuals around certain
+ranges of fitted values indicates potential issues with the model. It
+might be missing some key predictive information or nonlinear
+relationships.</p></li>
+<li><p>Outliers: There seem to be several points that stand out from the
+general scatter of the residuals. These outliers can have a significant
+impact on the regression model, potentially skewing the
+results.</p></li>
+<li><p>Homoscedasticity check: The homoscedasticity assumption of linear
+regression means the residuals should have constant variance across all
+levels of fitted values. The spread of residuals in this plot does not
+appear to be uniform, suggesting the presence of heteroscedasticity,
+which violates this assumption.</p></li>
+</ul>
+<p>The analysis of the residual density plot, Q-Q plot, and residuals
+vs. fitted values suggests that the linear regression model previously
+built may not be a good fit for the data.</p>
+</div>
+<div id="summary" class="section level3">
+<h3>Summary</h3>
+<ul>
+<li><p>In this regression session of our entire work, we attempt to use
+the multiple linear regression to fit the data. The response variable is
+<code>net_worth</code>, and the predictors include <code>age</code>,
+<code>gender</code>, <code>gdp_country</code>,
+<code>life_expectancy_country</code>and <code>self_made</code>.
+According to the model results, while age and the GDP of a billionaire’s
+country appear to have a significant association with their net worth,
+the overall model explains very little of the variation in net
+worth,i.e.,with a low adjusted R-squared value 0.0057, indicating that
+there are likely many other factors at play. At the same time, the
+analysis of residuals through residuals density plot, Q-Q plot and
+residuals vs. fitted values, the residuals do not have a zero mean and
+equal variance with several outliers, which violates the assumption of
+linear regression.</p></li>
+<li><p>In summary, the multiple linear regression model, as configured
+in our analysis, is not a good way to fit the data and predict the net
+worth of billionaires. This inadequacy could be attributed to the
+simplicity of our linear model, suggesting that there are numerous
+avenues for refinement and enhancement. Additionally, it may be the case
+that the net worth does not have a linear relationship with the
+predictors used in our model. Exploring alternative modeling methods
+that better capture the underlying relationships in the data is a topic
+for future research.</p></li>
+</ul>
+</div>
+
+<hr>
+<div class="footer" style="text-align: center">Copyright &copy; P8105, Fall 2023</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
