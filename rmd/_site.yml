@@ -7,8 +7,6 @@ navbar:
   right: 
     - text: "Proposal"
       href: proposal.html
-    - text: "Datasets"
-      href: index.html
     - text: "Data Cleaning"
       href: data_clean.html
     - text: "EDA"
