@@ -710,6 +710,21 @@ bil_gdp |>
           mode = "markers", text = ~text_label, 
           type = "scatter", colors = "viridis") |>
   layout(title = "Net wealth versus industry GDP in USA, 2022",
+         xaxis = list(title = "Industry(with GDP(trillion dollars))"),
+         yaxis = list(title = "Net wealth of billionaires(billion dollars)"),
+         font = list(family = "Helvetica"))
+
+bil_gdp |>
+  filter(year == 2022) |>
+  mutate(
+    text_label = 
+      str_c("Industry: ", industries, 
+            "\nIndustry GDP: ", industry_gdp,
+            "\nNet Wealth of Billionaire: ", net_worth)) |>
+  plot_ly(x = ~industry_gdp, y = ~net_worth, color = ~industries, 
+          mode = "markers", text = ~text_label, 
+          type = "scatter", colors = "viridis") |>
+  layout(title = "Net wealth versus industry GDP in USA, 2022",
          xaxis = list(title = "Industry GDP(trillion dollars)"),
          yaxis = list(title = "Net wealth of billionaires(billion dollars)"),
          font = list(family = "Helvetica"))
