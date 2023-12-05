@@ -701,7 +701,7 @@ ggplot(data.frame(Residuals = residuals), aes(sample = Residuals)) +
   stat_qq_line(colour = &quot;blue&quot;) +
   stat_qq_point() +
   labs(title = &quot;Q-Q plot of residuals&quot;, x = &quot;Theoretical quantiles&quot;, y = &quot;Sample quantiles&quot;)</code></pre>
-<p><img src="reg_files/figure-html/unnamed-chunk-1-1.png" width="90%" /></p>
+<p><img src="reg_files/figure-html/qq-plot-1.png" width="90%" /></p>
 <ul>
 <li>The Q-Q plot of the residuals shows that the residual quantiles do
 not coincide with the theoretical quantiles in the right tail.</li>
@@ -710,7 +710,7 @@ not coincide with the theoretical quantiles in the right tail.</li>
 ggplot(data.frame(Residuals = residuals), aes(x = Residuals)) +
   geom_density(fill = &quot;blue&quot;, alpha = 0.5) +
   labs(x = &quot;Residuals&quot;, y = &quot;Density&quot;, title = &quot;Density plot of residuals&quot;)</code></pre>
-<p><img src="reg_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
+<p><img src="reg_files/figure-html/residual-density-1.png" width="90%" /></p>
 <ul>
 <li>From the density plot of residuals, the residuals have a shape that
 is somewhat normal but heavily right-skewed.</li>
@@ -720,7 +720,7 @@ ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitt
   geom_point() +
   geom_hline(yintercept = 0, color = &quot;blue&quot;) +
   labs(x = &quot;Fitted values&quot;, y = &quot;Residuals&quot;, title = &quot;Residual vs. fitted values&quot;)</code></pre>
-<p><img src="reg_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
+<p><img src="reg_files/figure-html/residual-fitted-1.png" width="90%" /></p>
 <p>The plot of residuals versus fitted values reflects several
 problems:</p>
 <ul>

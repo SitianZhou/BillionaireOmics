@@ -110,7 +110,7 @@ vif_showing |> knitr::kable() |>
 
 For multiple linear regression models, one assumption is that the error term follows a normal distribution with zero mean and equal variance. In the following part, three different graphs related to the residuals are created in order to validate whether the model satisfies this assumption.
 
-```{r}
+```{r qq-plot}
 # Calculate residuals
 residuals <- resid(lrmodel)
 
@@ -123,7 +123,7 @@ ggplot(data.frame(Residuals = residuals), aes(sample = Residuals)) +
 
 * The Q-Q plot of the residuals shows that the residual quantiles do not coincide with the theoretical quantiles in the right tail.
 
-```{r}
+```{r residual-density}
 # Density Plot of Residuals
 ggplot(data.frame(Residuals = residuals), aes(x = Residuals)) +
   geom_density(fill = "blue", alpha = 0.5) +
@@ -132,7 +132,7 @@ ggplot(data.frame(Residuals = residuals), aes(x = Residuals)) +
 
 * From the density plot of residuals, the residuals have a shape that is somewhat normal but heavily right-skewed.
 
-```{r}
+```{r residual-fitted}
 # Residual Plot
 ggplot(data.frame(Fitted = fitted(lrmodel), Residuals = residuals), aes(x = Fitted, y = Residuals)) +
   geom_point() +
