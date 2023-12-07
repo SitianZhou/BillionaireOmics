@@ -682,6 +682,7 @@ The GDP of different industries may be more relevant to the arise and distributi
 # visualization
 ## number of people
 bil_gdp |>
+  filter(year == 2022) |>
   group_by(industries, industry_gdp) |>
   summarize(n_obs = n()) |>
   mutate(industries = fct_reorder(industries, n_obs),
@@ -692,13 +693,14 @@ bil_gdp |>
   plot_ly(x = ~industries, y = ~n_obs, color = ~industries,
           mode = "markers", text = ~text_label, 
           type = "bar", colors = "viridis") |>
-  layout(title = "Number of billionaires in different industries in USA, 2023",
+  layout(title = "Number of billionaires in different industries in USA, 2022",
          xaxis = list(title = "Industry field"),
          yaxis = list(title = "Number of billionaires"),
          font = list(family = "Helvetica"))
 
 ## net worth
 bil_gdp |>
+  filter(year == 2022) |>
   mutate(
     text_label = 
       str_c("Industry: ", industries, 
@@ -707,7 +709,22 @@ bil_gdp |>
   plot_ly(x = ~industries, y = ~net_worth, color = ~industries, 
           mode = "markers", text = ~text_label, 
           type = "scatter", colors = "viridis") |>
-  layout(title = "Net wealth versus industry GDP in USA, 2023",
+  layout(title = "Net wealth versus industry GDP in USA, 2022",
+         xaxis = list(title = "Industry(with GDP(trillion dollars))"),
+         yaxis = list(title = "Net wealth of billionaires(billion dollars)"),
+         font = list(family = "Helvetica"))
+
+bil_gdp |>
+  filter(year == 2022) |>
+  mutate(
+    text_label = 
+      str_c("Industry: ", industries, 
+            "\nIndustry GDP: ", industry_gdp,
+            "\nNet Wealth of Billionaire: ", net_worth)) |>
+  plot_ly(x = ~industry_gdp, y = ~net_worth, color = ~industries, 
+          mode = "markers", text = ~text_label, 
+          type = "scatter", colors = "viridis") |>
+  layout(title = "Net wealth versus industry GDP in USA, 2022",
          xaxis = list(title = "Industry GDP(trillion dollars)"),
          yaxis = list(title = "Net wealth of billionaires(billion dollars)"),
          font = list(family = "Helvetica"))
