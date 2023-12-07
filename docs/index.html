@@ -11,8 +11,40 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <style>
+    @font-face {
+      font-family: 'Signika';
+      src: url('./static/font/Signika-Regular.ttf') format('truetype'); /* TTF format */
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Lobster';
+      src: url('./static/font/Lobster-Regular.ttf') format('truetype'); /* TTF format */
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'SignikaRegular';
+      src: url('./static/font/Signika-Regular.ttf') format('truetype'); /* TTF format */
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'DancingScript';
+      src: url('./static/font/DancingScript-Regular.ttf') format('truetype'); /* TTF format */
+      font-weight: normal;
+      font-style: normal;
+    }
+
     body {
         background-color: #f8f9fa; /* Set a background color if the image doesn't cover the entire window */
+    }
+
+    h2{
+      font-family: "Signika";
     }
 
     .topics {
@@ -50,7 +82,7 @@
 <!-- navbar -->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" >
     <div class="container-fluid">
-      <a class="navbar-brand ps-2" href="index.html">BillionaireOmics</a>
+      <a class="navbar-brand ps-2" href="index.html" style="font-family: Lobster;">BillionaireOmics</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -109,8 +141,8 @@
 <div class="bg-image">
     <div class="container text-center title  ">
         <!-- Your content goes here -->
-        <h1>BillionaireOmics</h1>
-        <h3>Decoding the World's Richest</h3>
+        <h1 style="font-size: 100px;font-family: 'Lobster';">BillionaireOmics</h1><h1 style="font-size: 100px;"></h1>
+        <h3 style="font-size: 50px; color: black; font-family: 'DancingScript';">Decoding the World's Richest</h3>
     </div>
 </div>
 
@@ -123,7 +155,7 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
         <p>
-            Welcome to <strong>BillionaireOmics</strong>, a unique endeavor aimed at unraveling the complex tapestry of billionaire statistics. In this course project, we embark on a fascinating journey into the world of extreme wealth, where data becomes our compass, guiding us through the intricacies of financial empires and economic landscapes.<br>
+            Welcome to <strong style="font-family: Lobster;">BillionaireOmics</strong>, a unique endeavor aimed at unraveling the complex tapestry of billionaire statistics. In this course project, we embark on a fascinating journey into the world of extreme wealth, where data becomes our compass, guiding us through the intricacies of financial empires and economic landscapes.<br>
             In an age where numbers tell stories, our project serves as a lens through which we examine the statistical nuances of billionaires — those remarkable individuals who wield immense economic influence. As students of data science, economics, and business, we will delve into the methodologies of statistical analysis to decipher the trends and patterns that define the lives of the world's wealthiest.<br>
             Our mission is not just to collect and present data but to cultivate a deeper understanding of the forces driving wealth accumulation. Through rigorous research and analytical tools, we will explore the industries that breed billionaires, the factors contributing to their success, and the broader implications of their economic prowess.<br>
             Throughout this course project, we will navigate the statistical landscape, applying various analytical techniques to interpret and draw meaningful insights from the data. From exploring the distribution of wealth to investigating the socio-economic impact of billionaire influence, our collective effort will shed light on the multifaceted dimensions of extreme affluence.<br>
@@ -136,7 +168,7 @@
 </div>
 
 <!-- Analysis Content-->
-<h2 class="text-center mt-5 mb-5 pb-5">Contents</h2>
+<h2 class="text-center mt-5 mb-5">Contents</h2>
 <div class="row justify-content-center ps-5 pe-5">
     <div id="carouselExampleIndicators" class="carousel slide col-md-2" style="width: 40%;" data-bs-ride="carousel">
         <div class="carousel-indicators">
@@ -220,7 +252,7 @@
 </div>
 
 <!-- Contributors -->
-<h2 class="text-center mt-5 mb-5">Contributors</h2>
+<h2 class="text-center mt-5 mb-5 pt-5 pb-2">Contributors</h2>
 <div class="container mt-4">
     <div class="row justify-content-center mb-1">
       <!-- First Image Container -->
