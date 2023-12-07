@@ -69,7 +69,7 @@ gdp_data = read_csv("../data/raw/gdp_worldbank.csv", skip = 4) |>
 ## Interactive Map
 This map interactively demonstrate the top-1 billionaire's information and GDP of each country in 2022. 
 
-*Hover your mouth and click marker to get details!*
+*Hover your mouse and click marker to get details!*
 
 ```{r geo-data}
 world_polygon = ne_countries(scale = "medium", returnclass = "sf")
@@ -230,8 +230,8 @@ histo = region_select |>
   ggplot(aes(x = age, fill = region_code)) +
   geom_histogram(binwidth = 2) +
   facet_grid(region_code ~ .) + 
-  labs(title = "Age histogram in 2022")
-  theme(legend.position = "none")
+  labs(title = "Age histogram in 2022") + 
+  theme(legend.position = "right")
 ggplotly(histo)
 ```
 
