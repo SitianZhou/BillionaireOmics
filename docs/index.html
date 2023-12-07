@@ -20,8 +20,9 @@
     }
 
     .bg-image {
+        /* margin-top: 2.5%; */
         padding-bottom: 18%;
-        background-image: url(' ./static/img/main-page.png'); /* Replace with your image URL */
+        background-image: url(' ./static/img/cartoon-bg.jpeg'); /* Replace with your image URL */
         background-size: cover;
         background-position: center;
         height: 100vh;
@@ -48,7 +49,7 @@
 <!-- navbar -->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" >
     <div class="container-fluid">
-      <a class="navbar-brand ps-2" href="#">BillionaireOmics</a>
+      <a class="navbar-brand ps-2" href="index.html">BillionaireOmics</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -71,11 +72,11 @@
               EDA
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="#">Categorical Analysis</a></li>
+              <li><a class="dropdown-item" href="categorical_data.html">Categorical Analysis</a></li>
               <!-- <li><hr class="dropdown-divider"></li> -->
-              <li><a class="dropdown-item" href="#">Longitudinal Analysis</a></li>
+              <li><a class="dropdown-item" href="time_data.html">Longitudinal Analysis</a></li>
               <!-- <li><hr class="dropdown-divider"></li> -->
-              <li><a class="dropdown-item" href="#">Geographic Analysis</a></li>
+              <li><a class="dropdown-item" href="geo.html">Geographic Analysis</a></li>
             </ul>
           </li>
           <li class="nav-item">
@@ -117,16 +118,15 @@
 
 
 <!-- Introduction -->
-<h2 class="text-center mt-5 mb-2">Project Introduction</h2>
+<h2 class="text-center mt-5 mb-5">Project Introduction</h2>
 <div class="row justify-content-center">
     <div class="col-md-6">
         <p>
-            Welcome to [Your Course Project Name], a unique endeavor aimed at unraveling the complex tapestry of billionaire statistics. In this course project, we embark on a fascinating journey into the world of extreme wealth, where data becomes our compass, guiding us through the intricacies of financial empires and economic landscapes.<br>
+            Welcome to <strong>BillionaireOmics</strong>, a unique endeavor aimed at unraveling the complex tapestry of billionaire statistics. In this course project, we embark on a fascinating journey into the world of extreme wealth, where data becomes our compass, guiding us through the intricacies of financial empires and economic landscapes.<br>
             In an age where numbers tell stories, our project serves as a lens through which we examine the statistical nuances of billionaires — those remarkable individuals who wield immense economic influence. As students of data science, economics, and business, we will delve into the methodologies of statistical analysis to decipher the trends and patterns that define the lives of the world's wealthiest.<br>
             Our mission is not just to collect and present data but to cultivate a deeper understanding of the forces driving wealth accumulation. Through rigorous research and analytical tools, we will explore the industries that breed billionaires, the factors contributing to their success, and the broader implications of their economic prowess.<br>
             Throughout this course project, we will navigate the statistical landscape, applying various analytical techniques to interpret and draw meaningful insights from the data. From exploring the distribution of wealth to investigating the socio-economic impact of billionaire influence, our collective effort will shed light on the multifaceted dimensions of extreme affluence.<br>
             As participants in this statistical odyssey, we have the opportunity to hone our data analysis skills, critically assess economic trends, and gain a holistic understanding of the dynamics shaping the upper echelons of global finance.<br>
-            Join us on this academic expedition, where we will not only engage with data but also cultivate a narrative that enhances our comprehension of the broader socio-economic implications of extreme wealth. [Your Course Project Name] is your gateway to a hands-on exploration of statistical analysis applied to the intriguing world of billionaires.
         </p>
     </div>
     <div class="col-md-3">
@@ -135,7 +135,7 @@
 </div>
 
 <!-- Analysis Content-->
-<h2 class="text-center mt-5 mb-5">Contents</h2>
+<h2 class="text-center mt-5 mb-5 pb-5">Contents</h2>
 <div class="row justify-content-center ps-5 pe-5">
     <div id="carouselExampleIndicators" class="carousel slide col-md-2" style="width: 40%;" data-bs-ride="carousel">
         <div class="carousel-indicators">
@@ -149,45 +149,57 @@
         </div>
         <div class="carousel-inner">
             <div class="carousel-item">
-              <img src=" ./static/img/data-clean.jpeg" class="d-block w-100" alt="...">
+              <a href="./data_clean.html">
+                <img src=" ./static/img/data-clean.jpeg" class="d-block w-100" alt="...">
+              </a>
               <div class="carousel-caption d-none d-md-block">
                   <h5>Data Cleaning</h5>
                   <p>Preprocessing datasets</p>
               </div>
             </div>
             <div class="carousel-item">
-              <img src=" ./static/img/avatar_mengxiao.JPG" class="d-block w-100" alt="...">
-              <div class="carousel-caption d-none d-md-block">
+              <a href="./categorical_data.html">
+                <img src=" ./static/img/categorical.png" class="d-block w-100" alt="...">
+              </a>
+              <div class="carousel-caption d-none d-md-block"style="color: black;" >
                   <h5>Categorical Analysis</h5>
-                  <p>Preprocessing datasets</p>
+                  <p>Investigate categorical variables</p>
               </div>
             </div>
             <div class="carousel-item">
-              <img src=" ./static/img/avatar_shuchen.jpg" class="d-block w-100" alt="...">
+              <a href="time_data.html">
+                <img src=" ./static/img/time.jpeg" class="d-block w-100" alt="...">
+              </a>
               <div class="carousel-caption d-none d-md-block">
                   <h5>Longitudinal Analysis</h5>
-                  <p>Preprocessing datasets</p>
+                  <p>Explores billionaire economic trends</p>
               </div>
             </div>
             <div class="carousel-item">
-              <img src=" ./static/img/avatar_liu.jpg" class="d-block w-100" alt="...">
+              <a href="./geo.html">
+                <img src=" ./static/img/geo.jpeg" class="d-block w-100" alt="...">
+              </a>
               <div class="carousel-caption d-none d-md-block">
                   <h5>Geographic Analysis</h5>
-                  <p>Preprocessing datasets</p>
+                  <p>Analyze regional distribution</p>
               </div>
             </div>
             <div class="carousel-item">
-              <img src=" ./static/img/avatar_sitian.jpg" class="d-block w-100" alt="...">
+              <a href="hypo_test.html">
+                <img src=" ./static/img/hypo.jpeg" class="d-block w-100" alt="...">
+              </a>
               <div class="carousel-caption d-none d-md-block">
                   <h5>Hypothesis Testing</h5>
-                  <p>Preprocessing datasets</p>
+                  <p style="color: black;">Draw conclusion about population characteristics</p>
               </div>
             </div>
             <div class="carousel-item active">
-              <img src=" ./static/img/avatar_yuzhe.jpg" class="d-block w-100" alt="...">
+              <a href="reg.html">
+                <img src=" ./static/img/regression.jpeg" class="d-block w-100" alt="...">
+              </a>
               <div class="carousel-caption d-none d-md-block">
-                  <h5>Data Cleaning</h5>
-                  <p>Regression</p>
+                  <h5>Regression</h5>
+                  <p>Understand potential relationship</p>
               </div>
             </div>
           </div>
@@ -201,13 +213,13 @@
         </button>
     </div>
     <div class="col">
-        <iframe height="100%" width="100%" src="https://www.youtube.com/watch?v=Nuo_jHKDS8Q" frameborder="0" allowfullscreen></iframe>
+        <iframe height="100%" width="100%" src="https://www.youtube.com/embed/Nuo_jHKDS8Q" frameborder="0" allowfullscreen></iframe>
 
     </div>
 </div>
 
 <!-- Contributors -->
-<h2 class="text-center mt-5 mb-2">Contributors</h2>
+<h2 class="text-center mt-5 mb-5">Contributors</h2>
 <div class="container mt-4">
     <div class="row justify-content-center mb-1">
       <!-- First Image Container -->
@@ -219,25 +231,25 @@
       <!-- Second Image Container -->
       <div class="col-md-2 text-center avatar">
         <img src=" ./static/img/avatar_mengxiao.JPG" class="img-fluid mx-auto" alt="Image 1" style="height: 50%;border-radius: 50%;overflow: hidden;">
-        <p class="mt-2">Mengxiao Luan <a href="https://github.com/Tptrix29" target="_blank" style="color: inherit;"><i class="fa fa-github"></i></a></p>
+        <p class="mt-2">Mengxiao Luan <a href="https://github.com/ml5018" target="_blank" style="color: inherit;"><i class="fa fa-github"></i></a></p>
       </div>
   
       <!-- Third Image Container -->
       <div class="col-md-2 text-center avatar">
         <img src=" ./static/img/avatar_sitian.jpg" class="img-fluid mx-auto" alt="Image 1" style="height: 50%;border-radius: 50%;overflow: hidden;">
-        <p class="mt-2">Sitian Zhou <a href="https://github.com/Tptrix29" target="_blank" style="color: inherit;"><i class="fa fa-github"></i></a></p>
+        <p class="mt-2">Sitian Zhou <a href="https://github.com/SitianZhou" target="_blank" style="color: inherit;"><i class="fa fa-github"></i></a></p>
 
       </div>
 
       <div class="col-md-2 text-center avatar">
         <img src=" ./static/img/avatar_yuzhe.jpg" class="img-fluid mx-auto" alt="Image 1" style="height: 50%;border-radius: 50%;overflow: hidden;">
-        <p class="mt-2">Yuzhe Hu <a href="https://github.com/Tptrix29" target="_blank" style="color: inherit;"><i class="fa fa-github"></i></a></p>
+        <p class="mt-2">Yuzhe Hu <a href="https://github.com/Yuzhe3676" target="_blank" style="color: inherit;"><i class="fa fa-github"></i></a></p>
 
       </div>
 
       <div class="col-md-2 text-center avatar">
         <img src=" ./static/img/avatar_shuchen.jpg" class="img-fluid mx-auto" alt="Image 1" style="height: 50%;border-radius: 50%;overflow: hidden;">
-        <p class="mt-2">Shuchen Dong <a href="https://github.com/Tptrix29" target="_blank" style="color: inherit;"><i class="fa fa-github"></i></a></p>
+        <p class="mt-2">Shuchen Dong <a href="https://github.com/ouedug" target="_blank" style="color: inherit;"><i class="fa fa-github"></i></a></p>
       </div>
     </div>
 </div>
