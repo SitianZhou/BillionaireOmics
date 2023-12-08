@@ -332,7 +332,7 @@ theme_set(
 
 Focusing on the data collected in 2023, we can depict the distributions of billionaires in several categories as well as their wealth pattern.
 
-```{r c2t-1}
+```{r cat-2}
 # import data
 bil_2010_2023 =
   read_csv("../data/tidy/billionaire_gdp.csv") |>
@@ -379,33 +379,6 @@ ggarrange(wealth_distribution_1, wealth_distribution_2,
 
 The skewness can be seen more clearly if we divide the billionaires into four different groups according to their net worth, where we can find a few people in the last group in possession of more than 100 billion wealth.
 
-```{r cat-4}
-# wealth division
-billionairs_wealth = 
-  bil_2023 |>
-  mutate(
-    net_worth = 
-      case_when(
-        net_worth <= 5 ~ "<=5",
-        net_worth > 5 & net_worth <= 10 ~ "5~10",
-        net_worth > 10 & net_worth <= 100 ~ "10~100",
-        net_worth > 100 ~ ">100"
-      )) |>
-  mutate(
-    net_worth = 
-      forcats::fct_relevel(
-        net_worth, c("<=5", "5~10", "10~100", ">100")
-      ))
-
-# wealth description
-billionairs_wealth |>
-  group_by(net_worth) |>
-  summarize(N = n()) |>
-  mutate(Proportion = N/sum(N)) |>
-  knitr::kable() |>
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
 ##### Wealth distribution in categorical groups
 
 The data can be separated using categorical factors related to net worth of wealth, including approach and wealth status, which indicate whether the billionaire is self-made or not and the trend of the billionaires' wealth amount, respectively. There are more self-made billionaires than inherited in 2023, and the majority of the population possess a decreased wealth amount. The difference in the wealth amount of different groups does not seem significant.
@@ -418,7 +391,7 @@ Divide the population into four groups based on their age, the number and wealth
 
 The age distribution is relatively symmetric and the size of the four age groups are quite close to each other. The average net wealth amount seems to be larger in groups with higher age.
 
-```{r cat-5}
+```{r cat-4}
 # age division
 billionairs_age = 
   bil_2023 |>
@@ -435,16 +408,6 @@ billionairs_age =
         age, c("<=55", "55~65", "65~75", ">75")))
 
 # age visualization
-## number of people
-billionairs_age |>
-  count(age) |>
-  plot_ly(x = ~age, y = ~n, color = ~age, 
-          type = "bar", colors = "viridis") |>
-  layout(title = "Number of billionaires in different age groups",
-         xaxis = list(title = "Age"),
-         yaxis = list(title = "Number of billionaires"),
-         font = list(family = "Helvetica"))
-
 age_distribution_3 =  
   billionairs_age |>
   ggplot(aes(x = age, y = net_worth)) + 
@@ -460,7 +423,7 @@ ggplotly(age_distribution_3)
 
 There are much more male billionaires than female in the year of 2023, yet the net worth in the two gender groups do not look much different.
 
-```{r cat-6}
+```{r cat-5}
 # gender visualization
 ## number of people
 bil_2023 |>
@@ -471,31 +434,20 @@ bil_2023 |>
          xaxis = list(title = "Gender"),
          yaxis = list(title = "Number of billionaires"),
          font = list(family = "Helvetica"))
-
-## net worth
-gender_distribution =   
-  bil_2023 |>
-  ggplot(aes(x = gender, y = net_worth)) +
-  geom_violin(aes(fill = gender), alpha = 0.5) +
-  labs(title = "Net wealth of different gender groups",
-       x = "Gender of billionaires",
-       y = "Net wealth(billion dollars)")
-
-ggplotly(gender_distribution)
 ```
 
 ##### Divided by country
 
 Among all the countries listed, United States has the largest number of billionaires in both citizenship and residence.
 
-```{r cat-7}
+```{r cat-6}
 # citizenship description
 bil_2023 |>
   group_by(country_of_citizenship) |>
   summarize(mean_wealth = mean(net_worth),
             N = n()) |>
   arrange(desc(N)) |>
-  slice(1:5) |>
+  slice(1:3) |>
   knitr::kable() |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 # residence description
@@ -504,7 +456,7 @@ bil_2023 |>
   summarize(mean_wealth = mean(net_worth),
             N = n()) |>
   arrange(desc(N)) |>
-  slice(1:5) |>
+  slice(1:3) |>
   knitr::kable() |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
@@ -513,7 +465,7 @@ bil_2023 |>
 
 The number of billionaires from different industries also differ, with a largest proportion in the field of finance and investments. The correlation between industry and the arise of billionaires may lie in the economic development and GDP distribution of different industries, which requires further investment in longitudinal data.
 
-```{r cat-8}
+```{r cat-7}
 # industry visualization
 ## number of people
 bil_2023 |>
@@ -531,43 +483,14 @@ bil_2023 |>
 
 We can compare the data across different years as well. The plot suggests a slight difference between the average wealth of all the billionaires in 2013 and 2023. Besides wealth pattern, the distribution of gender may also change over time, with an increased number of individuals in both male and female groups.
 
-```{r cat-9}
+```{r cat-8}
 # filter data
 bil_2013_2023 =
   bil_2010_2023 |>
   filter(year == 2013 | year == 2023) |>
   mutate(year = as.factor(year))
 
-# year description
-## overall number and wealth
-bil_2013_2023 |>
-  group_by(year) |>
-  summarize(N = n(),
-            mean_wealth = mean(net_worth)) |>
-  knitr::kable() |>
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-
 # year visualization
-## net worth
-bil_2013_2023 |>
-  plot_ly(x = ~year, y = ~net_worth, color = ~year,
-          type = "box", colors = "viridis") |>
-  layout(title = "Overall wealth distribution: 2013 versus 2023",
-         xaxis = list(title = "Year of data collection"),
-         yaxis = list(title = "Net wealth(billion dollars)"),
-         font = list(family = "Helvetica"))
-
-## number of people
-year_gender_distribution_1 =
-  bil_2013_2023 |>
-  ggplot(aes(x = gender, group = year, fill = year)) +
-  geom_histogram(stat = "count", position = "dodge") +
-  labs(title = "Gender distribution: 2013 versus 2023",
-       x = "Gender of billionaires",
-       y = "Number of billionaires")
-
-ggplotly(year_gender_distribution_1)
-
 year_gender_distribution_2 =
   bil_2013_2023 |>
   ggplot(aes(y = net_worth, x = gender, fill = gender)) +
