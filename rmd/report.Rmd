@@ -1,11 +1,13 @@
 ---
-title: "Report"
+title: "Project Report"
 date: "`r Sys.Date()`"
 output:
   html_document
 ---
 
 # BillionaireOmics: Decoding the World's Richest
+
+Pei Tian, Mengxiao Luan, Sitian Zhou, Yuzhe Hu, Shuchen Dong
 
 ```{r setup}
 knitr::opts_chunk$set(message = F, warning = F)
@@ -44,15 +46,15 @@ theme_set(
 
 ## Introduction
 
-### **Motivation**
+### Motivation
 
 In this project, our goal is to gain a comprehensive view of billionaire wealth dynamics. We are interested in the geographic distribution of billionaires worldwide and how their net worth changes over time and among diverse demographic groups. Furthermore, we want to explore implications for wealth distribution and economic conditions. Finally, we plan to conduct some statistical tests and linear regression to identify potential factors contributing to the success and accumulation of wealth among billionaires.
 
-### **Related work**
+### Related work
 
 The [Forbes](https://www.forbes.com/billionaires/) updates the World's Billionaire List annually, which inspired us to pool together the data from the past decade and explore if there are any trends in their wealth across years or among diverse demographic groups. Moreover, understanding the wealth distribution of the richest also helps gain a picture of the global economy. There has always been discussions about whether or not billionaires have positive effects on the economy ([J. Svejnar, 2015](https://academiccommons.columbia.edu/doi/10.7916/D8T442R2/download); [J. Flanigan& C. Freiman, 2022](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9684899/)). This further makes us curious about what makes them billionaires and what factors contribute to their accumulation of assets.
 
-### **Initial questions**
+### Initial questions
 
 - How has billionaires' wealth changed in the past decade?
 - What are the geographical distribution as well as the demographic characteristics of billionaires of billionaires?
@@ -746,7 +748,8 @@ bil_diff_13_23 <-
 
 t.test(bil_diff_13_23 |> pull(`2023`), bil_diff_13_23 |> pull(`2013`), paired = T) |> 
   broom::tidy() |> 
-  knitr::kable(digits = 3)
+  knitr::kable(digits = 3) |> 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
 With the result shown above, the p-value is 0, which is sufficiently small to reject the null. We conclude that there is a difference in the net worth of billionaires on the list in both 2013 and 2023. Furthermore, the 95% confidence interval suggests a discernible increase in billionaires' wealth over the past decade, estimated to range between 2.588 and 4.312 billion dollars.
@@ -776,7 +779,8 @@ t.test(filter(bil_gender, gender == "Male") |> pull(net_worth),
        filter(bil_gender, gender == "Female") |> pull(net_worth),
        var.equal = TRUE) |> 
   broom::tidy() |> 
-  knitr::kable(digits = 3)
+  knitr::kable(digits = 3) |> 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
 From the result table, we got a p-value of 0.643, which is much greater than 0.05. Thus, with a significance level of 0.05, we fail to reject the null and conclude that in 2023, the mean wealth of female and male billionaires is the same.
@@ -825,7 +829,7 @@ bil_age <-
     net_worth_t = (net_worth^(L1)-1)/L1)
 ```
 
-To make the data distribution closer to a normal distribution, we used the Box-Cox method to transform the data. We found the $$\lambda$$ = `r L1 |> round(3)` that provides the best approximation for the normal distribution of our response variable, `net_worth`. We then transformed our data using the formula:
+To make the data distribution closer to a normal distribution, we used the Box-Cox method to transform the data. We found the $\lambda$ = `r L1 |> round(3)` that provides the best approximation for the normal distribution of our response variable, `net_worth`. We then transformed our data using the formula:
 
 $$Y_{transformed} = \frac{Y^{\lambda}-1}{\lambda}$$
 
@@ -835,9 +839,13 @@ The transformed data is used for the subsequent analysis.
 
 Subsequently, we conducted an analysis of variance (ANOVA) with the null hypothesis stating that all age groups possess identical average wealth, while the alternative hypothesis suggests that at least one group has a different average wealth compared to the others.
 
-$$H_0: \mu_{55\space and \space below} = \mu_{55\sim65} = \mu_{65\sim75} = \mu_{over \space 75}$$
+<center>
 
-$$H_1:$$ at least one $$\mu$$ differs
+$H_0: \mu_{55\space and \space below} = \mu_{55\sim65} = \mu_{65\sim75} = \mu_{over \space 75}$
+
+$H_1:$ at least one $\mu$ differs
+
+</center>
 
 The result table shows a p-value of 0, which is sufficiently small to reject the null. Thus, we conclude that at least one age group has a transformed average wealth differing from the rest of the age groups. 
 
@@ -851,7 +859,8 @@ mydf <-
   TukeyHSD(res) |> 
   broom::tidy() |> 
   mutate(contrast = recode(contrast, "65~75-55~65" = "65\\~75-55~65"))
-mydf |> knitr::kable(digits = 3)
+mydf |> knitr::kable(digits = 3) |> 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
 The result table shows that several comparisons are significant under the 0.05 significance level. The group of age 55 and below differs from the 65~75 and the over 75 years old groups, the group of age 55~65 differs from the over 75 years old group as well. Furthermore, distinctions in wealth were observed between the 65~75 and over 75-year-old groups. Recognizing the complexity of interpreting the tabulated data, we further annotated the boxplot with the significance letters for better visualization, where different letters imply statistically significant differences in wealth between the respective age groups.
@@ -893,7 +902,7 @@ The topic of billionaires often sparks curiosity about the factors contributing 
 
 ### Model establishment
 
-`net_worth` is regarded as the response variable,`age`, `gender`, `gdp_country`, `life_expectancy_country` and `self_made` are predictors. The reason for choosing these five variables as predictors is that in the available data, these five variables are themselves numerical data or categorical data that can be transformed into indicator variables. Some of the numerical data, such as the country’s CPI and GDP, have a correlation between them and their simultaneous use would lead to the problem of multicollinearity, so only one of them is chosen. Some of the categorical data, such as the country where the millionaire is located and the industry from which the millionaire comes from, have too many categories by themselves, and even if we can transform them into indicator variables for the regression, this would make our model too complicated, which is not conducive to the presentation and interpretation of the results. presentation and interpretation of the results. Meanwhile, for those factors not included in the existing model, we have explored them more in other parts of this website.
+`net_worth` is regarded as the response variable,`age`, `gender`, `gdp_country`, `life_expectancy_country` and `self_made` are predictors. The reason for choosing these five variables as predictors is that in the available data, these five variables are themselves numerical data or categorical data that can be transformed into indicator variables. Some of the numerical data, such as the country's CPI and GDP, have a correlation between them and their simultaneous use would lead to the problem of multicollinearity, so only one of them is chosen. Some of the categorical data, such as the country where the millionaire is located and the industry from which the millionaire comes from, have too many categories by themselves, and even if we can transform them into indicator variables for the regression, this would make our model too complicated, which is not conducive to the presentation and interpretation of the results. presentation and interpretation of the results. Meanwhile, for those factors not included in the existing model, we have explored them more in other parts of this website.
 
 The formula for the multiple linear regression model will be:
 
@@ -924,9 +933,9 @@ lrmodel |>
 
 Among the five predictors used, only `age` and `gdp_country` are significant at the 0.05 significance level.
 
-- The coefficient for age is 0.0485, which suggests that with each additional year of age, a billionaire’s net worth increases by approximately 0.0485 billion, holding other factors constant.
-- The coefficient for country’s gdp is 0.0565 which indicates that a unit increase in the GDP of the country is associated with an increase in net worth by 0.0565 billion, giving other factors fixed.
-- The effectiveness of the model’s fit: Adjusted R-squared value is 0.0057, indicating that only 0.6% of the variance in the net worth of billionaires can be explained by the variables in the model. This suggests that the factors we selected, have limited predictive power for a billionaire’s net worth, there might be other factors that influence a billionaire’s net worth that are not captured in this model.
+- The coefficient for age is 0.0485, which suggests that with each additional year of age, a billionaire's net worth increases by approximately 0.0485 billion, holding other factors constant.
+- The coefficient for country's gdp is 0.0565 which indicates that a unit increase in the GDP of the country is associated with an increase in net worth by 0.0565 billion, giving other factors fixed.
+- The effectiveness of the model's fit: Adjusted R-squared value is 0.0057, indicating that only 0.6% of the variance in the net worth of billionaires can be explained by the variables in the model. This suggests that the factors we selected, have limited predictive power for a billionaire's net worth, there might be other factors that influence a billionaire's net worth that are not captured in this model.
 - Multicollinearity check: Due to the low adjusted R-squared value, we checked for multicollinearity among the indicators by calculating their VIF (Variance Inflation Factor) values. All the indicators have VIF values near 1, indicating no significant correlation between any given indicator and the others. There is no multicollinearity issue in the model. In detail,`age`, `gender`, `gdp_country`, `life_expectancy_country`and `self_made`have VIF values 1.011, 1.141, 1.076, 1.010 and 1.208, respectively.
 
 ### Discussion and limitation
@@ -965,12 +974,12 @@ The analysis of the residual  Q-Q plot, and residuals vs. fitted values suggest 
 
 ### Conclusion
 
-- In this regression session of our entire work, we attempt to use the multiple linear regression to fit the data. The response variable is `net_worth`, and the predictors include `age`, `gender`, `gdp_country`, `life_expectancy_country`and `self_made`. According to the model results, while age and the GDP of a billionaire’s country appear to have a significant association with their net worth, the overall model explains very little of the variation in net worth,i.e.,with a low adjusted R-squared value 0.0057, indicating that there are likely many other factors at play. At the same time, the analysis of residuals shows that the residuals do not have a zero mean and equal variance with several outliers, which violates the assumption of linear regression.
+- In this regression session of our entire work, we attempt to use the multiple linear regression to fit the data. The response variable is `net_worth`, and the predictors include `age`, `gender`, `gdp_country`, `life_expectancy_country`and `self_made`. According to the model results, while age and the GDP of a billionaire's country appear to have a significant association with their net worth, the overall model explains very little of the variation in net worth,i.e.,with a low adjusted R-squared value 0.0057, indicating that there are likely many other factors at play. At the same time, the analysis of residuals shows that the residuals do not have a zero mean and equal variance with several outliers, which violates the assumption of linear regression.
 - In summary, the multiple linear regression model, as configured in our analysis, is not a good way to fit the data and predict the net worth of billionaires. This inadequacy could be attributed to the simplicity of our linear model, suggesting that there are numerous avenues for refinement and enhancement. Additionally, it may be the case that the net worth does not have a linear relationship with the predictors used in our model. Exploring alternative modeling methods that better capture the underlying relationships in the data is a topic for future research.
 
 ## Discussion
 
-In the exploratory analyses, we found that the majority of billionaires possess assets concentrated within the range of $1-5 billion, with few with assets over $100 billion. This is a bit unexpected, as we anticipated a more evenly distributed wealth among billionaires. Looking into the demographic characteristics of billionaires, we found a gap in the number of billionaires in different gender groups: female billionaires are much fewer than male billionaires. This result is similar to what we expected, given the glass ceiling effect that women have encountered; there are many factors preventing women from advancing to higher positions. The billionaires' wealth patterns differ in factors such as age and industry: the average net wealth tends to increase as the age of the group increases, and Finance, Technology, and Manufacturing are the top three industries with the most billionaires in 2023. 
+In the exploratory analyses, we found that the majority of billionaires possess assets concentrated within the range of $1-5 billion, with few with assets over \$100 billion. This is a bit unexpected, as we anticipated a more evenly distributed wealth among billionaires. Looking into the demographic characteristics of billionaires, we found a gap in the number of billionaires in different gender groups: female billionaires are much fewer than male billionaires. This result is similar to what we expected, given the glass ceiling effect that women have encountered; there are many factors preventing women from advancing to higher positions. The billionaires' wealth patterns differ in factors such as age and industry: the average net wealth tends to increase as the age of the group increases, and Finance, Technology, and Manufacturing are the top three industries with the most billionaires in 2023. 
 
 Our examination of billionaires' geographic distribution revealed the United States as the primary residence for the most billionaires, followed by China and the United Kingdom. Zooming in on the USA and China, a comparison of the top 10 billionaires in the two countries indicates a significant wealth disparity, with the top 10 billionaires in the USA possessing greater wealth than their Chinese counterparts. Additionally, GDP trends depict an overall upward trajectory, disrupted by a 2020 downturn in the USA likely linked to the COVID-19 pandemic.
 
